@@ -1,0 +1,111 @@
+{
+  "sources": [
+    {
+      "id": "claude-history",
+      "name": "Claude History",
+      "tier": 1,
+      "type": "claude-history",
+      "enabled": true,
+      "path": "C:\\Users\\r2d2\\.claude\\history.jsonl",
+      "patterns": ["*.jsonl"],
+      "processor": "ClaudeHistorySource"
+    },
+    {
+      "id": "projects",
+      "name": "Projets Actifs",
+      "tier": 1,
+      "type": "directory",
+      "enabled": true,
+      "path": "C:\\Users\\r2d2\\Documents\\Projets",
+      "patterns": ["*.md", "*.ps1", "*.py", "*.json", "*.yaml", "*.yml"],
+      "recursive": true,
+      "processor": "GenericFileSource"
+    },
+    {
+      "id": "knowledge",
+      "name": "Knowledge Vault",
+      "tier": 1,
+      "type": "directory",
+      "enabled": true,
+      "path": "C:\\Users\\r2d2\\Documents\\Knowledge",
+      "patterns": ["*.md"],
+      "recursive": true,
+      "processor": "GenericFileSource",
+      "excludePaths": ["_Templates", "_Archive"]
+    },
+    {
+      "id": "downloads",
+      "name": "Downloads",
+      "tier": 2,
+      "type": "directory",
+      "enabled": true,
+      "path": "C:\\Users\\r2d2\\Downloads",
+      "patterns": ["*.pdf", "*.md", "*.txt", "*.docx"],
+      "recursive": false,
+      "processor": "GenericFileSource"
+    },
+    {
+      "id": "formations",
+      "name": "Formations",
+      "tier": 2,
+      "type": "directory",
+      "enabled": true,
+      "path": "C:\\Users\\r2d2\\Documents\\Formations",
+      "patterns": ["*.md", "*.pdf", "*.txt"],
+      "recursive": true,
+      "processor": "GenericFileSource"
+    },
+    {
+      "id": "browser-bookmarks",
+      "name": "Browser Bookmarks",
+      "tier": 3,
+      "type": "browser-bookmarks",
+      "enabled": true,
+      "browsers": ["chrome", "edge", "firefox"],
+      "processor": "BrowserBookmarksSource"
+    },
+    {
+      "id": "vscode-settings",
+      "name": "VSCode Settings",
+      "tier": 3,
+      "type": "directory",
+      "enabled": false,
+      "path": "C:\\Users\\r2d2\\AppData\\Roaming\\Code\\User",
+      "patterns": ["settings.json", "keybindings.json", "*.code-snippets"],
+      "processor": "GenericFileSource"
+    },
+    {
+      "id": "powershell-scripts",
+      "name": "PowerShell Scripts",
+      "tier": 3,
+      "type": "directory",
+      "enabled": true,
+      "path": "C:\\Users\\r2d2\\Documents\\WindowsPowerShell",
+      "patterns": ["*.ps1", "*.psm1"],
+      "recursive": true,
+      "processor": "GenericFileSource"
+    },
+    {
+      "id": "archives",
+      "name": "Archives",
+      "tier": 4,
+      "type": "directory",
+      "enabled": false,
+      "path": "C:\\Users\\r2d2\\Documents\\Archives",
+      "patterns": ["*.md", "*.txt", "*.pdf"],
+      "recursive": true,
+      "processor": "GenericFileSource"
+    },
+    {
+      "id": "resources",
+      "name": "Resources",
+      "tier": 4,
+      "type": "directory",
+      "enabled": false,
+      "path": "C:\\Users\\r2d2\\Documents\\Resources",
+      "patterns": ["*.md", "*.pdf"],
+      "recursive": true,
+      "processor": "GenericFileSource"
+    }
+  ]
+}

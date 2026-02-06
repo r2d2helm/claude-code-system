@@ -1,0 +1,152 @@
+{
+  "classification": {
+    "rules": [
+      {
+        "id": "conversation",
+        "name": "Conversation Claude",
+        "priority": 100,
+        "conditions": {
+          "any": [
+            { "field": "source", "contains": "history.jsonl" },
+            { "field": "content", "contains": "User:" },
+            { "field": "content", "contains": "Assistant:" },
+            { "field": "content", "contains": "Human:" }
+          ]
+        },
+        "output": {
+          "type": "conversation",
+          "folder": "Conversations",
+          "prefix": "{date}_Conv_",
+          "template": "Template-Conversation.md",
+          "tags": ["conversation", "claude"]
+        }
+      },
+      {
+        "id": "code-powershell",
+        "name": "Code PowerShell",
+        "priority": 90,
+        "conditions": {
+          "any": [
+            { "field": "extension", "equals": ".ps1" },
+            { "field": "extension", "equals": ".psm1" },
+            { "field": "content", "contains": "function " },
+            { "field": "content", "contains": "param(" }
+          ]
+        },
+        "output": {
+          "type": "code",
+          "folder": "Code/PowerShell",
+          "prefix": "{date}_",
+          "template": "Template-Code.md",
+          "tags": ["code", "powershell"]
+        }
+      },
+      {
+        "id": "code-python",
+        "name": "Code Python",
+        "priority": 90,
+        "conditions": {
+          "any": [
+            { "field": "extension", "equals": ".py" },
+            { "field": "content", "contains": "def " },
+            { "field": "content", "contains": "import " }
+          ]
+        },
+        "output": {
+          "type": "code",
+          "folder": "Code/Python",
+          "prefix": "{date}_",
+          "template": "Template-Code.md",
+          "tags": ["code", "python"]
+        }
+      },
+      {
+        "id": "troubleshooting",
+        "name": "Troubleshooting",
+        "priority": 80,
+        "conditions": {
+          "any": [
+            { "field": "content", "containsAny": ["error", "erreur", "Error", "ERROR"] },
+            { "field": "content", "containsAny": ["fix", "fixed", "résolu", "solution"] },
+            { "field": "content", "containsAny": ["debug", "troubleshoot", "issue"] }
+          ]
+        },
+        "output": {
+          "type": "troubleshooting",
+          "folder": "Références/Troubleshooting",
+          "prefix": "{date}_Fix_",
+          "template": "Template-Troubleshooting.md",
+          "tags": ["troubleshooting"]
+        }
+      },
+      {
+        "id": "concept",
+        "name": "Concept",
+        "priority": 70,
+        "conditions": {
+          "any": [
+            { "field": "content", "containsAny": ["pattern", "architecture", "principe"] },
+            { "field": "content", "containsAny": ["concept", "méthode", "approche"] },
+            { "field": "content", "containsAny": ["important", "à retenir", "clé"] }
+          ]
+        },
+        "output": {
+          "type": "concept",
+          "folder": "Concepts",
+          "prefix": "C_",
+          "template": "Template-Concept.md",
+          "tags": ["concept"]
+        }
+      },
+      {
+        "id": "project",
+        "name": "Projet",
+        "priority": 60,
+        "conditions": {
+          "any": [
+            { "field": "path", "contains": "\\Projets\\" },
+            { "field": "path", "contains": "/Projets/" }
+          ]
+        },
+        "output": {
+          "type": "project",
+          "folder": "Projets/{projectName}",
+          "prefix": "{date}_",
+          "template": "Template-Projet.md",
+          "tags": ["projet"]
+        }
+      },
+      {
+        "id": "default",
+        "name": "Default",
+        "priority": 0,
+        "conditions": {
+          "always": true
+        },
+        "output": {
+          "type": "note",
+          "folder": "_Inbox",
+          "prefix": "{date}_",
+          "template": null,
+          "tags": ["inbox"]
+        }
+      }
+    ]
+  },
+  "tagging": {
+    "autoTags": [
+      { "pattern": "proxmox|pve", "tag": "infra/proxmox" },
+      { "pattern": "docker|container", "tag": "infra/docker" },
+      { "pattern": "kubernetes|k8s", "tag": "infra/kubernetes" },
+      { "pattern": "windows|powershell", "tag": "dev/powershell" },
+      { "pattern": "python|pip", "tag": "dev/python" },
+      { "pattern": "javascript|node|npm", "tag": "dev/javascript" },
+      { "pattern": "api|rest|graphql", "tag": "dev/api" },
+      { "pattern": "claude|anthropic|llm|ai", "tag": "ai/claude" },
+      { "pattern": "git|github|gitlab", "tag": "dev/git" },
+      { "pattern": "sql|database|postgres|mysql", "tag": "data/database" },
+      { "pattern": "security|auth|jwt|oauth", "tag": "security" },
+      { "pattern": "automation|script|cron", "tag": "automation" }
+    ]
+  }
+}

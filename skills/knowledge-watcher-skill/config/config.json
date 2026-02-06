@@ -1,0 +1,38 @@
+{
+  "paths": {
+    "obsidianVault": "C:\\Users\\r2d2\\Documents\\Knowledge",
+    "claudeCli": "C:\\Users\\r2d2\\.local\\bin\\claude.exe",
+    "queueFile": "C:\\Users\\r2d2\\.claude\\skills\\knowledge-watcher-skill\\data\\queue.json",
+    "stateFile": "C:\\Users\\r2d2\\.claude\\skills\\knowledge-watcher-skill\\data\\state.json",
+    "logDir": "C:\\Users\\r2d2\\.claude\\skills\\knowledge-watcher-skill\\data\\logs"
+  },
+  "processing": {
+    "claudeTimeout": 30000,
+    "maxFileSize": 1048576,
+    "deduplicationWindow": 86400000,
+    "maxQueueSize": 100,
+    "batchSize": 10
+  },
+  "output": {
+    "defaultFolder": "_Inbox",
+    "updateDailyNote": true,
+    "createBacklinks": true,
+    "language": "fr"
+  },
+  "watchers": {
+    "enabled": true,
+    "debounceMs": 1000,
+    "ignorePatterns": [
+      "*.tmp",
+      "*.bak",
+      "~$*",
+      ".git",
+      "node_modules"
+    ]
+  },
+  "scheduler": {
+    "tier2CronHourly": "0 * * * *",
+    "tier3CronDaily": "0 6 * * *",
+    "tier4CronWeekly": "0 3 * * 0"
+  }
+}

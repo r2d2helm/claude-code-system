@@ -1,0 +1,8 @@
+{
+  "name": "knowledge-skill",
+  "description": "Capture, résume et organise les connaissances extraites des conversations Claude vers Obsidian",
+  "author": {
+    "name": "r2d2",
+    "email": "r2d2@local"
+  }
+}

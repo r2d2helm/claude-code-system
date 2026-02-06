@@ -1,0 +1,41 @@
+# Claude Code runtime & cache
+cache/
+debug/
+file-history/
+history.jsonl
+ide/
+paste-cache/
+plugins/
+shell-snapshots/
+stats-cache.json
+tasks/
+todos/
+
+# Claude Code session data
+projects/
+plans/
+
+# MCP servers (separate repos)
+mcp-servers/
+
+# Settings with potential secrets
+settings.json
+settings.local.json
+.credentials.json
+credentials.json
+*.key
+
+# Temporary files
+*.tmp
+*.bak
+
+# Knowledge Watcher runtime data
+skills/knowledge-watcher-skill/data/queue.json
+skills/knowledge-watcher-skill/data/state.json
+skills/knowledge-watcher-skill/data/notes-index.json
+skills/knowledge-watcher-skill/data/retro-linking-report.json
+skills/knowledge-watcher-skill/data/logs/
+
+# OS files
+Thumbs.db
+.DS_Store
