@@ -13,12 +13,14 @@
 
 Le fichier `~/.claude/skills/SKILL.md` agit comme routeur intelligent. Il analyse chaque requête et active le skill approprié par détection de mots-clés.
 
-### Skills Actifs (7)
+### Skills Actifs (9)
 
 | Skill | Chemin | Description | Commandes |
 |-------|--------|-------------|-----------|
 | **proxmox-skill** | `skills/proxmox-skill/` | Administration Proxmox VE 9+ | `/px-*`, 20 cmd, 11 wizards |
 | **windows-skill** | `skills/windows-skill/` | Administration Windows 11/Server 2025 | `/win-*`, 36 cmd, 10 wizards |
+| **docker-skill** | `skills/docker-skill/` | Administration Docker et conteneurs | `/dk-*`, 10 cmd, 3 wizards |
+| **linux-skill** | `skills/linux-skill/` | Administration serveurs Linux | `/lx-*`, 12 cmd, 3 wizards |
 | **knowledge-skill** | `skills/knowledge-skill/` | Capture et résumé de connaissances | `/know-save`, `/know-search`, `/know-export` |
 | **knowledge-watcher-skill** | `skills/knowledge-watcher-skill/` | Surveillance automatique des sources | `/kwatch-*` (start, stop, status, process, config, logs) |
 | **obsidian-skill** | `skills/obsidian-skill/` | Maintenance vault Obsidian | `/obs-health`, `/obs-links`, `/obs-tags`, `/obs-clean` |
@@ -68,6 +70,7 @@ Knowledge/
 title: "Titre de la note"
 date: YYYY-MM-DD
 type: conversation | concept | daily | troubleshooting | reference | formation
+status: seedling | growing | evergreen
 tags:
   - tag/hierarchique
 related:

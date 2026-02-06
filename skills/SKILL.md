@@ -8,8 +8,8 @@ Orchestrateur intelligent qui détecte automatiquement le contexte de la requêt
 |-------|---------|---------|--------|
 | 🟠 Proxmox | Virtualisation, VMs, Conteneurs LXC, Cluster | `/pve-*` | ✅ Actif |
 | 🔵 Windows | Windows 11, Server 2025, PowerShell, AD | `/win-*` | ✅ Actif |
-| 🐧 Linux | Ubuntu, Debian, systemd, apt | `/linux-*` | ⏳ Prévu |
-| 🐳 Docker | Conteneurs, Compose, Swarm, K8s | `/docker-*` | ⏳ Prévu |
+| 🐳 Docker | Conteneurs, Compose, Images, Volumes | `/dk-*` | ✅ Actif |
+| 🐧 Linux | Ubuntu, Debian, systemd, services | `/lx-*` | ✅ Actif |
 | ☁️ Cloud | AWS, Azure, GCP, Terraform | `/cloud-*` | ⏳ Prévu |
 
 ## Détection Automatique du Contexte
@@ -80,21 +80,35 @@ Orchestrateur intelligent qui détecte automatiquement le contexte de la requêt
 
 **Commandes activées**: `/win-diagnostic`, `/win-network`, `/win-security`, `/win-defender`, `/win-backup`, `/win-users`, `/win-services`, `/win-wizard`
 
-#### 🐳 Docker/Kubernetes (docker-skill) [Prévu]
+#### 🐳 Docker (docker-skill)
 
-**Keywords primaires**:
+**Keywords primaires** (haute confiance):
 - `docker`, `container`, `conteneur docker`, `dockerfile`
 - `compose`, `docker-compose`, `stack`
-- `kubernetes`, `k8s`, `kubectl`, `pod`, `deployment`
-- `helm`, `ingress`, `service mesh`
+- `docker volume`, `docker network`, `docker build`
+- `registry`, `docker image`, `docker prune`
 
-#### 🐧 Linux (linux-skill) [Prévu]
+**Keywords secondaires** (contexte requis):
+- `image`, `volume`, `network` → si contexte Docker
+- `build`, `deploy` → si mention conteneur/compose
+- `logs`, `exec` → si contexte conteneur
 
-**Keywords primaires**:
-- `ubuntu`, `debian`, `centos`, `rhel`, `linux`
+**Commandes activées**: `/dk-ps`, `/dk-images`, `/dk-compose`, `/dk-volume`, `/dk-network`, `/dk-build`, `/dk-logs`, `/dk-exec`, `/dk-prune`, `/dk-stats`
+
+#### 🐧 Linux (linux-skill)
+
+**Keywords primaires** (haute confiance):
+- `ubuntu`, `debian`, `centos`, `rhel`, `rocky`, `linux`
 - `apt`, `yum`, `dnf`, `pacman`
 - `systemd`, `systemctl`, `journalctl`
-- `nginx`, `apache`, `ssh`, `iptables`
+- `nginx`, `apache`, `ssh`, `iptables`, `ufw`
+
+**Keywords secondaires** (contexte requis):
+- `service`, `package` → si contexte Linux
+- `firewall`, `cron` → si contexte serveur Linux
+- `utilisateur`, `groupe` → si contexte Linux/SSH
+
+**Commandes activées**: `/lx-status`, `/lx-services`, `/lx-packages`, `/lx-users`, `/lx-firewall`, `/lx-network`, `/lx-disk`, `/lx-logs`, `/lx-cron`, `/lx-process`, `/lx-security`, `/lx-performance`
 
 #### ☁️ Cloud (cloud-skill) [Prévu]
 
@@ -221,8 +235,14 @@ Chaque réponse indique l'agent actif:
 │   ├── SKILL.md
 │   ├── commands/
 │   └── wizards/
-├── docker-skill/                 [Prévu]
-├── linux-skill/                  [Prévu]
+├── docker-skill/
+│   ├── SKILL.md
+│   ├── commands/
+│   └── wizards/
+├── linux-skill/
+│   ├── SKILL.md
+│   ├── commands/
+│   └── wizards/
 └── cloud-skill/                  [Prévu]
 ```
 
