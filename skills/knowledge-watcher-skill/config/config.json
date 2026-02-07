@@ -7,11 +7,13 @@
     "logDir": "C:\\Users\\r2d2\\.claude\\skills\\knowledge-watcher-skill\\data\\logs"
   },
   "processing": {
-    "claudeTimeout": 30000,
+    "claudeTimeout": 120000,
     "maxFileSize": 1048576,
     "deduplicationWindow": 86400000,
     "maxQueueSize": 100,
-    "batchSize": 10
+    "batchSize": 10,
+    "maxQueueFileSizeMB": 10,
+    "cleanupIntervalHours": 6
   },
   "output": {
     "defaultFolder": "_Inbox",
@@ -21,18 +23,41 @@
   },
   "watchers": {
     "enabled": true,
-    "debounceMs": 1000,
+    "debounceMs": 2000,
     "ignorePatterns": [
       "*.tmp",
       "*.bak",
       "~$*",
       ".git",
-      "node_modules"
+      "node_modules",
+      ".obsidian",
+      "queue*.json",
+      "state.json"
     ]
   },
   "scheduler": {
     "tier2CronHourly": "0 * * * *",
     "tier3CronDaily": "0 6 * * *",
     "tier4CronWeekly": "0 3 * * 0"
+  },
+  "autoLinker": {
+    "enabled": true,
+    "maxLinks": 20,
+    "minTermLength": 5,
+    "cacheTtlMinutes": 5,
+    "excludedTerms": [
+      "solution", "claude", "skill", "para", "note", "notes", "test", "tests",
+      "file", "files", "code", "data", "type", "name", "path", "index", "list",
+      "item", "items", "task", "tasks", "link", "links", "tag", "tags",
+      "date", "time", "user", "config", "error", "debug", "info", "warn",
+      "true", "false", "null", "string", "number", "object", "array",
+      "new", "old", "get", "set", "add", "remove", "update", "delete",
+      "start", "stop", "run", "execute", "process", "create", "build",
+      "input", "output", "result", "value", "key", "id", "status",
+      "readme", "agents", "examples", "support", "prompts", "planning",
+      "architecture", "initial", "setup-instructions", "instructions",
+      "exercise", "fonctionnement", "prompt-templates",
+      "api", "url", "cli", "gui", "sdk", "ide"
+    ]
   }
 }

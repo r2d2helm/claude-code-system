@@ -13,7 +13,7 @@
 
 Le fichier `~/.claude/skills/SKILL.md` agit comme routeur intelligent. Il analyse chaque requête et active le skill approprié par détection de mots-clés.
 
-### Skills Actifs (9)
+### Skills Actifs (10)
 
 | Skill | Chemin | Description | Commandes |
 |-------|--------|-------------|-----------|
@@ -25,17 +25,18 @@ Le fichier `~/.claude/skills/SKILL.md` agit comme routeur intelligent. Il analys
 | **knowledge-watcher-skill** | `skills/knowledge-watcher-skill/` | Surveillance automatique des sources | `/kwatch-*` (start, stop, status, process, config, logs) |
 | **obsidian-skill** | `skills/obsidian-skill/` | Maintenance vault Obsidian | `/obs-health`, `/obs-links`, `/obs-tags`, `/obs-clean` |
 | **fileorg-skill** | `skills/fileorg-skill/` | Organisation fichiers Windows | `/file-organize`, `/file-rename`, `/file-analyze`, `/file-duplicates`, `/file-clean` |
-| **meta-router** | `skills/SKILL.md` + `skills/commands/` | Routage intelligent des requêtes | `/router`, `/agents`, `/context`, `/infra` |
+| **vault-guardian-skill** | `skills/vault-guardian-skill/` | Maintenance proactive automatisée | `/guardian-health`, `/guardian-fix`, `/guardian-report` |
+| **meta-router** | `skills/SKILL.md` + `skills/commands/` | Routage intelligent (10 skills) | `/router`, `/agents`, `/context`, `/infra` |
 
 ### MCP Servers
 
 | Serveur | Transport | Description |
 |---------|-----------|-------------|
-| **knowledge-assistant** | stdio (Python) | Accès au vault Obsidian : search, read, related, stats, tags, backlinks, recent |
+| **knowledge-assistant** | stdio (Python) | Accès au vault Obsidian : search, read, related, stats, tags, backlinks, recent (cache TTL 60s) |
 
 **Config :** `~/.claude.json` -> `mcpServers.knowledge-assistant`
 **Chemin :** `~/.claude/mcp-servers/knowledge-assistant/`
-**Env :** `KNOWLEDGE_VAULT_PATH=C:\Users\r2d2\Documents\Knowledge`
+**Env :** `KNOWLEDGE_VAULT_PATH=C:\Users\r2d2\Documents\Knowledge`, `KNOWLEDGE_CACHE_TTL=60`
 
 ## Structure du Vault Obsidian
 
@@ -115,9 +116,9 @@ Tier 4 (Hebdomadaire): Archives
 ### Maintenance vault
 
 ```
-Quotidien  : /obs-health --quick
-Hebdo      : /obs-clean
-Mensuel    : /obs-health (audit complet) + /obs-backup
+Quotidien  : /guardian-health --quick (ou /obs-health --quick)
+Hebdo      : /guardian-fix + /obs-clean
+Mensuel    : /guardian-report (audit complet) + /obs-backup
 ```
 
 ## Chemins importants

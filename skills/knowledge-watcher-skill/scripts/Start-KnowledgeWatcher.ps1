@@ -86,8 +86,16 @@ function Start-Watchers {
                 $path = $Event.SourceEventArgs.FullPath
                 $changeType = $Event.SourceEventArgs.ChangeType
 
-                # Debounce simple via sleep
-                Start-Sleep -Milliseconds 500
+                # Debounce using configured value
+                $debounce = if ($Event.MessageData.DebounceMs) { $Event.MessageData.DebounceMs } else { 2000 }
+                Start-Sleep -Milliseconds $debounce
+
+                # Skip if file no longer exists (was temporary)
+                if (-not (Test-Path $path)) { return }
+
+                # Skip ignored patterns
+                $fileName = [System.IO.Path]::GetFileName($path)
+                if ($fileName -match '^\~\$|\.tmp$|\.bak$') { return }
 
                 try {
                     . (Join-Path $Event.MessageData.SkillPath "sources\GenericFileSource.ps1")
@@ -96,11 +104,11 @@ function Start-Watchers {
                     Invoke-GenericFileCapture -Path $path -ChangeType $changeType.ToString()
                 }
                 catch {
-                    Write-KWLog -Message "Watcher error: $_" -Level "ERROR"
+                    Write-KWLog -Message "Watcher error for $path : $_" -Level "ERROR"
                 }
             }
 
-            $messageData = @{ SkillPath = $SkillPath; SourceId = $sourceId }
+            $messageData = @{ SkillPath = $SkillPath; SourceId = $sourceId; DebounceMs = $debounceMs }
 
             Register-ObjectEvent -InputObject $watcher -EventName Changed -Action $changedAction -MessageData $messageData | Out-Null
             Register-ObjectEvent -InputObject $watcher -EventName Created -Action $changedAction -MessageData $messageData | Out-Null
@@ -110,19 +118,23 @@ function Start-Watchers {
                 $newPath = $Event.SourceEventArgs.FullPath
                 $oldPath = $Event.SourceEventArgs.OldFullPath
 
-                # Debounce simple via sleep
-                Start-Sleep -Milliseconds 500
+                $debounce = if ($Event.MessageData.DebounceMs) { $Event.MessageData.DebounceMs } else { 2000 }
+                Start-Sleep -Milliseconds $debounce
+
+                if (-not (Test-Path $newPath)) { return }
+
+                $fileName = [System.IO.Path]::GetFileName($newPath)
+                if ($fileName -match '^\~\$|\.tmp$|\.bak$') { return }
 
                 try {
                     . (Join-Path $Event.MessageData.SkillPath "sources\GenericFileSource.ps1")
                     Import-Module (Join-Path $Event.MessageData.SkillPath "scripts\KnowledgeWatcher.psm1") -Force
 
-                    # Utiliser le nouveau chemin après renommage
                     Invoke-GenericFileCapture -Path $newPath -ChangeType "Renamed"
                     Write-KWLog -Message "Renamed: $oldPath -> $newPath" -Level "DEBUG"
                 }
                 catch {
-                    Write-KWLog -Message "Watcher rename error: $_" -Level "ERROR"
+                    Write-KWLog -Message "Watcher rename error for $newPath : $_" -Level "ERROR"
                 }
             }
 
@@ -199,6 +211,15 @@ function Start-Watchers {
     Write-KWLog -Message "Knowledge Watcher started with $($watchers.Count) watchers (PID: $PID)" -Level "INFO"
 
     # Boucle principale
+    $lastCleanup = Get-Date
+    $cleanupIntervalHours = 6
+    try {
+        $cfg = Get-KWConfig
+        if ($cfg.processing.cleanupIntervalHours) {
+            $cleanupIntervalHours = $cfg.processing.cleanupIntervalHours
+        }
+    } catch { }
+
     try {
         while ($true) {
             Start-Sleep -Seconds 60
@@ -208,6 +229,18 @@ function Start-Watchers {
             if ($activeWatchers.Count -eq 0) {
                 Write-KWLog -Message "All watchers stopped unexpectedly" -Level "ERROR"
                 break
+            }
+
+            # Nettoyage périodique queue + hashes
+            if (((Get-Date) - $lastCleanup).TotalHours -ge $cleanupIntervalHours) {
+                try {
+                    Invoke-KWQueueCleanup
+                    Invoke-KWHashCleanup
+                    $lastCleanup = Get-Date
+                    Write-KWLog -Message "Periodic cleanup completed" -Level "INFO"
+                } catch {
+                    Write-KWLog -Message "Periodic cleanup failed: $_" -Level "WARN"
+                }
             }
         }
     }

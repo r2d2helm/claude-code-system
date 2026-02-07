@@ -10,6 +10,11 @@ Orchestrateur intelligent qui détecte automatiquement le contexte de la requêt
 | 🔵 Windows | Windows 11, Server 2025, PowerShell, AD | `/win-*` | ✅ Actif |
 | 🐳 Docker | Conteneurs, Compose, Images, Volumes | `/dk-*` | ✅ Actif |
 | 🐧 Linux | Ubuntu, Debian, systemd, services | `/lx-*` | ✅ Actif |
+| 🗂️ Obsidian | Maintenance vault, liens, tags, santé | `/obs-*` | ✅ Actif |
+| 🧠 Knowledge | Capture, résumé, organisation notes | `/know-*` | ✅ Actif |
+| 🔍 Watcher | Surveillance sources, pipeline, queue | `/kwatch-*` | ✅ Actif |
+| 📁 FileOrg | Organisation fichiers, doublons, tri | `/file-*` | ✅ Actif |
+| 🛡️ Guardian | Maintenance proactive vault, auto-fix | `/guardian-*` | ✅ Actif |
 | ☁️ Cloud | AWS, Azure, GCP, Terraform | `/cloud-*` | ⏳ Prévu |
 
 ## Détection Automatique du Contexte
@@ -44,6 +49,26 @@ Orchestrateur intelligent qui détecte automatiquement le contexte de la requêt
 │  aws|azure|gcp|terraform|ansible|cloud|s3|ec2|lambda           │
 │  │                                                              │
 │  └──→ ☁️ CLOUD-SKILL                                           │
+│                                                                 │
+│  obsidian|vault|liens|orphelines|frontmatter|tags|backup-vault  │
+│  │                                                              │
+│  └──→ 🗂️ OBSIDIAN-SKILL                                        │
+│                                                                 │
+│  know-save|know-search|capture|résumé|zettelkasten|note|pkm    │
+│  │                                                              │
+│  └──→ 🧠 KNOWLEDGE-SKILL                                       │
+│                                                                 │
+│  kwatch|watcher|surveillance|queue|pipeline|sources|tier        │
+│  │                                                              │
+│  └──→ 🔍 KNOWLEDGE-WATCHER-SKILL                               │
+│                                                                 │
+│  file-organize|fichiers|doublons|renommer|dupliqu|downloads     │
+│  │                                                              │
+│  └──→ 📁 FILEORG-SKILL                                         │
+│                                                                 │
+│  vault-guardian|santé|health|maintenance|auto-fix|rapport-vault  │
+│  │                                                              │
+│  └──→ 🛡️ VAULT-GUARDIAN-SKILL                                  │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -107,8 +132,80 @@ Orchestrateur intelligent qui détecte automatiquement le contexte de la requêt
 - `service`, `package` → si contexte Linux
 - `firewall`, `cron` → si contexte serveur Linux
 - `utilisateur`, `groupe` → si contexte Linux/SSH
+- `curl`, `wget`, `git` → si contexte serveur/CLI
 
 **Commandes activées**: `/lx-status`, `/lx-services`, `/lx-packages`, `/lx-users`, `/lx-firewall`, `/lx-network`, `/lx-disk`, `/lx-logs`, `/lx-cron`, `/lx-process`, `/lx-security`, `/lx-performance`
+
+#### 🗂️ Obsidian (obsidian-skill)
+
+**Keywords primaires** (haute confiance):
+- `obsidian`, `vault`, `obs-health`, `obs-clean`, `obs-links`, `obs-tags`
+- `liens cassés`, `broken links`, `orphelines`, `frontmatter`
+- `backup vault`, `wikilinks`, `dataview`
+
+**Keywords secondaires** (contexte requis):
+- `tags`, `liens`, `notes` -> si contexte vault/obsidian
+- `nettoyage`, `maintenance` -> si mention vault
+- `graphe`, `backlinks` -> si contexte notes
+
+**Commandes activées**: `/obs-health`, `/obs-stats`, `/obs-orphans`, `/obs-links`, `/obs-tags`, `/obs-clean`, `/obs-frontmatter`, `/obs-backup`
+
+#### 🧠 Knowledge Capture (knowledge-skill)
+
+**Keywords primaires** (haute confiance):
+- `know-save`, `know-search`, `know-export`, `capture`
+- `zettelkasten`, `second brain`, `pkm`, `résumé conversation`
+- `sauvegarder conversation`, `extraire connaissances`
+
+**Keywords secondaires** (contexte requis):
+- `note`, `concept` -> si contexte capture/sauvegarde
+- `résumé`, `synthèse` -> si mention conversation
+- `index`, `moc` -> si contexte knowledge base
+- `tagging`, `metadata` -> si contexte notes/organisation
+
+**Commandes activées**: `/know-save`, `/know-search`, `/know-export`, `/know-quick`, `/know-list`, `/know-index`
+
+#### 🔍 Knowledge Watcher (knowledge-watcher-skill)
+
+**Keywords primaires** (haute confiance):
+- `kwatch`, `watcher`, `knowledge watcher`, `surveillance`
+- `queue`, `pipeline`, `sources`, `tier`
+- `kwatch-start`, `kwatch-stop`, `kwatch-status`, `kwatch-process`
+
+**Keywords secondaires** (contexte requis):
+- `moniteur`, `automatique` -> si contexte capture
+- `claude history`, `batch` -> si contexte watcher
+- `scheduler`, `tâche planifiée` -> si contexte surveillance
+
+**Commandes activées**: `/kwatch-start`, `/kwatch-stop`, `/kwatch-status`, `/kwatch-process`, `/kwatch-config`, `/kwatch-logs`
+
+#### 📁 File Organization (fileorg-skill)
+
+**Keywords primaires** (haute confiance):
+- `file-organize`, `file-rename`, `file-analyze`, `file-duplicates`
+- `organiser fichiers`, `doublons`, `renommer fichiers`
+- `downloads`, `nettoyage dossier`, `trier fichiers`
+
+**Keywords secondaires** (contexte requis):
+- `fichiers`, `dossier` -> si contexte organisation
+- `dupliqu`, `identique` -> si contexte fichiers
+- `taille`, `ancien` -> si contexte nettoyage
+
+**Commandes activées**: `/file-organize`, `/file-rename`, `/file-analyze`, `/file-duplicates`, `/file-clean`, `/file-structure`, `/file-archive`, `/file-empty`, `/file-large`
+
+#### 🛡️ Vault Guardian (vault-guardian-skill)
+
+**Keywords primaires** (haute confiance):
+- `vault-guardian`, `guardian`, `santé vault`, `health check`
+- `maintenance automatique`, `auto-fix`, `rapport santé`
+- `audit vault`, `surveillance vault`
+
+**Keywords secondaires** (contexte requis):
+- `maintenance`, `santé` -> si contexte vault/obsidian
+- `rapport`, `score` -> si contexte vault health
+- `automatique`, `planifié` -> si contexte maintenance
+
+**Commandes activées**: `/guardian-health`, `/guardian-fix`, `/guardian-report`, `/guardian-schedule`
 
 #### ☁️ Cloud (cloud-skill) [Prévu]
 
@@ -226,24 +323,46 @@ Chaque réponse indique l'agent actif:
 
 ```
 ~/.claude/skills/
-├── SKILL.md                      ← CE FICHIER (Router)
-├── proxmox-skill/
+├── SKILL.md                          ← CE FICHIER (Router)
+├── proxmox-skill/                    ← Infra: Proxmox VE
 │   ├── SKILL.md
 │   ├── commands/
 │   └── wizards/
-├── windows-skill/
+├── windows-skill/                    ← Infra: Windows
 │   ├── SKILL.md
 │   ├── commands/
 │   └── wizards/
-├── docker-skill/
+├── docker-skill/                     ← Infra: Docker
 │   ├── SKILL.md
 │   ├── commands/
 │   └── wizards/
-├── linux-skill/
+├── linux-skill/                      ← Infra: Linux
 │   ├── SKILL.md
 │   ├── commands/
 │   └── wizards/
-└── cloud-skill/                  [Prévu]
+├── obsidian-skill/                   ← Data: Vault maintenance
+│   ├── SKILL.md
+│   ├── commands/
+│   └── wizards/
+├── knowledge-skill/                  ← Data: Capture connaissances
+│   ├── SKILL.md
+│   ├── commands/
+│   └── wizards/
+├── knowledge-watcher-skill/          ← Data: Pipeline automatisé
+│   ├── SKILL.md
+│   ├── config/
+│   ├── scripts/
+│   ├── processors/
+│   └── sources/
+├── fileorg-skill/                    ← Utils: Organisation fichiers
+│   ├── SKILL.md
+│   ├── commands/
+│   └── wizards/
+├── vault-guardian-skill/             ← Data: Maintenance proactive
+│   ├── SKILL.md
+│   ├── commands/
+│   └── scripts/
+└── cloud-skill/                      [Prévu]
 ```
 
 ## Exemples de Routing

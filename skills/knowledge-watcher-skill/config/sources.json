@@ -26,12 +26,13 @@
       "name": "Knowledge Vault",
       "tier": 1,
       "type": "directory",
-      "enabled": true,
+      "enabled": false,
       "path": "C:\\Users\\r2d2\\Documents\\Knowledge",
       "patterns": ["*.md"],
       "recursive": true,
       "processor": "GenericFileSource",
-      "excludePaths": ["_Templates", "_Archive"]
+      "excludePaths": ["_Templates", "_Archive", "_Daily", "_Index", "Conversations", "Concepts"],
+      "_comment": "DISABLED: vault watching itself creates infinite loop. Only re-enable with proper exclusion of output folders."
     },
     {
       "id": "downloads",

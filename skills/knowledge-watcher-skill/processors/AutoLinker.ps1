@@ -20,24 +20,37 @@ Import-Module (Join-Path $script:SkillPath "scripts\KnowledgeWatcher.psm1") -For
 $script:NotesIndex = $null
 $script:IndexLoadedAt = $null
 
-# Termes à exclure (trop génériques ou courts)
-$script:ExcludedTerms = @(
-    # Termes génériques de programmation
-    "solution", "claude", "skill", "para", "note", "notes", "test", "tests",
-    "file", "files", "code", "data", "type", "name", "path", "index", "list",
-    "item", "items", "task", "tasks", "link", "links", "tag", "tags",
-    "date", "time", "user", "config", "error", "debug", "info", "warn",
-    "true", "false", "null", "string", "number", "object", "array",
-    "new", "old", "get", "set", "add", "remove", "update", "delete",
-    "start", "stop", "run", "execute", "process", "create", "build",
-    "input", "output", "result", "value", "key", "id", "status",
-    # Termes de documentation
-    "readme", "agents", "examples", "support", "prompts", "planning",
-    "architecture", "initial", "setup-instructions", "instructions",
-    "exercise", "fonctionnement", "prompt-templates",
-    # Termes courts courants
-    "api", "url", "cli", "gui", "sdk", "ide"
-)
+# Termes à exclure - chargés depuis config.json si disponible, sinon fallback hardcodé
+$script:ExcludedTerms = $null
+
+function Get-ExcludedTerms {
+    if ($null -ne $script:ExcludedTerms) { return $script:ExcludedTerms }
+
+    try {
+        $config = Get-KWConfig
+        if ($config.autoLinker -and $config.autoLinker.excludedTerms) {
+            $script:ExcludedTerms = @($config.autoLinker.excludedTerms)
+            return $script:ExcludedTerms
+        }
+    } catch { }
+
+    # Fallback hardcodé
+    $script:ExcludedTerms = @(
+        "solution", "claude", "skill", "para", "note", "notes", "test", "tests",
+        "file", "files", "code", "data", "type", "name", "path", "index", "list",
+        "item", "items", "task", "tasks", "link", "links", "tag", "tags",
+        "date", "time", "user", "config", "error", "debug", "info", "warn",
+        "true", "false", "null", "string", "number", "object", "array",
+        "new", "old", "get", "set", "add", "remove", "update", "delete",
+        "start", "stop", "run", "execute", "process", "create", "build",
+        "input", "output", "result", "value", "key", "id", "status",
+        "readme", "agents", "examples", "support", "prompts", "planning",
+        "architecture", "initial", "setup-instructions", "instructions",
+        "exercise", "fonctionnement", "prompt-templates",
+        "api", "url", "cli", "gui", "sdk", "ide"
+    )
+    return $script:ExcludedTerms
+}
 
 function Get-NotesIndex {
     <#
@@ -54,9 +67,16 @@ function Get-NotesIndex {
         & (Join-Path $script:SkillPath "scripts\Build-NotesIndex.ps1")
     }
 
-    # Vérifier le cache (5 minutes)
+    # Vérifier le cache (configurable, défaut 5 minutes)
+    $cacheTtl = 5
+    try {
+        $cfg = Get-KWConfig
+        if ($cfg.autoLinker -and $cfg.autoLinker.cacheTtlMinutes) {
+            $cacheTtl = $cfg.autoLinker.cacheTtlMinutes
+        }
+    } catch { }
     $cacheValid = $script:NotesIndex -and $script:IndexLoadedAt -and `
-        ((Get-Date) - $script:IndexLoadedAt).TotalMinutes -lt 5
+        ((Get-Date) - $script:IndexLoadedAt).TotalMinutes -lt $cacheTtl
 
     if ($cacheValid -and -not $ForceReload) {
         return $script:NotesIndex
@@ -249,7 +269,8 @@ function Invoke-AutoLink {
         $originalTerm = $termData.original
 
         # Vérifier la liste d'exclusions
-        if ($termLower -in $script:ExcludedTerms) {
+        $excluded = Get-ExcludedTerms
+        if ($termLower -in $excluded) {
             continue
         }
 
@@ -547,6 +568,148 @@ function Invoke-AutoLinkWithAI {
     }
 }
 
+function Invoke-BatchAutoLink {
+    <#
+    .SYNOPSIS
+        Batch auto-linking for multiple notes (especially orphans)
+    .PARAMETER VaultPath
+        Path to the vault
+    .PARAMETER TargetFolder
+        Limit to a specific folder (e.g. "Concepts", "Conversations")
+    .PARAMETER OrphansOnly
+        Only process notes with no outgoing links
+    .PARAMETER DryRun
+        Preview changes without modifying files
+    .PARAMETER MaxNotes
+        Maximum notes to process (default: 50)
+    #>
+    [CmdletBinding()]
+    param(
+        [string]$VaultPath = 'C:\Users\r2d2\Documents\Knowledge',
+        [string]$TargetFolder = "",
+        [switch]$OrphansOnly,
+        [switch]$DryRun,
+        [int]$MaxNotes = 50
+    )
+
+    $utf8 = New-Object System.Text.UTF8Encoding($false)
+    $index = Get-NotesIndex -ForceReload
+    $results = @()
+    $totalLinksAdded = 0
+
+    $searchPath = $VaultPath
+    if ($TargetFolder) { $searchPath = Join-Path $VaultPath $TargetFolder }
+
+    $files = Get-ChildItem $searchPath -Recurse -Filter '*.md' -File |
+        Where-Object { $_.FullName -notmatch '[\\/]_Templates[\\/]|[\\/]\.obsidian[\\/]' }
+
+    $processed = 0
+    foreach ($file in $files) {
+        if ($processed -ge $MaxNotes) { break }
+
+        try {
+            $content = [System.IO.File]::ReadAllText($file.FullName, $utf8)
+        } catch { continue }
+
+        if ([string]::IsNullOrWhiteSpace($content)) { continue }
+
+        # If OrphansOnly, skip notes that already have outgoing links
+        if ($OrphansOnly) {
+            $existingLinks = [regex]::Matches($content, '\[\[([^\]]+)\]\]')
+            if ($existingLinks.Count -gt 0) { continue }
+        }
+
+        $result = Invoke-AutoLink -Content $content -NotePath $file.FullName
+        if ($result.LinkCount -gt 0) {
+            $processed++
+            $totalLinksAdded += $result.LinkCount
+
+            $relPath = $file.FullName.Substring($VaultPath.Length + 1)
+            Write-Host "  $relPath : +$($result.LinkCount) liens ($($result.LinksAdded -join ', '))" -ForegroundColor Cyan
+
+            $results += @{
+                File = $relPath
+                LinksAdded = $result.LinksAdded
+                Count = $result.LinkCount
+            }
+
+            if (-not $DryRun) {
+                [System.IO.File]::WriteAllText($file.FullName, $result.Content, $utf8)
+            }
+        }
+    }
+
+    Write-Host ""
+    Write-Host "Batch auto-link complete:" -ForegroundColor Green
+    Write-Host "  Notes processed: $processed"
+    Write-Host "  Total links added: $totalLinksAdded"
+    if ($DryRun) { Write-Host "  (DRY RUN - no files modified)" -ForegroundColor Yellow }
+
+    return [PSCustomObject]@{
+        NotesProcessed = $processed
+        TotalLinksAdded = $totalLinksAdded
+        Details = $results
+    }
+}
+
+function Get-LinkSuggestionReport {
+    <#
+    .SYNOPSIS
+        Generate a report of potential links that could be added across the vault
+    .PARAMETER VaultPath
+        Path to the vault
+    .PARAMETER MaxSuggestions
+        Maximum suggestions to return (default: 30)
+    #>
+    [CmdletBinding()]
+    param(
+        [string]$VaultPath = 'C:\Users\r2d2\Documents\Knowledge',
+        [int]$MaxSuggestions = 30
+    )
+
+    $utf8 = New-Object System.Text.UTF8Encoding($false)
+    $index = Get-NotesIndex -ForceReload
+    $suggestions = @()
+
+    $files = Get-ChildItem $VaultPath -Recurse -Filter '*.md' -File |
+        Where-Object { $_.FullName -notmatch '[\\/]_Templates[\\/]|[\\/]\.obsidian[\\/]|[\\/]Formations[\\/]' }
+
+    foreach ($file in $files) {
+        if ($suggestions.Count -ge $MaxSuggestions) { break }
+
+        try {
+            $content = [System.IO.File]::ReadAllText($file.FullName, $utf8)
+        } catch { continue }
+
+        if ([string]::IsNullOrWhiteSpace($content)) { continue }
+
+        $result = Invoke-AutoLink -Content $content -NotePath $file.FullName
+        if ($result.LinkCount -gt 0) {
+            $relPath = $file.FullName.Substring($VaultPath.Length + 1)
+            foreach ($link in $result.LinksAdded) {
+                $suggestions += @{
+                    Source = $relPath
+                    SuggestedLink = $link
+                }
+            }
+        }
+    }
+
+    Write-Host "=== LINK SUGGESTION REPORT ===" -ForegroundColor Cyan
+    Write-Host "Total suggestions: $($suggestions.Count)"
+    Write-Host ""
+
+    $grouped = $suggestions | Group-Object { $_.Source }
+    foreach ($group in $grouped) {
+        Write-Host "  $($group.Name):" -ForegroundColor Yellow
+        foreach ($s in $group.Group) {
+            Write-Host "    -> [[$($s.SuggestedLink)]]" -ForegroundColor Gray
+        }
+    }
+
+    return $suggestions
+}
+
 # Functions exported via dot-sourcing:
 # - Get-NotesIndex
 # - Invoke-AutoLink
@@ -556,3 +719,6 @@ function Invoke-AutoLinkWithAI {
 # - Remove-Diacritics
 # - Get-FuzzyVariants
 # - Build-FuzzyPattern
+# - Invoke-BatchAutoLink
+# - Get-LinkSuggestionReport
+# - Get-ExcludedTerms

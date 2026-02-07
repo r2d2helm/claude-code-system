@@ -279,10 +279,30 @@ function Add-KWQueueItem {
 
         $queue = Get-KWQueue
 
-        # Vérifier limite de queue
+        # Vérifier limite de queue - cleanup avant d'ajouter
         if ($queue.items.Count -ge $config.processing.maxQueueSize) {
-            Write-Warning "Queue full ($($config.processing.maxQueueSize) items). Dropping oldest item."
-            $queue.items = $queue.items | Select-Object -Skip 1
+            Write-KWLog -Message "Queue full, triggering cleanup before adding" -Level "INFO"
+            # Release mutex temporarily for cleanup
+            $mutex.ReleaseMutex()
+            Invoke-KWQueueCleanup
+            Invoke-KWHashCleanup
+            $mutex.WaitOne() | Out-Null
+            # Reload queue after cleanup
+            $queue = Get-KWQueue
+            # If still full after cleanup, drop oldest
+            if ($queue.items.Count -ge $config.processing.maxQueueSize) {
+                $queue.items = $queue.items | Select-Object -Skip 1
+            }
+        }
+
+        # Safety check: if queue file exceeds 10MB, force cleanup
+        $queueFile2 = Join-Path $script:DataPath "queue.json"
+        if ((Test-Path $queueFile2) -and (Get-Item $queueFile2).Length -gt 10MB) {
+            Write-KWLog -Message "Queue file exceeds 10MB safety limit, forcing cleanup" -Level "WARN"
+            $mutex.ReleaseMutex()
+            Invoke-KWQueueCleanup
+            $mutex.WaitOne() | Out-Null
+            $queue = Get-KWQueue
         }
 
         $item = [PSCustomObject]@{
@@ -324,6 +344,157 @@ function Get-KWContentHash {
     $sha256 = [System.Security.Cryptography.SHA256]::Create()
     $hashBytes = $sha256.ComputeHash($bytes)
     return [BitConverter]::ToString($hashBytes) -replace '-', ''
+}
+
+#endregion
+
+#region Queue Maintenance
+
+function Invoke-KWQueueCleanup {
+    <#
+    .SYNOPSIS
+        Archive completed/error items and trim the queue to prevent bloat
+    .DESCRIPTION
+        Moves completed and error items to a monthly archive file,
+        cleans old hashes from state, and keeps queue.json small.
+    .PARAMETER MaxAgeDays
+        Archive items older than this (default: 7)
+    .PARAMETER MaxQueueItems
+        Keep at most this many items in active queue (default: 100)
+    #>
+    [CmdletBinding()]
+    param(
+        [int]$MaxAgeDays = 7,
+        [int]$MaxQueueItems = 100
+    )
+
+    $mutex = [System.Threading.Mutex]::new($false, $script:MutexName)
+    try {
+        $mutex.WaitOne() | Out-Null
+
+        $queueFile = Join-Path $script:DataPath "queue.json"
+        if (-not (Test-Path $queueFile)) { return }
+
+        # Check file size first - if over 50MB, something is wrong
+        $fileSize = (Get-Item $queueFile).Length
+        if ($fileSize -gt 50MB) {
+            Write-KWLog -Message "Queue file too large ($([math]::Round($fileSize/1MB,1)) MB), resetting" -Level "WARN"
+            $freshQueue = @{
+                items = @()
+                lastProcessed = $null
+                stats = @{ totalCaptured = 0; totalProcessed = 0; totalErrors = 0 }
+                maintenance = @{
+                    lastCleanup = (Get-Date).ToString("o")
+                    archivedItems = 0
+                    resetReason = "Queue exceeded 50MB safety limit"
+                }
+            }
+            $jsonContent = $freshQueue | ConvertTo-Json -Depth 10
+            Write-Utf8File -Path $queueFile -Content $jsonContent
+            return
+        }
+
+        $queue = Get-Content $queueFile -Raw | ConvertFrom-Json
+        $cutoff = (Get-Date).AddDays(-$MaxAgeDays).ToString("o")
+
+        # Separate items to archive vs keep
+        $toArchive = @()
+        $toKeep = @()
+
+        foreach ($item in $queue.items) {
+            if ($item.status -in @("completed", "error") -or
+                ($item.capturedAt -and $item.capturedAt -lt $cutoff)) {
+                $toArchive += $item
+            } else {
+                $toKeep += $item
+            }
+        }
+
+        # Archive to monthly file
+        if ($toArchive.Count -gt 0) {
+            $archiveMonth = Get-Date -Format "yyyy-MM"
+            $archiveFile = Join-Path $script:DataPath "queue-archive-$archiveMonth.json"
+
+            $existingArchive = @()
+            if (Test-Path $archiveFile) {
+                try {
+                    $existingArchive = @((Get-Content $archiveFile -Raw | ConvertFrom-Json))
+                } catch { $existingArchive = @() }
+            }
+            $allArchived = $existingArchive + $toArchive
+            $archiveJson = $allArchived | ConvertTo-Json -Depth 10
+            Write-Utf8File -Path $archiveFile -Content $archiveJson
+
+            Write-KWLog -Message "Archived $($toArchive.Count) queue items to $archiveFile" -Level "INFO"
+        }
+
+        # Trim if still too many
+        if ($toKeep.Count -gt $MaxQueueItems) {
+            $toKeep = $toKeep | Select-Object -Last $MaxQueueItems
+        }
+
+        # Update queue
+        $queue.items = $toKeep
+        if (-not $queue.maintenance) {
+            $queue | Add-Member -NotePropertyName "maintenance" -NotePropertyValue @{} -Force
+        }
+        $queue.maintenance = @{
+            lastCleanup = (Get-Date).ToString("o")
+            archivedItems = $toArchive.Count
+        }
+
+        $jsonContent = $queue | ConvertTo-Json -Depth 10
+        Write-Utf8File -Path $queueFile -Content $jsonContent
+
+        Write-KWLog -Message "Queue cleanup: kept $($toKeep.Count), archived $($toArchive.Count)" -Level "INFO"
+    }
+    finally {
+        $mutex.ReleaseMutex()
+    }
+}
+
+function Invoke-KWHashCleanup {
+    <#
+    .SYNOPSIS
+        Remove expired hashes from state.json to prevent unbounded growth
+    .PARAMETER MaxAgeMs
+        Remove hashes older than this (default: deduplicationWindow from config, or 24h)
+    #>
+    [CmdletBinding()]
+    param(
+        [long]$MaxAgeMs = 0
+    )
+
+    $state = Get-KWState
+    if (-not $state.hashes) { return }
+
+    if ($MaxAgeMs -eq 0) {
+        try {
+            $config = Get-KWConfig
+            $MaxAgeMs = $config.processing.deduplicationWindow
+        } catch {
+            $MaxAgeMs = 86400000  # 24h default
+        }
+    }
+
+    $now = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+    $cleanHashes = @{}
+    $removed = 0
+
+    foreach ($prop in $state.hashes.PSObject.Properties) {
+        $lastSeen = [long]$prop.Value
+        if (($now - $lastSeen) -lt $MaxAgeMs) {
+            $cleanHashes[$prop.Name] = $prop.Value
+        } else {
+            $removed++
+        }
+    }
+
+    if ($removed -gt 0) {
+        $state.hashes = [PSCustomObject]$cleanHashes
+        Save-KWState -State $state
+        Write-KWLog -Message "Hash cleanup: removed $removed expired hashes, kept $($cleanHashes.Count)" -Level "INFO"
+    }
 }
 
 #endregion
@@ -546,6 +717,9 @@ Export-ModuleMember -Function @(
     'Save-KWQueue',
     'Add-KWQueueItem',
     'Get-KWContentHash',
+    # Queue Maintenance
+    'Invoke-KWQueueCleanup',
+    'Invoke-KWHashCleanup',
     # Logging
     'Write-KWLog',
     # Status Functions
