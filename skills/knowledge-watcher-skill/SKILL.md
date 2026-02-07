@@ -127,7 +127,54 @@ Cet agent fonctionne en mode hybride : surveillance temps réel pour les sources
 
 ## Prérequis
 
+### Windows
 - Windows 11/Server 2025
 - PowerShell 7.4+
 - Claude CLI installé
 - Obsidian vault configuré
+
+### Linux
+- Ubuntu 20.04+ / Debian 11+
+- inotify-tools (`sudo apt install inotify-tools`)
+- jq (`sudo apt install jq`)
+- bc (généralement pré-installé)
+- Claude CLI installé
+- Obsidian vault configuré
+
+## Scripts Linux
+
+Équivalents bash des scripts PowerShell pour Linux :
+
+| Script PowerShell | Script Bash | Description |
+|-------------------|-------------|-------------|
+| `Start-KnowledgeWatcher.ps1` | `start-knowledge-watcher.sh` | Démarre les watchers avec inotifywait |
+| `Stop-KnowledgeWatcher.ps1` | `stop-knowledge-watcher.sh` | Arrête les watchers |
+| `Build-NotesIndex.ps1` | `build-notes-index.sh` | Construit l'index des notes |
+
+### Utilisation Linux
+
+```bash
+# Démarrer le watcher (foreground)
+./scripts/start-knowledge-watcher.sh
+
+# Démarrer en arrière-plan
+./scripts/start-knowledge-watcher.sh --background
+
+# Arrêter le watcher
+./scripts/stop-knowledge-watcher.sh
+
+# Construire l'index
+./scripts/build-notes-index.sh [vault_path] [output_path]
+```
+
+### Tâches Planifiées Linux (Crontab)
+
+Les tâches planifiées Windows Task Scheduler sont documentées dans `scripts/crontab-linux.md` avec les entrées crontab équivalentes :
+
+| Tier | Windows Task Scheduler | Linux Crontab |
+|------|------------------------|---------------|
+| Tier 2 (Hourly) | `KnowledgeWatcher-Tier2-Hourly.ps1` | `0 * * * *` |
+| Tier 3 (Daily 6h) | `KnowledgeWatcher-Tier3-Daily.ps1` | `0 6 * * *` |
+| Tier 4 (Weekly dim 3h) | `KnowledgeWatcher-Tier4-Weekly.ps1` | `0 3 * * 0` |
+
+Voir `scripts/crontab-linux.md` pour les instructions d'installation complètes.

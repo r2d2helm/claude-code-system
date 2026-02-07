@@ -61,3 +61,53 @@ C:\Users\r2d2\Documents\Knowledge
 - Status : seedling | growing | evergreen
 - Tags hierarchiques : domaine/sous-domaine
 - Nommage : C_ (concepts), YYYY-MM-DD_Conv_ (conversations), YYYY-MM-DD (daily)
+
+## Scripts
+
+### Windows (PowerShell)
+
+```powershell
+# Health check
+.\scripts\Invoke-VaultGuardian.ps1 -Mode health
+
+# Auto-fix
+.\scripts\Invoke-VaultGuardian.ps1 -Mode fix
+
+# Rapport complet
+.\scripts\Invoke-VaultGuardian.ps1 -Mode report
+
+# Check rapide
+.\scripts\Invoke-VaultGuardian.ps1 -Mode quick
+```
+
+### Linux (Bash)
+
+Equivalent bash disponible dans `scripts/invoke-vault-guardian.sh` :
+
+```bash
+# Health check
+./scripts/invoke-vault-guardian.sh health
+
+# Auto-fix
+./scripts/invoke-vault-guardian.sh fix
+
+# Rapport complet
+./scripts/invoke-vault-guardian.sh report
+
+# Check rapide
+./scripts/invoke-vault-guardian.sh quick
+```
+
+#### Prerequis Linux
+
+- jq (`sudo apt install jq`)
+- bc (generalement pre-installe)
+- Vault Obsidian accessible
+
+#### Variable d'environnement
+
+```bash
+# Definir le chemin du vault (optionnel, sinon lit depuis config)
+export VAULT_PATH="/chemin/vers/vault"
+./scripts/invoke-vault-guardian.sh health
+```
