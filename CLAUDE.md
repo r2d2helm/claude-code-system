@@ -55,23 +55,23 @@ Système de planification structurée inspiré du Context Engineering :
 **Chemin :** `~/.claude/PRPs/`
 **Workflow :** `INITIAL.md` → `/generate-prp` → PRP complet → `/execute-prp` → Code validé
 
-### Skills Actifs (13)
+### Skills (12 actifs + meta-router)
 
 | Skill | Chemin | Description | Commandes |
 |-------|--------|-------------|-----------|
-| **proxmox-skill** | `skills/proxmox-skill/` | Administration Proxmox VE 9+ | `/px-*`, 20 cmd, 11 wizards |
-| **windows-skill** | `skills/windows-skill/` | Administration Windows 11/Server 2025 | `/win-*`, 36 cmd, 10 wizards |
+| **proxmox-skill** | `skills/proxmox-skill/` | Administration Proxmox VE 9+ | `/pve-*`, 22 cmd, 11 wizards |
+| **windows-skill** | `skills/windows-skill/` | Administration Windows 11/Server 2025 | `/win-*`, 37 cmd, 10 wizards |
 | **docker-skill** | `skills/docker-skill/` | Administration Docker et conteneurs | `/dk-*`, 10 cmd, 3 wizards |
 | **linux-skill** | `skills/linux-skill/` | Administration serveurs Linux | `/lx-*`, 12 cmd, 3 wizards |
-| **knowledge-skill** | `skills/knowledge-skill/` | Capture et résumé de connaissances | `/know-save`, `/know-search`, `/know-export` |
-| **knowledge-watcher-skill** | `skills/knowledge-watcher-skill/` | Surveillance automatique des sources | `/kwatch-*` (start, stop, status, process, config, logs) |
-| **obsidian-skill** | `skills/obsidian-skill/` | Maintenance vault Obsidian | `/obs-health`, `/obs-links`, `/obs-tags`, `/obs-clean` |
-| **fileorg-skill** | `skills/fileorg-skill/` | Organisation fichiers Windows | `/file-organize`, `/file-rename`, `/file-analyze`, `/file-duplicates`, `/file-clean` |
-| **vault-guardian-skill** | `skills/vault-guardian-skill/` | Maintenance proactive automatisée | `/guardian-health`, `/guardian-fix`, `/guardian-report` |
-| **qelectrotech-skill** | `skills/qelectrotech-skill/` | Plans électriques QElectroTech | `/qet-*`, 35 cmd, 9 wizards |
-| **sop-creator** | `skills/sop-creator/` | Runbooks, SOPs, documentation opérationnelle | `/sop-create`, 6 templates |
-| **skill-creator** | `skills/skill-creator/` | Création et validation de skills Claude Code | `/skill-create`, scripts init/validate |
-| **meta-router** | `skills/SKILL.md` + `skills/commands/` | Routage intelligent (12 skills) | `/router`, `/agents`, `/context`, `/infra` |
+| **knowledge-skill** | `skills/knowledge-skill/` | Capture et résumé de connaissances | `/know-*`, 3 cmd, 1 wizard |
+| **knowledge-watcher-skill** | `skills/knowledge-watcher-skill/` | Surveillance automatique des sources | `/kwatch-*`, 6 cmd, 2 wizards |
+| **obsidian-skill** | `skills/obsidian-skill/` | Maintenance vault Obsidian | `/obs-*`, 8 cmd, 1 wizard |
+| **fileorg-skill** | `skills/fileorg-skill/` | Organisation fichiers Windows | `/file-*`, 9 cmd, 2 wizards |
+| **vault-guardian-skill** | `skills/vault-guardian-skill/` | Maintenance proactive automatisée | `/guardian-*`, 3 cmd |
+| **qelectrotech-skill** | `skills/qelectrotech-skill/` | Plans électriques QElectroTech | `/qet-*`, 42 cmd, 9 wizards |
+| **sop-creator** | `skills/sop-creator/` | Runbooks, SOPs, documentation opérationnelle | `/sop-*`, 1 cmd, 6 templates |
+| **skill-creator** | `skills/skill-creator/` | Création et validation de skills Claude Code | `/skill-*`, 1 cmd |
+| **meta-router** | `skills/SKILL.md` + `skills/commands/` | Routage intelligent des 12 skills | `/router`, `/agents`, `/context`, `/infra` |
 
 ### MCP Servers
 
