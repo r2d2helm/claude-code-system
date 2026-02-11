@@ -160,7 +160,7 @@ Certains keywords secondaires sont partagés entre skills. Appliquer ces règles
 - `build`, `deploy` → si mention conteneur/compose
 - `logs`, `exec` → si contexte conteneur
 
-**Commandes activées**: `/dk-ps`, `/dk-images`, `/dk-compose`, `/dk-volume`, `/dk-network`, `/dk-build`, `/dk-logs`, `/dk-exec`, `/dk-prune`, `/dk-stats`
+**Commandes activées** (13): `/dk-ps`, `/dk-images`, `/dk-compose`, `/dk-volume`, `/dk-network`, `/dk-build`, `/dk-logs`, `/dk-exec`, `/dk-prune`, `/dk-stats`, `/dk-registry`, `/dk-swarm`, `/dk-security`
 
 #### 🐧 Linux (linux-skill)
 
@@ -176,7 +176,7 @@ Certains keywords secondaires sont partagés entre skills. Appliquer ces règles
 - `utilisateur`, `groupe` → si contexte Linux/SSH
 - `curl`, `wget`, `git` → si contexte serveur/CLI
 
-**Commandes activées**: `/lx-status`, `/lx-services`, `/lx-packages`, `/lx-users`, `/lx-firewall`, `/lx-network`, `/lx-disk`, `/lx-logs`, `/lx-cron`, `/lx-process`, `/lx-security`, `/lx-performance`
+**Commandes activées** (17): `/lx-status`, `/lx-services`, `/lx-packages`, `/lx-users`, `/lx-firewall`, `/lx-network`, `/lx-disk`, `/lx-logs`, `/lx-cron`, `/lx-process`, `/lx-security`, `/lx-performance`, `/lx-backup`, `/lx-ssh`, `/lx-dns`, `/lx-nginx`, `/lx-certbot`
 
 #### 🗂️ Obsidian (obsidian-skill)
 
@@ -190,7 +190,7 @@ Certains keywords secondaires sont partagés entre skills. Appliquer ces règles
 - `nettoyage`, `maintenance` -> si mention vault
 - `graphe`, `backlinks` -> si contexte notes
 
-**Commandes activées**: `/obs-health`, `/obs-stats`, `/obs-orphans`, `/obs-links`, `/obs-tags`, `/obs-clean`, `/obs-frontmatter`, `/obs-backup`
+**Commandes activées** (31): `/obs-health`, `/obs-stats`, `/obs-orphans`, `/obs-links`, `/obs-tags`, `/obs-clean`, `/obs-frontmatter`, `/obs-backup`, `/obs-graph`, `/obs-links-unlinked`, `/obs-links-suggest`, `/obs-links-fix`, `/obs-tags-unused`, `/obs-tags-rename`, `/obs-tags-merge`, `/obs-tags-hierarchy`, `/obs-structure`, `/obs-move`, `/obs-rename`, `/obs-templates`, `/obs-duplicates`, `/obs-attachments`, `/obs-empty`, `/obs-export`, `/obs-sync`, `/obs-config`, `/obs-plugins`, `/obs-hotkeys`, `/obs-wizard-audit`, `/obs-wizard-cleanup`, `/obs-wizard-reorganize`
 
 #### 🧠 Knowledge Capture (knowledge-skill)
 
@@ -233,7 +233,7 @@ Certains keywords secondaires sont partagés entre skills. Appliquer ces règles
 - `dupliqu`, `identique` -> si contexte fichiers
 - `taille`, `ancien` -> si contexte nettoyage
 
-**Commandes activées**: `/file-organize`, `/file-rename`, `/file-analyze`, `/file-duplicates`, `/file-clean`, `/file-structure`, `/file-archive`, `/file-empty`, `/file-large`
+**Commandes activées** (21): `/file-organize`, `/file-rename`, `/file-analyze`, `/file-duplicates`, `/file-clean`, `/file-structure`, `/file-archive`, `/file-empty`, `/file-large`, `/file-sort`, `/file-flatten`, `/file-prefix`, `/file-normalize`, `/file-version`, `/file-audit`, `/file-old`, `/file-trash`, `/file-backup`, `/file-sync`, `/file-mirror`, `/file-wizard`
 
 #### 🛡️ Vault Guardian (vault-guardian-skill)
 
@@ -414,100 +414,25 @@ Chaque réponse indique l'agent actif:
 
 ```
 ~/.claude/skills/
-├── SKILL.md                          ← CE FICHIER (Router)
-├── proxmox-skill/                    ← Infra: Proxmox VE
-│   ├── SKILL.md
-│   ├── commands/
-│   └── wizards/
-├── windows-skill/                    ← Infra: Windows
-│   ├── SKILL.md
-│   ├── commands/
-│   └── wizards/
-├── docker-skill/                     ← Infra: Docker
-│   ├── SKILL.md
-│   ├── commands/
-│   └── wizards/
-├── linux-skill/                      ← Infra: Linux
-│   ├── SKILL.md
-│   ├── commands/
-│   └── wizards/
-├── obsidian-skill/                   ← Data: Vault maintenance
-│   ├── SKILL.md
-│   ├── commands/
-│   └── wizards/
-├── knowledge-skill/                  ← Data: Capture connaissances
-│   ├── SKILL.md
-│   ├── commands/
-│   └── wizards/
-├── knowledge-watcher-skill/          ← Data: Pipeline automatisé
-│   ├── SKILL.md
-│   ├── config/
-│   ├── scripts/
-│   ├── processors/
-│   └── sources/
-├── fileorg-skill/                    ← Utils: Organisation fichiers
-│   ├── SKILL.md
-│   ├── commands/
-│   └── wizards/
-├── vault-guardian-skill/             ← Data: Maintenance proactive
-│   ├── SKILL.md
-│   ├── commands/
-│   └── scripts/
-├── qelectrotech-skill/              ← CAO: Plans électriques
-│   ├── SKILL.md
-│   ├── commands/                    (35 commandes)
-│   ├── wizards/                     (9 wizards)
-│   └── templates/                   (4 templates XML)
-├── sop-creator/                     ← Docs: SOPs et runbooks
-│   ├── SKILL.md
-│   ├── commands/
-│   └── references/                  (6 templates)
-├── skill-creator/                   ← Meta: Création de skills
-│   ├── SKILL.md
-│   ├── commands/
-│   ├── scripts/                     (init, validate)
-│   └── references/
-└── cloud-skill/                      [Prévu]
+├── SKILL.md              ← CE FICHIER (Router)
+├── proxmox-skill/        ← Infra: Proxmox VE (22 cmd, 11 wizards)
+├── windows-skill/        ← Infra: Windows (37 cmd, 10 wizards)
+├── docker-skill/         ← Infra: Docker (13 cmd, 3 wizards)
+├── linux-skill/          ← Infra: Linux (17 cmd, 3 wizards)
+├── obsidian-skill/       ← Data: Vault maintenance (28 cmd, 3 wizards)
+├── knowledge-skill/      ← Data: Capture connaissances (3 cmd, 1 wizard)
+├── knowledge-watcher-skill/ ← Data: Pipeline automatisé (6 cmd, 2 wizards)
+├── fileorg-skill/        ← Utils: Organisation fichiers (20 cmd, 1 wizard)
+├── vault-guardian-skill/ ← Data: Maintenance proactive (4 cmd)
+├── qelectrotech-skill/   ← CAO: Plans électriques (35 cmd, 9 wizards)
+├── sop-creator/          ← Docs: SOPs et runbooks (1 cmd, 6 templates)
+├── skill-creator/        ← Meta: Création de skills (1 cmd)
+└── cloud-skill/          [Prévu]
 ```
 
 ## Exemples de Routing
 
-### Exemple 1: Détection Simple
-```
-User: "Comment voir l'état de mon cluster Proxmox?"
-Router: Keywords [cluster, proxmox] → 🟠 proxmox-skill
-Action: Charger /pve-cluster, répondre avec status cluster
-```
-
-### Exemple 2: Détection Windows
-```
-User: "Configure le firewall pour autoriser RDP"
-Router: Keywords [firewall, rdp] → 🔵 windows-skill
-Action: Charger /win-firewall, /win-rdp
-```
-
-### Exemple 3: Multi-Contexte
-```
-User: "Déploie un conteneur LXC Ubuntu puis configure SSH"
-Router: 
-  - Phase 1: [conteneur, lxc] → 🟠 proxmox-skill (/pve-ct)
-  - Phase 2: [ubuntu, ssh] → 🐧 linux-skill (/linux-ssh)
-Action: Réponse séquentielle avec les deux contextes
-```
-
-### Exemple 4: Ambiguïté
-```
-User: "Fais un backup"
-Router: Ambigu - backup existe dans plusieurs contextes
-Action: Demander clarification (Proxmox? Windows? Docker?)
-```
-
-### Exemple 5: Commande Explicite
-```
-User: "/pve-status"
-Router: Commande explicite → 🟠 proxmox-skill direct
-Action: Exécuter sans analyse
-```
+> Voir `references/routing-examples.md` pour 5 scénarios détaillés (simple, Windows, multi-contexte, ambiguïté, commande explicite).
 
 ## Maintenance
 

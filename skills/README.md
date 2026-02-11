@@ -100,11 +100,18 @@ Modifier le comportement du router :
 
 | Agent | Status | Commandes | Wizards |
 |-------|--------|-----------|---------|
-| 🟠 Proxmox | ✅ Actif | 20 | 11 |
-| 🔵 Windows | ✅ Actif | 36 | 10 |
-| 🐳 Docker | ⏳ Prévu | - | - |
-| 🐧 Linux | ⏳ Prévu | - | - |
-| ☁️ Cloud | ⏳ Prévu | - | - |
+| 🟠 Proxmox | ✅ Actif | 22 | 11 |
+| 🔵 Windows | ✅ Actif | 37 | 10 |
+| 🐳 Docker | ✅ Actif | 13 | 3 |
+| 🐧 Linux | ✅ Actif | 17 | 3 |
+| 📁 Fileorg | ✅ Actif | 20 | 1 |
+| 📓 Obsidian | ✅ Actif | 28 | 3 |
+| ⚡ QElectroTech | ✅ Actif | 42 | 9 |
+| 📚 Knowledge | ✅ Actif | 3 | 1 |
+| 👁️ KWatcher | ✅ Actif | 6 | 2 |
+| 🛡️ Guardian | ✅ Actif | 3 | 0 |
+| 📋 SOP Creator | ✅ Actif | 1 | 6 templates |
+| 🔧 Skill Creator | ✅ Actif | 1 | 0 |
 
 ## 📄 Licence
 
@@ -112,5 +119,5 @@ MIT License
 
 ---
 
-**Version**: 1.0.0  
+**Version**: 1.3.0
 **Dernière mise à jour**: Février 2026

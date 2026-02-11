@@ -1,3 +1,9 @@
+---
+name: knowledge-watcher-skill
+description: Surveillance automatique des sources de connaissances
+prefix: /kwatch-*
+---
+
 # Knowledge Watcher Agent
 
 Agent de surveillance qui monitore automatiquement les sources de données sur la machine et les transforme en notes structurées dans le vault Obsidian.

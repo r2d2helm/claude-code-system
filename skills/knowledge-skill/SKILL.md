@@ -1,3 +1,9 @@
+---
+name: knowledge-skill
+description: Capture et organisation des connaissances
+prefix: /know-*
+---
+
 # 🧠 Super Agent Knowledge Capture
 
 Agent intelligent de capture, résumé et organisation des connaissances extraites des conversations Claude.

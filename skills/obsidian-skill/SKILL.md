@@ -1,3 +1,9 @@
+---
+name: obsidian-skill
+description: Administration et maintenance du vault Obsidian
+prefix: /obs-*
+---
+
 # 🗂️ Super Agent Obsidian Administration
 
 Agent intelligent pour administrer, maintenir et optimiser les vaults Obsidian.
@@ -25,7 +31,7 @@ Cet agent automatise la maintenance, détecte les problèmes et optimise l'organ
 |----------|-------------|
 | `/obs-health` | Diagnostic complet du vault |
 | `/obs-stats` | Statistiques détaillées |
-| `/obs-graph` | Analyse du graphe de liens [PREVU] |
+| `/obs-graph` | Analyse du graphe de liens |
 | `/obs-orphans` | Détecter notes orphelines |
 
 ### 🔗 Gestion des Liens
@@ -33,62 +39,62 @@ Cet agent automatise la maintenance, détecte les problèmes et optimise l'organ
 | Commande | Description |
 |----------|-------------|
 | `/obs-links broken` | Trouver liens cassés |
-| `/obs-links unlinked` | Notes sans liens [PREVU] |
-| `/obs-links suggest` | Suggérer connexions [PREVU] |
-| `/obs-links fix` | Réparer liens cassés [PREVU] |
+| `/obs-links unlinked` | Notes sans liens |
+| `/obs-links suggest` | Suggerer connexions |
+| `/obs-links fix` | Reparer liens casses |
 
 ### 🏷️ Gestion des Tags
 
 | Commande | Description |
 |----------|-------------|
 | `/obs-tags list` | Lister tous les tags |
-| `/obs-tags unused` | Tags non utilisés [PREVU] |
-| `/obs-tags rename` | Renommer un tag [PREVU] |
-| `/obs-tags merge` | Fusionner des tags [PREVU] |
-| `/obs-tags hierarchy` | Afficher hiérarchie [PREVU] |
+| `/obs-tags unused` | Tags non utilises |
+| `/obs-tags rename` | Renommer un tag |
+| `/obs-tags merge` | Fusionner des tags |
+| `/obs-tags hierarchy` | Afficher hierarchie |
 
 ### 📁 Organisation
 
 | Commande | Description |
 |----------|-------------|
-| `/obs-structure` | Analyser structure dossiers [PREVU] |
-| `/obs-move` | Déplacer notes intelligemment [PREVU] |
-| `/obs-rename` | Renommer avec conventions [PREVU] |
-| `/obs-frontmatter` | Gérer métadonnées YAML |
-| `/obs-templates` | Gérer templates [PREVU] |
+| `/obs-structure` | Analyser structure dossiers |
+| `/obs-move` | Deplacer notes intelligemment |
+| `/obs-rename` | Renommer avec conventions |
+| `/obs-frontmatter` | Gerer metadonnees YAML |
+| `/obs-templates` | Gerer templates |
 
 ### 🧹 Maintenance
 
 | Commande | Description |
 |----------|-------------|
 | `/obs-clean` | Nettoyage général |
-| `/obs-duplicates` | Détecter doublons [PREVU] |
-| `/obs-attachments` | Gérer pièces jointes [PREVU] |
-| `/obs-empty` | Supprimer notes vides [PREVU] |
+| `/obs-duplicates` | Detecter doublons |
+| `/obs-attachments` | Gerer pieces jointes |
+| `/obs-empty` | Supprimer notes vides |
 
 ### 💾 Backup & Export
 
 | Commande | Description |
 |----------|-------------|
 | `/obs-backup` | Sauvegarder le vault |
-| `/obs-export` | Exporter (PDF, HTML, JSON) [PREVU] |
-| `/obs-sync` | Synchroniser vaults [PREVU] |
+| `/obs-export` | Exporter (JSON, CSV, HTML) |
+| `/obs-sync` | Synchroniser vault (git, backup, compare) |
 
 ### ⚙️ Configuration
 
 | Commande | Description |
 |----------|-------------|
-| `/obs-config` | Gérer configuration Obsidian [PREVU] |
-| `/obs-plugins` | Gérer plugins [PREVU] |
-| `/obs-hotkeys` | Gérer raccourcis [PREVU] |
+| `/obs-config` | Gerer configuration Obsidian |
+| `/obs-plugins` | Gerer plugins |
+| `/obs-hotkeys` | Gerer raccourcis |
 
 ### 🧙 Wizards
 
 | Commande | Description |
 |----------|-------------|
-| `/obs-wizard audit` | Audit complet du vault [PREVU] |
-| `/obs-wizard cleanup` | Nettoyage guidé [PREVU] |
-| `/obs-wizard reorganize` | Réorganisation assistée [PREVU] |
+| `/obs-wizard audit` | Audit complet du vault |
+| `/obs-wizard cleanup` | Nettoyage guide |
+| `/obs-wizard reorganize` | Reorganisation assistee |
 
 ## Diagnostic de Santé
 

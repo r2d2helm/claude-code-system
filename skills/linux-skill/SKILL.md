@@ -1,3 +1,8 @@
+---
+name: linux-skill
+description: "Administration serveurs Linux : services, packages, securite, performance, backup, SSH, DNS, Nginx, SSL."
+---
+
 # Super Agent Linux Administration
 
 Agent intelligent pour administrer les systemes Linux : services, packages, securite, performance.
@@ -53,11 +58,11 @@ Agent intelligent pour administrer les systemes Linux : services, packages, secu
 
 | Commande | Description |
 |----------|-------------|
-| `/lx-backup` | Backup rsync/tar [PREVU] |
-| `/lx-ssh` | Configuration SSH [PREVU] |
-| `/lx-dns` | Configuration DNS [PREVU] |
-| `/lx-nginx` | Gestion Nginx [PREVU] |
-| `/lx-certbot` | Certificats SSL [PREVU] |
+| `/lx-backup` | Backup rsync/tar (incremental, rotation, cron) |
+| `/lx-ssh` | Configuration SSH (cles, hardening, tunnels) |
+| `/lx-dns` | Configuration DNS (resolv, systemd-resolved, dig) |
+| `/lx-nginx` | Gestion Nginx (vhosts, reverse proxy, SSL) |
+| `/lx-certbot` | Certificats SSL Let's Encrypt (obtain, renew, wildcard) |
 
 ## Wizards
 
@@ -66,3 +71,22 @@ Agent intelligent pour administrer les systemes Linux : services, packages, secu
 | `/lx-wizard setup` | Hardening initial du serveur |
 | `/lx-wizard lamp` | Installation stack LAMP |
 | `/lx-wizard docker-host` | Configuration hote Docker |
+
+## Best Practices
+
+- **Mises a jour** : `unattended-upgrades` pour les patchs securite automatiques
+- **Firewall** : activer ufw/firewalld, politique deny par defaut
+- **SSH** : cles Ed25519, desactiver password auth, port non-standard
+- **Utilisateurs** : pas de login root direct, utiliser sudo avec audit
+- **Backups** : rsync incremental quotidien, test de restauration mensuel
+- **Monitoring** : surveiller CPU, RAM, disque, et services critiques
+- **Logs** : centraliser avec journald, rotation avec logrotate
+- **SELinux/AppArmor** : laisser en mode enforcing quand possible
+
+## References
+
+- [Ubuntu Server Guide](https://ubuntu.com/server/docs)
+- [Debian Admin Handbook](https://debian-handbook.info/)
+- [RHEL Documentation](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9)
+- [Linux Hardening Guide (CIS)](https://www.cisecurity.org/benchmark/distribution_independent_linux)
+- [SSH Best Practices](https://infosec.mozilla.org/guidelines/openssh)

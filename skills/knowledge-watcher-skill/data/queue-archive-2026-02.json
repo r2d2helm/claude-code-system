@@ -1,0 +1,470 @@
+[
+    {
+        "id":  "6a580969-bd44-4b1d-8d6e-9a019eeee662",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\Repos\\workshops-main\\obsidian-productivity-agent\\video_processor\\README.md",
+        "title":  "README",
+        "hash":  "02A36C375D577DFA420CA4F5E26844FD04494B7F1E1AA9835CB476A05DFDB543",
+        "capturedAt":  "2026-02-11T12:42:35.4202759+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".md",
+                         "created":  "2026-02-05T06:43:10.6134675+01:00",
+                         "fileName":  "README.md",
+                         "size":  4690,
+                         "lastModified":  "2026-02-04T19:54:46.9335134+01:00"
+                     },
+        "processedAt":  "2026-02-11T12:43:05.7631064+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\RÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©fÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©rences\\Troubleshooting\\2026-02-11_Fix_README.md"
+    },
+    {
+        "id":  "34f1979c-19bf-4927-91a5-a83deaa6c0eb",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\Repos\\workshops-main\\remote-claude-code-telegram\\PRPs\\planning\\sentry-agent-monitoring.md",
+        "title":  "sentry-agent-monitoring",
+        "hash":  "C4754DC523B4BBC563E82E64A16993B838FDCB591439F67F21C9D694D1E47545",
+        "capturedAt":  "2026-02-11T12:42:35.8150847+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".md",
+                         "created":  "2026-02-05T06:43:10.6513688+01:00",
+                         "fileName":  "sentry-agent-monitoring.md",
+                         "size":  16935,
+                         "lastModified":  "2026-02-04T19:54:47.2615598+01:00"
+                     },
+        "processedAt":  "2026-02-11T12:43:44.0590863+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\Code\\Python\\2026-02-11_sentry-agent-monitoring.md"
+    },
+    {
+        "id":  "d55247c6-8890-4aa2-a59b-b1b87d7af756",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\Repos\\workshops-main\\remote-claude-code-telegram\\PRPs\\planning\\telegram-bot-integration.md",
+        "title":  "telegram-bot-integration",
+        "hash":  "D126F957D01594B31062BA5F4BBF59F0AE08C2CDC4A2264BBCF128B5E37F499E",
+        "capturedAt":  "2026-02-11T12:42:35.9352958+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".md",
+                         "created":  "2026-02-05T06:43:10.6533605+01:00",
+                         "fileName":  "telegram-bot-integration.md",
+                         "size":  19314,
+                         "lastModified":  "2026-02-04T19:54:47.2771836+01:00"
+                     },
+        "processedAt":  "2026-02-11T12:44:01.7110394+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\Code\\Python\\2026-02-11_telegram-bot-integration.md"
+    },
+    {
+        "id":  "b9e55adb-dae5-4a16-b987-20a9b6ced04c",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\Repos\\your-claude-engineer\\.claude\\agents\\py-sdk-agent.md",
+        "title":  "py-sdk-agent",
+        "hash":  "316D4912347CD3094BCEB06DAF0628BE8A9187980055AA28D43C305B729BE7BA",
+        "capturedAt":  "2026-02-11T12:42:36.1240423+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".md",
+                         "created":  "2026-02-06T13:37:04.4007881+01:00",
+                         "fileName":  "py-sdk-agent.md",
+                         "size":  5326,
+                         "lastModified":  "2026-02-06T13:37:04.4007881+01:00"
+                     },
+        "processedAt":  "2026-02-11T12:44:36.7771594+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\Code\\Python\\2026-02-11_py-sdk-agent.md"
+    },
+    {
+        "id":  "fbba7ac2-a67c-4b69-9473-5581d895f663",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\Repos\\your-claude-engineer\\prompts\\coding_agent_prompt.md",
+        "title":  "coding_agent_prompt",
+        "hash":  "6E0C5AA9F0D921C8E1A050868A873C8567982021ED3D90064F7861D8B6596ABE",
+        "capturedAt":  "2026-02-11T12:42:36.2703577+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".md",
+                         "created":  "2026-02-06T13:37:04.4177934+01:00",
+                         "fileName":  "coding_agent_prompt.md",
+                         "size":  6648,
+                         "lastModified":  "2026-02-06T13:37:04.4177934+01:00"
+                     },
+        "processedAt":  "2026-02-11T12:44:54.8005554+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\RÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©fÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©rences\\Troubleshooting\\2026-02-11_Fix_coding_agent_prompt.md"
+    },
+    {
+        "id":  "6814bc2f-5c53-4d50-9413-ca00e152b5d4",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\Repos\\your-claude-engineer\\prompts\\continuation_task.md",
+        "title":  "[from linear agent]",
+        "hash":  "53C1224A5978DABABCD8656E0892A5D538D67B0BB1F9F5BC66260E1B8A35C2E7",
+        "capturedAt":  "2026-02-11T12:42:36.3813097+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".md",
+                         "created":  "2026-02-06T13:37:04.4177934+01:00",
+                         "fileName":  "continuation_task.md",
+                         "size":  3012,
+                         "lastModified":  "2026-02-06T13:37:04.4177934+01:00"
+                     },
+        "processedAt":  "2026-02-11T12:45:13.9971718+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\RÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©fÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©rences\\Troubleshooting\\2026-02-11_Fix_[from-linear-agent].md"
+    },
+    {
+        "id":  "35741074-a661-471d-bbe6-369fb599738a",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\Repos\\your-claude-engineer\\prompts\\github_agent_prompt.md",
+        "title":  "feat: Timer countdown display",
+        "hash":  "7F64C593C3E272ECC14C7884AD4C3704588D2CC89947D4E2C51BAA176CEBDABD",
+        "capturedAt":  "2026-02-11T12:42:36.4933557+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".md",
+                         "created":  "2026-02-06T13:37:04.4211297+01:00",
+                         "fileName":  "github_agent_prompt.md",
+                         "size":  6612,
+                         "lastModified":  "2026-02-06T13:37:04.4221261+01:00"
+                     },
+        "processedAt":  "2026-02-11T12:45:32.4783021+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\RÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©fÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©rences\\Troubleshooting\\2026-02-11_Fix_feat-Timer-countdown-display.md"
+    },
+    {
+        "id":  "95b2dba0-a1a0-42f3-b86f-2f4093e38d7e",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\Repos\\your-claude-engineer\\prompts\\initializer_task.md",
+        "title":  "[from linear agent]",
+        "hash":  "165EB817D0F030AB7EC0FD506F4958C92115952B4F1414529A41D39E4DF3ECB0",
+        "capturedAt":  "2026-02-11T12:42:36.6520197+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".md",
+                         "created":  "2026-02-06T13:37:04.4221261+01:00",
+                         "fileName":  "initializer_task.md",
+                         "size":  1790,
+                         "lastModified":  "2026-02-06T13:37:04.4221261+01:00"
+                     },
+        "processedAt":  "2026-02-11T12:45:48.6639302+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\RÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©fÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©rences\\Troubleshooting\\2026-02-11_Fix_[from-linear-agent].md"
+    },
+    {
+        "id":  "b8bc13dd-3301-4fc9-b2be-b29e17de477e",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\Repos\\your-claude-engineer\\prompts\\linear_agent_prompt.md",
+        "title":  "Feature Name - Brief Description",
+        "hash":  "BCC02298E9ED68E7C720F23D6BF354B142DFDF4653732DDF9F2436B238AB0767",
+        "capturedAt":  "2026-02-11T12:42:36.7862517+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".md",
+                         "created":  "2026-02-06T13:37:04.4221261+01:00",
+                         "fileName":  "linear_agent_prompt.md",
+                         "size":  6946,
+                         "lastModified":  "2026-02-06T13:37:04.4221261+01:00"
+                     },
+        "processedAt":  "2026-02-11T13:42:07.6830810+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\RÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©fÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©rences\\Troubleshooting\\2026-02-11_Fix_Feature-Name-Brief-Description.md"
+    },
+    {
+        "id":  "65491f30-8de5-4135-a883-c67d884aef0c",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\Repos\\your-claude-engineer\\prompts\\orchestrator_prompt.md",
+        "title":  "Timer Display",
+        "hash":  "2D0126BD6953543B015FB759FF5796E9B320EAEAE38746067A79835E15AB590D",
+        "capturedAt":  "2026-02-11T12:42:36.9191568+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".md",
+                         "created":  "2026-02-06T13:37:04.4231235+01:00",
+                         "fileName":  "orchestrator_prompt.md",
+                         "size":  9737,
+                         "lastModified":  "2026-02-06T13:37:04.4231235+01:00"
+                     },
+        "processedAt":  "2026-02-11T13:42:25.6893555+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\RÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©fÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©rences\\Troubleshooting\\2026-02-11_Fix_Timer-Display.md"
+    },
+    {
+        "id":  "10cd172c-6027-4812-bcbd-2ace0b712500",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\Repos\\your-claude-engineer\\prompts\\slack_agent_prompt.md",
+        "title":  "slack_agent_prompt",
+        "hash":  "AD803ACD0AA24161B71168826747B9594A431415FE718520527A059ED532A129",
+        "capturedAt":  "2026-02-11T12:42:37.0362501+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".md",
+                         "created":  "2026-02-06T13:37:04.4231235+01:00",
+                         "fileName":  "slack_agent_prompt.md",
+                         "size":  3485,
+                         "lastModified":  "2026-02-06T13:37:04.4231235+01:00"
+                     },
+        "processedAt":  "2026-02-11T13:42:43.3061150+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\RÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©fÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©rences\\Troubleshooting\\2026-02-11_Fix_slack_agent_prompt.md"
+    },
+    {
+        "id":  "32c72542-4620-4eb8-916e-1b7a5c59ec6e",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\RESURSE COLE\\Install Stack Cole\\N8N Local AI\\prerequis-local-ai-CPU.md",
+        "title":  "prerequis-local-ai-CPU",
+        "hash":  "6CE566E8E6598E2F85543CAF15D0FAF36C58F941D1100654F1293BE6B2388C91",
+        "capturedAt":  "2026-02-11T12:42:37.1267361+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".md",
+                         "created":  "2026-02-04T19:51:38.1193622+01:00",
+                         "fileName":  "prerequis-local-ai-CPU.md",
+                         "size":  7552,
+                         "lastModified":  "2026-02-04T19:51:38.1193622+01:00"
+                     },
+        "processedAt":  "2026-02-11T13:43:02.1044114+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\Concepts\\C_prerequis-local-ai-CPU.md"
+    },
+    {
+        "id":  "4dd8ac49-8149-4419-8053-bbd09837a9d7",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\RESURSE COLE\\Install Stack Cole\\N8N Local AI\\prerequis-local-ai-GEN.md",
+        "title":  "prerequis-local-ai-GEN",
+        "hash":  "4848064AC3AC80556EA30661AF93791DB936A495CA14CE8C08B6F090414C59F2",
+        "capturedAt":  "2026-02-11T12:42:37.2563757+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".md",
+                         "created":  "2026-02-04T19:51:38.1193622+01:00",
+                         "fileName":  "prerequis-local-ai-GEN.md",
+                         "size":  6678,
+                         "lastModified":  "2026-02-04T19:51:38.1193622+01:00"
+                     },
+        "processedAt":  "2026-02-11T13:43:19.3137252+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\_Inbox\\2026-02-11_prerequis-local-ai-GEN.md"
+    },
+    {
+        "id":  "e447c68b-3b07-4b38-b6c1-804660551cbf",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\cole ai.txt",
+        "title":  "cole ai",
+        "hash":  "6C3F3830DC97B9F5DC98CBB2E5151F9F87C6FD2EAE8CAF2596FE2C1A52B4E23A",
+        "capturedAt":  "2026-02-11T12:42:37.4404669+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".txt",
+                         "created":  "2026-02-04T19:51:37.6194802+01:00",
+                         "fileName":  "cole ai.txt",
+                         "size":  83,
+                         "lastModified":  "2026-02-04T19:51:37.6194802+01:00"
+                     },
+        "processedAt":  "2026-02-11T13:43:33.6910861+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\_Inbox\\2026-02-11_cole-ai.md"
+    },
+    {
+        "id":  "2b713eeb-d5f3-477c-93dd-d9bf808a69da",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\workshop1.txt",
+        "title":  "workshop1",
+        "hash":  "314E11FB232DE30516B4035E4303CDFE67E7A3AFACB403141E00143776E22070",
+        "capturedAt":  "2026-02-11T12:42:37.5838406+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".txt",
+                         "created":  "2026-02-04T19:51:38.5255159+01:00",
+                         "fileName":  "workshop1.txt",
+                         "size":  302042,
+                         "lastModified":  "2026-02-04T19:51:38.5255159+01:00"
+                     },
+        "processedAt":  "2026-02-11T13:43:37.3492881+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\Code\\PowerShell\\2026-02-11_workshop1.md"
+    },
+    {
+        "id":  "c5fa94d6-8f01-46c9-a658-a1262d75b4fd",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\AI-Agent-Mastery\\ai-agent-mastery-main\\4_Pydantic_AI_Agent\\requirements.txt",
+        "title":  "requirements",
+        "hash":  "74197B940959C5EC5AD5A89A4D63DC6AAA8CC755CA2E18B2DCBD3C0C35CEC44D",
+        "capturedAt":  "2026-02-11T12:42:37.6973293+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".txt",
+                         "created":  "2026-02-04T19:51:39.9626799+01:00",
+                         "fileName":  "requirements.txt",
+                         "size":  5766,
+                         "lastModified":  "2026-02-04T19:51:39.9626799+01:00"
+                     },
+        "processedAt":  "2026-02-11T13:43:58.4935294+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\_Inbox\\2026-02-11_requirements.md"
+    },
+    {
+        "id":  "5de9affe-fd0e-46e3-b655-cda1e57d1795",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\AI-Agent-Mastery\\ai-agent-mastery-main\\4_Pydantic_AI_Agent\\extras\\Basic_Pydantic_AI_Agent\\prompt.txt",
+        "title":  "prompt",
+        "hash":  "467529F66B4F45A6D9F7D648CF3D21205EE3566CCFA3F8946730D8DE232D2D22",
+        "capturedAt":  "2026-02-11T12:42:37.8191885+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".txt",
+                         "created":  "2026-02-04T19:51:39.9158165+01:00",
+                         "fileName":  "prompt.txt",
+                         "size":  1387,
+                         "lastModified":  "2026-02-04T19:51:39.9158165+01:00"
+                     },
+        "processedAt":  "2026-02-11T13:44:14.5341949+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\Code\\PowerShell\\2026-02-11_prompt.md"
+    },
+    {
+        "id":  "6e0b1476-17fc-448f-b9a2-32af8b3aacbd",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\AI-Agent-Mastery\\ai-agent-mastery-main\\5_Agent_Application\\frontend\\public\\robots.txt",
+        "title":  "robots",
+        "hash":  "A3D27B3CA5CE32341FA9F96F01169B521B1657C05D1860C45D1E53A6258E9E8B",
+        "capturedAt":  "2026-02-11T12:42:38.3934798+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".txt",
+                         "created":  "2026-02-04T19:51:39.7596031+01:00",
+                         "fileName":  "robots.txt",
+                         "size":  160,
+                         "lastModified":  "2026-02-04T19:51:39.7596031+01:00"
+                     },
+        "processedAt":  "2026-02-11T14:42:53.7259514+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\_Inbox\\2026-02-11_robots.md"
+    },
+    {
+        "id":  "e9ecf366-7c47-4674-89a2-444f0229b98f",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\Coursus Colle FR\\RAG DOCLING\\GMT20251003-160141_RecordingnewChat.txt",
+        "title":  "GMT20251003-160141_RecordingnewChat",
+        "hash":  "679ADF6DE2F5436F0A5303DDA642927122EE853CE34D3AAEA22ABB480827D710",
+        "capturedAt":  "2026-02-11T12:42:39.3518546+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".txt",
+                         "created":  "2026-02-04T19:51:38.3849238+01:00",
+                         "fileName":  "GMT20251003-160141_RecordingnewChat.txt",
+                         "size":  32180,
+                         "lastModified":  "2026-02-04T19:51:38.3849238+01:00"
+                     },
+        "processedAt":  "2026-02-11T15:42:20.0159854+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\RÃƒÂ©fÃƒÂ©rences\\Troubleshooting\\2026-02-11_Fix_GMT20251003-160141_RecordingnewChat.md"
+    },
+    {
+        "id":  "93fc311e-9bd7-4ad8-a8de-d67c938b614f",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\Repos\\your-claude-engineer\\prompts\\app_spec.txt",
+        "title":  "app_spec",
+        "hash":  "4DB76707818EB9B9788CC498EC45981248FCB895B435F74C8B5D0AFF06E53062",
+        "capturedAt":  "2026-02-11T12:42:39.6100146+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".txt",
+                         "created":  "2026-02-06T13:37:04.4167938+01:00",
+                         "fileName":  "app_spec.txt",
+                         "size":  1423,
+                         "lastModified":  "2026-02-06T13:37:04.4167938+01:00"
+                     },
+        "processedAt":  "2026-02-11T15:42:51.5079887+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\_Inbox\\2026-02-11_app_spec.md"
+    },
+    {
+        "id":  "be9cebab-a946-427c-8fdd-6612309fa731",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\Repos\\your-claude-engineer\\prompts\\example_app_specs\\app_spec_claude_clone.txt",
+        "title":  "app_spec_claude_clone",
+        "hash":  "1661A641F7B5416818AA9305BF646F43AA568011F225F970CC98D899EAF0CF74",
+        "capturedAt":  "2026-02-11T12:42:39.7296632+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".txt",
+                         "created":  "2026-02-06T13:37:04.4187910+01:00",
+                         "fileName":  "app_spec_claude_clone.txt",
+                         "size":  22697,
+                         "lastModified":  "2026-02-06T13:37:04.4187910+01:00"
+                     },
+        "processedAt":  "2026-02-11T15:43:10.1507530+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\RÃƒÂ©fÃƒÂ©rences\\Troubleshooting\\2026-02-11_Fix_app_spec_claude_clone.md"
+    },
+    {
+        "id":  "790056d5-c671-4e87-a01f-44c149fe966e",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\Repos\\your-claude-engineer\\prompts\\example_app_specs\\app_spec_gen_ui_dashboard.txt",
+        "title":  "app_spec_gen_ui_dashboard",
+        "hash":  "3CD5D8B87D462A8B85C169FC32FA5F878B9D1233D3D6643387A9F7785631D8E8",
+        "capturedAt":  "2026-02-11T12:42:39.8486693+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".txt",
+                         "created":  "2026-02-06T13:37:04.4198148+01:00",
+                         "fileName":  "app_spec_gen_ui_dashboard.txt",
+                         "size":  47579,
+                         "lastModified":  "2026-02-06T13:37:04.4198148+01:00"
+                     },
+        "processedAt":  "2026-02-11T15:43:11.1769921+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\Conversations\\2026-02-11_Conv_app_spec_gen_ui_dashboard.md"
+    },
+    {
+        "id":  "2db408b7-a3b9-4cf5-95fd-0f63bb023d22",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\Repos\\your-claude-engineer\\prompts\\example_app_specs\\app_spec_second_brain.txt",
+        "title":  "app_spec_second_brain",
+        "hash":  "A49456BE08E15B6924234D084D6B8D17877C60B8BBD98BE61987239509360D5F",
+        "capturedAt":  "2026-02-11T12:42:39.9579583+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".txt",
+                         "created":  "2026-02-06T13:37:04.4208355+01:00",
+                         "fileName":  "app_spec_second_brain.txt",
+                         "size":  69594,
+                         "lastModified":  "2026-02-06T13:37:04.4211297+01:00"
+                     },
+        "processedAt":  "2026-02-11T15:43:13.1771145+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\Conversations\\2026-02-11_Conv_app_spec_second_brain.md"
+    },
+    {
+        "id":  "3d88718c-fc75-47ce-a30d-ffc5471085b8",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\RESURSE COLE\\Install Stack Cole\\Caddy\\Caddy Docker Proxy.txt",
+        "title":  "Caddy Docker Proxy",
+        "hash":  "2756D14B216EC9BA9DA6861326D16A60DDC9DF6D97CD61906396FCC59B52207C",
+        "capturedAt":  "2026-02-11T12:42:40.1019896+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".txt",
+                         "created":  "2026-02-04T19:51:38.0568765+01:00",
+                         "fileName":  "Caddy Docker Proxy.txt",
+                         "size":  27827,
+                         "lastModified":  "2026-02-04T19:51:38.0568765+01:00"
+                     },
+        "processedAt":  "2026-02-11T15:43:32.8872895+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\Code\\Python\\2026-02-11_Caddy-Docker-Proxy.md"
+    },
+    {
+        "id":  "fa819eb7-7c38-4a03-9d50-a9ff7972265f",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\RESURSE COLE\\Install Stack Cole\\Caddy\\Caddy Docs.txt",
+        "title":  "Caddy Docs",
+        "hash":  "18E26D4D1E0088CAB77BBF84AFF832CD95958C39D4B7AEC430F29700621FEF48",
+        "capturedAt":  "2026-02-11T12:42:40.2052653+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".txt",
+                         "created":  "2026-02-04T19:51:38.0568765+01:00",
+                         "fileName":  "Caddy Docs.txt",
+                         "size":  46281,
+                         "lastModified":  "2026-02-04T19:51:38.0724977+01:00"
+                     },
+        "processedAt":  "2026-02-11T15:43:34.5049518+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\Code\\Python\\2026-02-11_Caddy-Docs.md"
+    },
+    {
+        "id":  "ad6b7d27-da73-4e5a-99f5-64aaaf1baaa7",
+        "sourceId":  "formations",
+        "sourcePath":  "C:\\Users\\r2d2\\Documents\\Formations\\RESURSE COLE\\Install Stack Cole\\Caddy\\Caddy Get Started.txt",
+        "title":  "Caddy Get Started",
+        "hash":  "C14682F2D0D4F3C7390032B5A260A49EA0825AEB1A6F65E741F8B81062EACE9E",
+        "capturedAt":  "2026-02-11T12:42:40.3313882+01:00",
+        "status":  "completed",
+        "metadata":  {
+                         "extension":  ".txt",
+                         "created":  "2026-02-04T19:51:38.0724977+01:00",
+                         "fileName":  "Caddy Get Started.txt",
+                         "size":  52907,
+                         "lastModified":  "2026-02-04T19:51:38.0724977+01:00"
+                     },
+        "processedAt":  "2026-02-11T15:43:35.7929145+01:00",
+        "outputPath":  "C:\\Users\\r2d2\\Documents\\Knowledge\\Code\\Python\\2026-02-11_Caddy-Get-Started.md"
+    }
+]

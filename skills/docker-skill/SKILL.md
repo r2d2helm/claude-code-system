@@ -1,3 +1,8 @@
+---
+name: docker-skill
+description: "Administration Docker et conteneurs : images, containers, compose, volumes, networks, registries, securite."
+---
+
 # Super Agent Docker Administration
 
 Agent intelligent pour administrer Docker : containers, images, compose, volumes, reseaux.
@@ -46,9 +51,9 @@ Agent intelligent pour administrer Docker : containers, images, compose, volumes
 
 | Commande | Description |
 |----------|-------------|
-| `/dk-registry` | Operations registry [PREVU] |
-| `/dk-swarm` | Gestion Swarm [PREVU] |
-| `/dk-security` | Scan de securite [PREVU] |
+| `/dk-registry` | Operations registry (login, push, pull, tag) |
+| `/dk-swarm` | Gestion Swarm (init, services, stacks, nodes) |
+| `/dk-security` | Scan de securite (CVE, audit, Dockerfile) |
 
 ## Wizards
 
@@ -57,3 +62,22 @@ Agent intelligent pour administrer Docker : containers, images, compose, volumes
 | `/dk-wizard compose` | Creer un docker-compose.yml |
 | `/dk-wizard dockerfile` | Creer un Dockerfile |
 | `/dk-wizard setup` | Installer Docker |
+
+## Best Practices
+
+- **1 process par container** : eviter les multi-services dans un container
+- **Images minimales** : utiliser `alpine` ou `distroless` quand possible
+- **Tags explicites** : jamais `:latest` en production, toujours versionner
+- **Multi-stage builds** : separer build et runtime pour reduire la taille
+- **Non-root** : utiliser `USER` dans le Dockerfile, eviter `--privileged`
+- **Healthchecks** : toujours definir un `HEALTHCHECK` dans le Dockerfile
+- **Secrets** : jamais de secrets dans les images, utiliser Docker Secrets ou env vars
+- **.dockerignore** : exclure `node_modules`, `.git`, `*.log` du build context
+
+## References
+
+- [Docker Documentation](https://docs.docker.com/)
+- [Dockerfile Best Practices](https://docs.docker.com/build/building/best-practices/)
+- [Docker Compose Specification](https://docs.docker.com/compose/compose-file/)
+- [Docker Security](https://docs.docker.com/engine/security/)
+- [Docker Hub](https://hub.docker.com/)

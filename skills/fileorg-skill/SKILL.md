@@ -1,3 +1,9 @@
+---
+name: fileorg-skill
+description: Organisation et gestion des fichiers Windows
+prefix: /file-*
+---
+
 # 📁 Super Agent File Organizer Windows
 
 Agent intelligent de gestion et organisation des fichiers et dossiers Windows avec automatisation, conventions de nommage et best practices 2025-2026.
@@ -24,27 +30,27 @@ Cet agent applique les standards internationaux (ISO 8601) et les meilleures pra
 |----------|-------------|
 | `/file-organize` | Organiser fichiers par type, date ou projet |
 | `/file-structure` | Créer/appliquer une structure de dossiers |
-| `/file-sort` | Trier fichiers dans des sous-dossiers [PREVU] |
-| `/file-flatten` | Aplatir une arborescence trop profonde [PREVU] |
+| `/file-sort` | Trier fichiers dans des sous-dossiers |
+| `/file-flatten` | Aplatir une arborescence trop profonde |
 
 ### Nommage
 
 | Commande | Description |
 |----------|-------------|
 | `/file-rename` | Renommer fichiers selon convention |
-| `/file-prefix` | Ajouter préfixe date ISO aux fichiers [PREVU] |
-| `/file-normalize` | Normaliser noms (espaces, caractères spéciaux) [PREVU] |
-| `/file-version` | Gérer versions de fichiers (v01, v02...) [PREVU] |
+| `/file-prefix` | Ajouter préfixe date ISO aux fichiers |
+| `/file-normalize` | Normaliser noms (espaces, caractères spéciaux) |
+| `/file-version` | Gérer versions de fichiers (v01, v02...) |
 
 ### Analyse
 
 | Commande | Description |
 |----------|-------------|
 | `/file-analyze` | Analyser structure et statistiques |
-| `/file-audit` | Audit qualité nommage et organisation [PREVU] |
+| `/file-audit` | Audit qualité nommage et organisation |
 | `/file-duplicates` | Détecter fichiers en double |
 | `/file-large` | Trouver gros fichiers |
-| `/file-old` | Trouver fichiers anciens/obsolètes [PREVU] |
+| `/file-old` | Trouver fichiers anciens/obsolètes |
 
 ### Nettoyage
 
@@ -53,21 +59,21 @@ Cet agent applique les standards internationaux (ISO 8601) et les meilleures pra
 | `/file-clean` | Nettoyer fichiers temporaires/inutiles |
 | `/file-empty` | Supprimer dossiers vides |
 | `/file-archive` | Archiver anciens fichiers |
-| `/file-trash` | Gérer la corbeille [PREVU] |
+| `/file-trash` | Gérer la corbeille |
 
 ### Synchronisation
 
 | Commande | Description |
 |----------|-------------|
-| `/file-backup` | Sauvegarder avec structure [PREVU] |
-| `/file-sync` | Synchroniser deux dossiers [PREVU] |
-| `/file-mirror` | Miroir de dossier [PREVU] |
+| `/file-backup` | Sauvegarder avec structure |
+| `/file-sync` | Synchroniser deux dossiers |
+| `/file-mirror` | Miroir de dossier |
 
 ### Wizards
 
 | Commande | Description |
 |----------|-------------|
-| `/file-wizard` | Assistant configuration guidée [PREVU] |
+| `/file-wizard` | Assistant configuration guidée |
 
 ## Syntaxe
 

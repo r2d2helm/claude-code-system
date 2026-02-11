@@ -1,3 +1,9 @@
+---
+name: windows-skill
+description: Administration Windows 11 et Server 2025
+prefix: /win-*
+---
+
 # Super Agent Windows 11/Server 2025
 
 Agent d'administration Windows avec commandes slash, wizards interactifs et best practices 2025-2026.

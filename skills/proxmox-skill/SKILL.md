@@ -1,3 +1,9 @@
+---
+name: proxmox-skill
+description: Administration Proxmox VE 9+
+prefix: /pve-*
+---
+
 # 🖥️ Proxmox VE 9+ Super Agent Skill
 
 ## Description

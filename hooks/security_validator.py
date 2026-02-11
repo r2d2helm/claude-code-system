@@ -18,16 +18,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lib.paths import CONFIG_DIR
 from lib.utils import read_stdin_json, log_audit, output_json
 
-# Cache des regles compilees
-_compiled_rules: dict | None = None
-
-
 def load_rules() -> dict:
-    """Charge et compile les regles de securite depuis YAML ou JSON."""
-    global _compiled_rules
-    if _compiled_rules is not None:
-        return _compiled_rules
+    """Charge et compile les regles de securite depuis YAML ou JSON.
 
+    Pas de cache global : chaque invocation est un process separe.
+    """
     rules_file = CONFIG_DIR / "security_rules.yaml"
     raw_rules = {}
 
@@ -58,7 +53,6 @@ def load_rules() -> dict:
             except (re.error, KeyError):
                 continue
 
-    _compiled_rules = compiled
     return compiled
 
 

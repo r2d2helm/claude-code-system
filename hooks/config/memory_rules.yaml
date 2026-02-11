@@ -1,0 +1,38 @@
+# Memory extraction rules for session insights
+# Used by memory_extractor.py (Stop hook)
+
+# Insights: problem resolutions, decisions, workarounds
+insights:
+  - pattern: "(?:the (?:issue|problem|bug|error) was|root cause)(.{20,200})"
+    reason: "Root cause identification"
+  - pattern: "(?:fix(?:ed)?|resolved|solved|corrected)\\s*(?:by|with|using|:)(.{20,200})"
+    reason: "Fix description"
+  - pattern: "(?:solution|workaround|fix)\\s*(?:is|was|:)(.{20,200})"
+    reason: "Solution found"
+  - pattern: "(?:found that|discovered that|turns out)(.{20,200})"
+    reason: "Discovery"
+  - pattern: "(?:the trick is|key insight|important:)(.{20,200})"
+    reason: "Key learning"
+
+# Patterns: recurring technical conventions and rules
+patterns:
+  - pattern: "(?:always|never|must|should always|should never)(.{20,150})"
+    reason: "Convention or rule"
+  - pattern: "(?:convention|standard|pattern|best practice)\\s*(?:is|:)(.{20,150})"
+    reason: "Best practice"
+  - pattern: "(?:encoding|UTF-8|BOM|sans BOM|avec BOM)(.{10,150})"
+    reason: "Encoding pattern"
+  - pattern: "(?:compatible PS 5\\.1|PowerShell.*compatible)(.{10,150})"
+    reason: "PowerShell compatibility"
+
+# Signals: session quality metrics thresholds
+signals:
+  complexity:
+    low: 5        # < 5 unique tools = low complexity
+    medium: 15    # 5-15 unique tools = medium
+    high: 100     # > 15 = high
+  duration:
+    short: 300    # < 5 min
+    medium: 1800  # 5-30 min
+    long: 86400   # > 30 min
+  error_threshold: 3  # >= 3 errors = problematic session

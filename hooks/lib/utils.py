@@ -7,9 +7,6 @@ from pathlib import Path
 
 from .paths import LOGS_DIR
 
-# Timezone Europe/Paris (UTC+1, UTC+2 en ete)
-_PARIS_UTC_OFFSET = timedelta(hours=1)
-
 
 def read_stdin_json() -> dict:
     """Lit stdin et parse le JSON. Retourne {} si erreur."""
@@ -25,15 +22,15 @@ def read_stdin_json() -> dict:
 def now_paris() -> str:
     """Retourne datetime actuel en Europe/Paris ISO 8601.
 
-    Approximation UTC+1 (CET). Pour la precision DST,
-    il faudrait zoneinfo (Python 3.9+) mais on garde ca simple.
+    Utilise zoneinfo (Python 3.9+) pour gerer automatiquement CET/CEST.
+    Fallback UTC+1 si zoneinfo ou tzdata absent (Windows sans tzdata pip).
     """
     try:
         from zoneinfo import ZoneInfo
         return datetime.now(ZoneInfo("Europe/Paris")).isoformat()
     except Exception:
-        # Fallback UTC+1 si zoneinfo/tzdata absent
-        tz = timezone(_PARIS_UTC_OFFSET)
+        # Fallback UTC+1 (CET) - ne gere pas le passage heure d'ete
+        tz = timezone(timedelta(hours=1))
         return datetime.now(tz).isoformat()
 
 

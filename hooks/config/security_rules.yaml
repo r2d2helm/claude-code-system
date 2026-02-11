@@ -1,5 +1,6 @@
-# Security rules for Claude Code Bash command validation
-# Categories: blocked (exit 2), confirm (force user confirmation), alert (warning only)
+# Security rules for Claude Code hook validation
+# Bash rules: blocked (exit 2), confirm (force user confirmation), alert (warning only)
+# Path rules: read_protected (exit 2), write_protected (confirm), system_paths (confirm)
 
 blocked:
   # Destruction systeme de fichiers
@@ -151,3 +152,44 @@ alert:
     reason: "Execution avec privileges eleves Windows"
   - pattern: "Start-Process.*-Verb\\s+RunAs"
     reason: "Execution avec privileges administrateur"
+
+# ============================================================
+# Path protection rules (used by path_guard.py)
+# ============================================================
+
+# Read blocked: sensitive files that should never be read by hooks
+read_protected:
+  - pattern: "\\.credentials\\.json$"
+    reason: "Fichier de credentials"
+  - pattern: "\\.env$|\\.env\\."
+    reason: "Variables d'environnement"
+  - pattern: "[\\\\/]secrets[\\\\/]"
+    reason: "Dossier secrets"
+  - pattern: "id_rsa|id_ed25519|id_ecdsa"
+    reason: "Cle SSH privee"
+  - pattern: "\\.pem$|\\.key$|\\.pfx$"
+    reason: "Certificat ou cle privee"
+  - pattern: "\\.kube[\\\\/]config$"
+    reason: "Configuration Kubernetes"
+
+# Write/Edit confirm: protected paths that require user confirmation
+write_protected:
+  - pattern: "[\\\\/]_Templates[\\\\/]"
+    reason: "Templates vault proteges"
+  - pattern: "\\.claude[\\\\/]hooks[\\\\/]lib[\\\\/]"
+    reason: "Librairie hooks systeme"
+  - pattern: "\\.claude[\\\\/]agents[\\\\/]"
+    reason: "Definitions des subagents"
+  - pattern: "\\.claude[\\\\/]settings\\.json$"
+    reason: "Configuration Claude Code"
+  - pattern: "\\.claude[\\\\/]commands[\\\\/]"
+    reason: "Commandes globales"
+
+# System paths: critical system files requiring confirmation for write/edit
+system_paths:
+  - pattern: "\\.claude[\\\\/]skills[\\\\/]SKILL\\.md$"
+    reason: "Meta-router (fichier systeme critique)"
+  - pattern: "\\.claude[\\\\/]hooks[\\\\/](load_context|security_validator|session_capture|memory_extractor|path_guard|prompt_analyzer|subagent_capture)\\.py$"
+    reason: "Hooks systeme"
+  - pattern: "\\.claude[\\\\/]CLAUDE\\.md$"
+    reason: "Instructions systeme globales"

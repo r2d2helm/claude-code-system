@@ -61,12 +61,12 @@ Système de planification structurée inspiré du Context Engineering :
 |-------|--------|-------------|-----------|
 | **proxmox-skill** | `skills/proxmox-skill/` | Administration Proxmox VE 9+ | `/pve-*`, 22 cmd, 11 wizards |
 | **windows-skill** | `skills/windows-skill/` | Administration Windows 11/Server 2025 | `/win-*`, 37 cmd, 10 wizards |
-| **docker-skill** | `skills/docker-skill/` | Administration Docker et conteneurs | `/dk-*`, 10 cmd, 3 wizards |
-| **linux-skill** | `skills/linux-skill/` | Administration serveurs Linux | `/lx-*`, 12 cmd, 3 wizards |
+| **docker-skill** | `skills/docker-skill/` | Administration Docker et conteneurs | `/dk-*`, 13 cmd, 3 wizards |
+| **linux-skill** | `skills/linux-skill/` | Administration serveurs Linux | `/lx-*`, 17 cmd, 3 wizards |
 | **knowledge-skill** | `skills/knowledge-skill/` | Capture et résumé de connaissances | `/know-*`, 3 cmd, 1 wizard |
 | **knowledge-watcher-skill** | `skills/knowledge-watcher-skill/` | Surveillance automatique des sources | `/kwatch-*`, 6 cmd, 2 wizards |
-| **obsidian-skill** | `skills/obsidian-skill/` | Maintenance vault Obsidian | `/obs-*`, 8 cmd, 1 wizard |
-| **fileorg-skill** | `skills/fileorg-skill/` | Organisation fichiers Windows | `/file-*`, 9 cmd, 2 wizards |
+| **obsidian-skill** | `skills/obsidian-skill/` | Maintenance vault Obsidian | `/obs-*`, 28 cmd, 3 wizards |
+| **fileorg-skill** | `skills/fileorg-skill/` | Organisation fichiers Windows | `/file-*`, 20 cmd, 1 wizard |
 | **vault-guardian-skill** | `skills/vault-guardian-skill/` | Maintenance proactive automatisée | `/guardian-*`, 3 cmd |
 | **qelectrotech-skill** | `skills/qelectrotech-skill/` | Plans électriques QElectroTech | `/qet-*`, 42 cmd, 9 wizards |
 | **sop-creator** | `skills/sop-creator/` | Runbooks, SOPs, documentation opérationnelle | `/sop-*`, 1 cmd, 6 templates |
@@ -82,6 +82,23 @@ Système de planification structurée inspiré du Context Engineering :
 **Config :** `~/.claude.json` -> `mcpServers.knowledge-assistant`
 **Chemin :** `~/.claude/mcp-servers/knowledge-assistant/`
 **Env :** `KNOWLEDGE_VAULT_PATH=C:\Users\r2d2\Documents\Knowledge`, `KNOWLEDGE_INDEX_PATH=~\.claude\skills\knowledge-watcher-skill\data\notes-index.json`
+
+### Hooks (6)
+
+Hooks Python executés automatiquement sur les événements Claude Code :
+
+| Hook | Événement | Matcher | Description |
+|------|-----------|---------|-------------|
+| `load_context.py` | SessionStart | * | Charge contexte système (skills, vault, guardian) |
+| `security_validator.py` | PreToolUse | Bash | Valide commandes shell (blocked/confirm/alert) |
+| `path_guard.py` | PreToolUse | Read,Write,Edit | Protège chemins sensibles (secrets, système) |
+| `memory_extractor.py` | Stop | * | Métriques session + extraction insights auto |
+| `subagent_capture.py` | SubagentStop | * | Log résultats des subagents |
+| `prompt_analyzer.py` | UserPromptSubmit | * | Analyse requêtes utilisateur (type, keywords) |
+
+**Chemin :** `~/.claude/hooks/`
+**Config :** `~/.claude/settings.json` -> `hooks`
+**Principe :** Fail-open (exit 0 en cas d'erreur, jamais bloquer Claude Code)
 
 ## Structure du Vault Obsidian
 
@@ -227,6 +244,9 @@ Principes :
 | Notes index | `~\.claude\skills\knowledge-watcher-skill\data\notes-index.json` |
 | Config backup | `C:\Users\r2d2\Documents\claude-config-backup\` |
 | Vault git | `C:\Users\r2d2\Documents\Knowledge\.git` (init 2026-02-11) |
+| Hooks | `C:\Users\r2d2\.claude\hooks\` |
+| Hooks logs | `C:\Users\r2d2\.claude\hooks\logs\` |
+| Memory data | `C:\Users\r2d2\.claude\hooks\data\memory\` |
 
 ## Règles pour Claude Code
 
@@ -256,3 +276,7 @@ Principes :
 15. **Mettre à jour CLAUDE.md** quand un nouveau skill, command ou agent est ajouté
 16. **Mettre à jour le meta-router** (skills/SKILL.md) quand un skill est ajouté/modifié/supprimé
 17. **Sauvegarder les modifications** dans le backup (`Documents/claude-config-backup/`) pour les changements importants
+
+### Hooks
+18. **Fail-open** : tous les hooks exit 0 en cas d'erreur, jamais bloquer Claude Code
+19. **Path guard** : les chemins sensibles (.credentials, .env, secrets) sont bloqués en lecture ; les fichiers système (CLAUDE.md, hooks, agents) demandent confirmation en écriture
