@@ -1,0 +1,33 @@
+<definition version="0.100.0" type="element" link_type="{{LINK_TYPE}}" orientation="{{ORIENTATION}}" width="{{WIDTH}}" height="{{HEIGHT}}" hotspot_x="{{HOTSPOT_X}}" hotspot_y="{{HOTSPOT_Y}}">
+    <uuid uuid="{{{UUID}}}"/>
+    <names>
+        <name lang="fr">{{NAME_FR}}</name>
+        <name lang="en">{{NAME_EN}}</name>
+    </names>
+    <informations>Author: r2d2</informations>
+    <!-- Decommenter pour elements master/slave :
+    <kindInformations>
+        <kindInformation name="type" show="1">coil</kindInformation>
+    </kindInformations>
+    -->
+    <elementInformations>
+        <elementInformation name="label" show="1"></elementInformation>
+        <elementInformation name="formula" show="1"></elementInformation>
+        <elementInformation name="description" show="1"></elementInformation>
+        <elementInformation name="designation" show="1"></elementInformation>
+        <elementInformation name="manufacturer" show="1"></elementInformation>
+        <elementInformation name="manufacturer_reference" show="1"></elementInformation>
+        <elementInformation name="comment" show="0"></elementInformation>
+        <elementInformation name="function" show="0"></elementInformation>
+        <elementInformation name="plant" show="0"></elementInformation>
+        <elementInformation name="location" show="0"></elementInformation>
+    </elementInformations>
+    <description>
+        <dynamic_text x="3" y="-31.95" z="1" text_width="-1" Halignment="AlignLeft" Valignment="AlignTop" frame="false" rotation="0" keep_visual_rotation="false" text_from="ElementInfo" uuid="{{{DYNTEXT_UUID}}}" font="Liberation Sans,9,-1,5,50,0,0,0,0,0,Regular">
+            <text></text>
+            <info_name>label</info_name>
+        </dynamic_text>
+        <!-- GRAPHICS_PLACEHOLDER -->
+        <!-- TERMINALS_PLACEHOLDER -->
+    </description>
+</definition>

@@ -1,6 +1,14 @@
-﻿# KnowledgeWatcher-Tier2-Hourly.ps1
-$skillPath = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-Import-Module (Join-Path $skillPath "scripts\KnowledgeWatcher.psm1") -Force
-Write-KWLog "Tier 2 (Hourly) - DÃ©marrage"
-# TODO: ImplÃ©menter traitement Downloads, Formations
-Write-KWLog "Tier 2 (Hourly) - TerminÃ©"
+$SkillPath = 'C:\Users\r2d2\.claude\skills\knowledge-watcher-skill'
+Import-Module (Join-Path $SkillPath 'scripts\KnowledgeWatcher.psm1') -Force
+. (Join-Path $SkillPath 'sources\GenericFileSource.ps1')
+
+$sources = Get-KWSources | Where-Object { $_.tier -eq 2 -and $_.enabled }
+foreach ($source in $sources) {
+    Invoke-DirectoryScan -SourceConfig $source
+}
+
+$state = Get-KWState
+$state.lastTier2Run = (Get-Date).ToString('o')
+Save-KWState -State $state
+
+& (Join-Path $SkillPath 'scripts\Invoke-QueueProcessor.ps1') -BatchSize 10

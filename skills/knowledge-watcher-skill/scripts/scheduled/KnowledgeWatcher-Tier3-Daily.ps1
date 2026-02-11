@@ -1,6 +1,20 @@
-﻿# KnowledgeWatcher-Tier3-Daily.ps1
-$skillPath = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-Import-Module (Join-Path $skillPath "scripts\KnowledgeWatcher.psm1") -Force
-Write-KWLog "Tier 3 (Daily) - DÃ©marrage"
-# TODO: ImplÃ©menter traitement Bookmarks, Scripts
-Write-KWLog "Tier 3 (Daily) - TerminÃ©"
+$SkillPath = 'C:\Users\r2d2\.claude\skills\knowledge-watcher-skill'
+Import-Module (Join-Path $SkillPath 'scripts\KnowledgeWatcher.psm1') -Force
+. (Join-Path $SkillPath 'sources\GenericFileSource.ps1')
+. (Join-Path $SkillPath 'sources\BrowserBookmarksSource.ps1')
+
+$sources = Get-KWSources | Where-Object { $_.tier -eq 3 -and $_.enabled }
+foreach ($source in $sources) {
+    if ($source.type -eq 'directory') {
+        Invoke-DirectoryScan -SourceConfig $source
+    }
+    elseif ($source.type -eq 'browser-bookmarks') {
+        Invoke-BookmarksCapture
+    }
+}
+
+$state = Get-KWState
+$state.lastTier3Run = (Get-Date).ToString('o')
+Save-KWState -State $state
+
+& (Join-Path $SkillPath 'scripts\Invoke-QueueProcessor.ps1') -BatchSize 20

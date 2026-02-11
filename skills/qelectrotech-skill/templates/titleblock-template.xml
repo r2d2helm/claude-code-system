@@ -1,0 +1,92 @@
+<titleblocktemplate name="{{TITLEBLOCK_NAME}}">
+    <information>{{DESCRIPTION}}</information>
+    <logos>
+        <!-- Decommenter pour ajouter un logo :
+        <logo name="logo1" type="png" storage="base64">
+            DATA_BASE64_ICI
+        </logo>
+        -->
+    </logos>
+    <grid cols="t15%;r40%;t15%;r30%;" rows="25;25;25;25;">
+        <!-- Ligne 1 : Logo + Titre projet -->
+        <field valign="center" row="0" col="0" rowspan="2" name="logo"
+               displaylabel="false" align="center" hadjust="true">
+            <value>
+                <translation lang="fr">%{logo1}</translation>
+            </value>
+        </field>
+        <field valign="center" row="0" col="1" colspan="3" name="title"
+               displaylabel="true" align="center" hadjust="true">
+            <value>
+                <translation lang="fr">%title</translation>
+            </value>
+            <label>
+                <translation lang="fr">Titre</translation>
+                <translation lang="en">Title</translation>
+            </label>
+        </field>
+        <!-- Ligne 2 : Auteur + Date -->
+        <field valign="center" row="1" col="1" name="author"
+               displaylabel="true" align="left" hadjust="true">
+            <value>
+                <translation lang="fr">%author</translation>
+            </value>
+            <label>
+                <translation lang="fr">Auteur</translation>
+                <translation lang="en">Author</translation>
+            </label>
+        </field>
+        <field valign="center" row="1" col="2" name="date"
+               displaylabel="true" align="center" hadjust="true">
+            <value>
+                <translation lang="fr">%date</translation>
+            </value>
+            <label>
+                <translation lang="fr">Date</translation>
+                <translation lang="en">Date</translation>
+            </label>
+        </field>
+        <field valign="center" row="1" col="3" name="folio"
+               displaylabel="true" align="center" hadjust="true">
+            <value>
+                <translation lang="fr">%folio</translation>
+            </value>
+            <label>
+                <translation lang="fr">Folio</translation>
+                <translation lang="en">Folio</translation>
+            </label>
+        </field>
+        <!-- Ligne 3 : Installation + Revision -->
+        <field valign="center" row="2" col="0" colspan="2" name="plant"
+               displaylabel="true" align="left" hadjust="true">
+            <value>
+                <translation lang="fr">%plant</translation>
+            </value>
+            <label>
+                <translation lang="fr">Installation</translation>
+                <translation lang="en">Plant</translation>
+            </label>
+        </field>
+        <field valign="center" row="2" col="2" colspan="2" name="indexrev"
+               displaylabel="true" align="center" hadjust="true">
+            <value>
+                <translation lang="fr">%indexrev</translation>
+            </value>
+            <label>
+                <translation lang="fr">Indice</translation>
+                <translation lang="en">Rev.</translation>
+            </label>
+        </field>
+        <!-- Ligne 4 : Fichier -->
+        <field valign="center" row="3" col="0" colspan="4" name="filename"
+               displaylabel="true" align="left" hadjust="true">
+            <value>
+                <translation lang="fr">%filename</translation>
+            </value>
+            <label>
+                <translation lang="fr">Fichier</translation>
+                <translation lang="en">File</translation>
+            </label>
+        </field>
+    </grid>
+</titleblocktemplate>

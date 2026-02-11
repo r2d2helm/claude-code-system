@@ -15,6 +15,9 @@ Orchestrateur intelligent qui détecte automatiquement le contexte de la requêt
 | 🔍 Watcher | Surveillance sources, pipeline, queue | `/kwatch-*` | ✅ Actif |
 | 📁 FileOrg | Organisation fichiers, doublons, tri | `/file-*` | ✅ Actif |
 | 🛡️ Guardian | Maintenance proactive vault, auto-fix | `/guardian-*` | ✅ Actif |
+| ⚡ QElectroTech | Plans électriques, schémas, normes NF C 15-100 | `/qet-*` | ✅ Actif |
+| 📋 SOP Creator | Runbooks, playbooks, SOPs, documentation opérationnelle | `/sop-*` | ✅ Actif |
+| 🔧 Skill Creator | Création et validation de skills Claude Code | `/skill-*` | ✅ Actif |
 | ☁️ Cloud | AWS, Azure, GCP, Terraform | `/cloud-*` | ⏳ Prévu |
 
 ## Détection Automatique du Contexte
@@ -70,8 +73,47 @@ Orchestrateur intelligent qui détecte automatiquement le contexte de la requêt
 │  │                                                              │
 │  └──→ 🛡️ VAULT-GUARDIAN-SKILL                                  │
 │                                                                 │
+│  qelectrotech|qet|electrique|schema|folio|unifilaire|disjoncteur│
+│  │                                                              │
+│  └──→ ⚡ QELECTROTECH-SKILL                                    │
+│                                                                 │
+│  sop|runbook|playbook|documentation|procedure|checklist         │
+│  │                                                              │
+│  └──→ 📋 SOP-CREATOR                                           │
+│                                                                 │
+│  skill-create|new-skill|create skill|build skill|init skill     │
+│  │                                                              │
+│  └──→ 🔧 SKILL-CREATOR                                         │
+│                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+### Règles de Désambiguïsation
+
+Certains keywords secondaires sont partagés entre skills. Appliquer ces règles de priorité :
+
+| Keyword ambigu | Contexte | Skill cible |
+|---------------|----------|-------------|
+| `backup` | + proxmox/pve/vzdump | proxmox-skill |
+| `backup` | + windows/système/bitlocker | windows-skill |
+| `backup` | + vault/obsidian | obsidian-skill |
+| `backup` | (seul, sans contexte) | **Demander clarification** |
+| `service` | + windows/powershell/sc | windows-skill |
+| `service` | + linux/systemd/systemctl | linux-skill |
+| `service` | + docker/compose | docker-skill |
+| `service` | (seul, sans contexte) | **Demander clarification** |
+| `firewall` | + proxmox/pve | proxmox-skill |
+| `firewall` | + windows/defender/netsh | windows-skill |
+| `firewall` | + linux/iptables/ufw/nftables | linux-skill |
+| `firewall` | (seul, sans contexte) | **Demander clarification** |
+| `maintenance` | + vault/obsidian/notes | vault-guardian-skill |
+| `maintenance` | + windows/système/disque | windows-skill |
+| `tags` | + vault/obsidian/notes | obsidian-skill |
+| `tags` | + capture/know/pkm | knowledge-skill |
+| `notes` | + vault/liens/orphelines | obsidian-skill |
+| `notes` | + capture/résumé/save | knowledge-skill |
+
+**Règle générale** : si un keyword ambigu est utilisé SEUL sans contexte clair, demander à l'utilisateur de préciser le domaine avant de router.
 
 ### Patterns de Détection Détaillés
 
@@ -206,6 +248,55 @@ Orchestrateur intelligent qui détecte automatiquement le contexte de la requêt
 - `automatique`, `planifié` -> si contexte maintenance
 
 **Commandes activées**: `/guardian-health`, `/guardian-fix`, `/guardian-report`, `/guardian-schedule`
+
+#### ⚡ QElectroTech (qelectrotech-skill)
+
+**Keywords primaires** (haute confiance):
+- `qelectrotech`, `qet`, `.qet`, `.elmt`, `unifilaire`
+- `plan electrique`, `schema electrique`, `folio`
+- `tableau electrique`, `TGBT`, `disjoncteur`, `differentiel`
+- `NF C 15-100`, `nfc15100`, `norme electrique`
+- `cartouche`, `titleblock`, `bornier`, `terminal strip`
+- `crossref`, `reference croisee`, `master/slave`
+- `auto-numerotation`, `autonumber`
+
+**Keywords secondaires** (contexte requis):
+- `prise`, `interrupteur`, `lampe`, `eclairage` → si contexte plan/schema
+- `circuit`, `cable`, `section` → si contexte electrique
+- `devis`, `nomenclature`, `BOM` → si contexte projet electrique
+- `conducteur`, `borne`, `bornier` → si contexte schema
+- `DXF`, `SVG`, `element` → si contexte QET/CAO
+- `IEC 81346`, `plant`, `localisation` → si contexte schema industriel
+
+**Commandes activées** (35): `/qet-create`, `/qet-open`, `/qet-merge`, `/qet-info`, `/qet-export`, `/qet-backup`, `/qet-bom`, `/qet-element-search`, `/qet-element-create`, `/qet-element-import`, `/qet-element-list`, `/qet-element-catalog`, `/qet-element-transform`, `/qet-folio-add`, `/qet-folio-list`, `/qet-folio-reorder`, `/qet-folio-rename`, `/qet-folio-extract`, `/qet-circuit`, `/qet-panel`, `/qet-nfc15100`, `/qet-sizing`, `/qet-conductors`, `/qet-devis`, `/qet-materials`, `/qet-titleblock`, `/qet-autonumber`, `/qet-crossref`, `/qet-terminal-strip`, `/qet-validate`, `/qet-variables`, `/qet-diff`, `/qet-stats`, `/qet-dxf-import`, `/qet-wizard`
+
+#### 📋 SOP Creator (sop-creator)
+
+**Keywords primaires** (haute confiance):
+- `sop`, `runbook`, `playbook`, `procedure`, `documentation operationnelle`
+- `sop-create`, `creer runbook`, `documenter processus`
+- `checklist`, `decision tree`, `how-to guide`
+
+**Keywords secondaires** (contexte requis):
+- `documenter`, `processus` -> si contexte operations/maintenance
+- `guide`, `template` -> si contexte documentation
+- `incident`, `on-call` -> si contexte runbook
+
+**Commandes activees**: `/sop-create`
+
+#### 🔧 Skill Creator (skill-creator)
+
+**Keywords primaires** (haute confiance):
+- `skill-create`, `new-skill`, `create skill`, `build skill`
+- `init skill`, `initialiser skill`, `creer skill`
+- `skill-creator`, `skill builder`
+
+**Keywords secondaires** (contexte requis):
+- `skill` -> si contexte creation/developpement
+- `SKILL.md`, `commands/` -> si contexte structure skill
+- `validate skill` -> si contexte verification
+
+**Commandes activees**: `/skill-create`
 
 #### ☁️ Cloud (cloud-skill) [Prévu]
 
@@ -362,6 +453,20 @@ Chaque réponse indique l'agent actif:
 │   ├── SKILL.md
 │   ├── commands/
 │   └── scripts/
+├── qelectrotech-skill/              ← CAO: Plans électriques
+│   ├── SKILL.md
+│   ├── commands/                    (35 commandes)
+│   ├── wizards/                     (9 wizards)
+│   └── templates/                   (4 templates XML)
+├── sop-creator/                     ← Docs: SOPs et runbooks
+│   ├── SKILL.md
+│   ├── commands/
+│   └── references/                  (6 templates)
+├── skill-creator/                   ← Meta: Création de skills
+│   ├── SKILL.md
+│   ├── commands/
+│   ├── scripts/                     (init, validate)
+│   └── references/
 └── cloud-skill/                      [Prévu]
 ```
 

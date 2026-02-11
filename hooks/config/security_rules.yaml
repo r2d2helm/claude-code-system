@@ -1,0 +1,153 @@
+# Security rules for Claude Code Bash command validation
+# Categories: blocked (exit 2), confirm (force user confirmation), alert (warning only)
+
+blocked:
+  # Destruction systeme de fichiers
+  - pattern: "rm\\s+(-[a-zA-Z]*f[a-zA-Z]*\\s+)?/"
+    reason: "Suppression recursive depuis la racine"
+  - pattern: "rm\\s+-[a-zA-Z]*r[a-zA-Z]*\\s+-[a-zA-Z]*f"
+    reason: "Suppression recursive forcee"
+  - pattern: "del\\s+/s\\s+/q"
+    reason: "Suppression recursive silencieuse Windows"
+  - pattern: "rd\\s+/s\\s+/q\\s+[A-Za-z]:\\\\"
+    reason: "Suppression de dossier racine Windows"
+  - pattern: "format\\s+[a-zA-Z]:"
+    reason: "Formatage de disque"
+  - pattern: "mkfs\\."
+    reason: "Creation systeme de fichiers (destructif)"
+
+  # Fork bombs et deni de service
+  - pattern: ":\\(\\)\\{\\s*:\\|:\\&\\s*\\};:"
+    reason: "Fork bomb bash"
+  - pattern: "while\\s+true.*do.*fork"
+    reason: "Boucle fork infinie"
+
+  # Arret systeme
+  - pattern: "shutdown\\s+(/s|/r|-h|-r|-P)"
+    reason: "Arret/redemarrage systeme"
+  - pattern: "init\\s+[06]"
+    reason: "Arret/redemarrage systeme via init"
+  - pattern: "systemctl\\s+(poweroff|reboot|halt)"
+    reason: "Arret/redemarrage systeme via systemctl"
+
+  # Ecriture destructive disque
+  - pattern: "dd\\s+.*of=/dev/(sd|hd|nvme|vd)[a-z]"
+    reason: "Ecriture directe sur peripherique bloc"
+  - pattern: ">(\\s*/dev/sd|\\s*/dev/hd|\\s*/dev/null.*2>&1.*\\|)"
+    reason: "Redirection destructive"
+
+  # Manipulation credentials/secrets
+  - pattern: "curl\\s+.*\\|\\s*(bash|sh|zsh|python)"
+    reason: "Execution de script distant non verifie"
+  - pattern: "wget\\s+.*\\|\\s*(bash|sh|zsh|python)"
+    reason: "Execution de script distant non verifie"
+
+  # Windows specifique destructif
+  - pattern: "reg\\s+delete\\s+HKLM"
+    reason: "Suppression registre machine"
+  - pattern: "bcdedit\\s+/delete"
+    reason: "Suppression configuration de demarrage"
+  - pattern: "cipher\\s+/w:"
+    reason: "Effacement espace libre (irrecuperable)"
+
+confirm:
+  # Git operations dangereuses
+  - pattern: "git\\s+push\\s+.*--force"
+    reason: "Force push peut ecraser l'historique distant"
+  - pattern: "git\\s+push\\s+-f"
+    reason: "Force push peut ecraser l'historique distant"
+  - pattern: "git\\s+reset\\s+--hard"
+    reason: "Reset hard peut perdre des modifications"
+  - pattern: "git\\s+clean\\s+-[a-zA-Z]*f"
+    reason: "Nettoyage force peut supprimer des fichiers non suivis"
+  - pattern: "git\\s+branch\\s+-D"
+    reason: "Suppression forcee de branche"
+  - pattern: "git\\s+checkout\\s+\\."
+    reason: "Abandon de toutes les modifications locales"
+  - pattern: "git\\s+restore\\s+\\."
+    reason: "Restauration de tous les fichiers modifies"
+
+  # SQL destructif
+  - pattern: "DROP\\s+(TABLE|DATABASE|SCHEMA)"
+    reason: "Suppression de table/base de donnees"
+  - pattern: "TRUNCATE\\s+TABLE"
+    reason: "Vidage de table"
+  - pattern: "DELETE\\s+FROM\\s+\\w+\\s*$"
+    reason: "Suppression de tous les enregistrements (pas de WHERE)"
+
+  # Services et processus
+  - pattern: "Stop-Service\\s+"
+    reason: "Arret de service Windows"
+  - pattern: "systemctl\\s+stop\\s+"
+    reason: "Arret de service Linux"
+  - pattern: "taskkill\\s+/f"
+    reason: "Terminaison forcee de processus"
+  - pattern: "kill\\s+-9"
+    reason: "Kill force de processus"
+
+  # Permissions dangereuses
+  - pattern: "chmod\\s+777"
+    reason: "Permissions ouvertes a tous"
+  - pattern: "chmod\\s+-R"
+    reason: "Changement recursif de permissions"
+  - pattern: "icacls\\s+.*\\s+/grant\\s+Everyone"
+    reason: "Permissions ouvertes a tous sur Windows"
+
+  # Suppression large
+  - pattern: "rm\\s+-rf\\s+"
+    reason: "Suppression recursive forcee"
+  - pattern: "Remove-Item\\s+.*-Recurse.*-Force"
+    reason: "Suppression recursive forcee Windows"
+
+alert:
+  # Installation de packages
+  - pattern: "pip\\s+install"
+    reason: "Installation de package Python"
+  - pattern: "pip3\\s+install"
+    reason: "Installation de package Python"
+  - pattern: "npm\\s+install"
+    reason: "Installation de package Node"
+  - pattern: "npm\\s+i\\s+"
+    reason: "Installation de package Node"
+  - pattern: "yarn\\s+add"
+    reason: "Installation de package Yarn"
+  - pattern: "choco\\s+install"
+    reason: "Installation de package Chocolatey"
+  - pattern: "winget\\s+install"
+    reason: "Installation de package WinGet"
+  - pattern: "scoop\\s+install"
+    reason: "Installation de package Scoop"
+
+  # Fichiers sensibles
+  - pattern: "\\.env"
+    reason: "Acces a un fichier d'environnement"
+  - pattern: "credentials"
+    reason: "Acces potentiel a des credentials"
+  - pattern: "id_rsa|id_ed25519"
+    reason: "Acces a une cle SSH"
+  - pattern: "\\.pem|\\.key|\\.pfx"
+    reason: "Acces a un certificat/cle privee"
+
+  # Docker cleanup
+  - pattern: "docker\\s+(prune|system\\s+prune)"
+    reason: "Nettoyage Docker (peut supprimer des images/conteneurs)"
+  - pattern: "docker\\s+rm\\s+-f"
+    reason: "Suppression forcee de conteneur"
+  - pattern: "docker\\s+rmi"
+    reason: "Suppression d'image Docker"
+
+  # Reseau
+  - pattern: "netsh\\s+.*reset"
+    reason: "Reset configuration reseau Windows"
+  - pattern: "iptables\\s+-F"
+    reason: "Flush des regles firewall"
+  - pattern: "ufw\\s+disable"
+    reason: "Desactivation du firewall"
+
+  # Execution elevee
+  - pattern: "sudo\\s+"
+    reason: "Execution avec privileges root"
+  - pattern: "runas\\s+"
+    reason: "Execution avec privileges eleves Windows"
+  - pattern: "Start-Process.*-Verb\\s+RunAs"
+    reason: "Execution avec privileges administrateur"

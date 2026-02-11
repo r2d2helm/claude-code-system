@@ -1,0 +1,45 @@
+<definition version="0.100.0" type="element" link_type="terminale"
+            orientation="DYYY" width="14" height="37"
+            hotspot_x="7" hotspot_y="18">
+    <uuid uuid="{{{UUID}}}"/>
+    <names>
+        <name lang="fr">Borne {{BLOCK_NAME}}:{{TERMINAL_NUM}}</name>
+        <name lang="en">Terminal {{BLOCK_NAME}}:{{TERMINAL_NUM}}</name>
+    </names>
+    <informations>Author: r2d2</informations>
+    <elementInformations>
+        <elementInformation name="label" show="1">{{BLOCK_NAME}}:{{TERMINAL_NUM}}</elementInformation>
+        <elementInformation name="formula" show="0"></elementInformation>
+        <elementInformation name="description" show="1">Borne de passage</elementInformation>
+        <elementInformation name="designation" show="0"></elementInformation>
+        <elementInformation name="manufacturer" show="0"></elementInformation>
+        <elementInformation name="comment" show="0"></elementInformation>
+        <elementInformation name="plant" show="0"></elementInformation>
+        <elementInformation name="location" show="0"></elementInformation>
+    </elementInformations>
+    <description>
+        <dynamic_text x="3" y="-31.95" z="1" text_width="-1"
+                      Halignment="AlignLeft" Valignment="AlignTop"
+                      frame="false" rotation="0" keep_visual_rotation="false"
+                      text_from="ElementInfo"
+                      uuid="{{{DYNTEXT_UUID}}}"
+                      font="Liberation Sans,9,-1,5,50,0,0,0,0,0,Regular">
+            <text></text>
+            <info_name>label</info_name>
+        </dynamic_text>
+        <!-- Corps de la borne : rectangle -->
+        <rect x="-5" y="-8" width="10" height="16" rx="0" ry="0"
+              style="line-style:normal;line-weight:normal;filling:none;color:black"
+              antialias="false"/>
+        <!-- Trait central (separation) -->
+        <line x1="-5" y1="0" x2="5" y2="0"
+              style="line-style:normal;line-weight:thin;filling:none;color:black"
+              antialias="false" end1="none" end2="none" length1="1.5" length2="1.5"/>
+        <!-- Terminal haut (connexion entree) -->
+        <terminal x="0" y="-17" orientation="n" type="Generic"
+                  uuid="{{{TERMINAL_TOP_UUID}}}" name=""/>
+        <!-- Terminal bas (connexion sortie) -->
+        <terminal x="0" y="18" orientation="s" type="Generic"
+                  uuid="{{{TERMINAL_BOTTOM_UUID}}}" name=""/>
+    </description>
+</definition>

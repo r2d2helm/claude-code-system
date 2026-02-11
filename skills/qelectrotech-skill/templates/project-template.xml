@@ -1,0 +1,53 @@
+<project title="{{PROJECT_TITLE}}" version="0.90">
+    <properties>
+        <property show="1" name="saveddate">{{DATE_FR}}</property>
+        <property show="1" name="saveddate-us">{{DATE_US}}</property>
+        <property show="1" name="saveddate-eu">{{DATE_EU}}</property>
+        <property show="1" name="savedfilepath">{{FILE_PATH}}</property>
+        <property show="1" name="savedtime">{{TIME}}</property>
+        <property show="1" name="savedfilename">{{FILE_NAME}}</property>
+        <property show="1" name="plant">{{PLANT}}</property>
+        <property show="1" name="machine">{{MACHINE}}</property>
+        <property show="1" name="locmach">{{LOCMACH}}</property>
+        <property show="1" name="indexrev">{{INDEXREV}}</property>
+    </properties>
+    <newdiagrams>
+        <border cols="17" rows="8" displayrows="true" colsize="60" rowsize="80" displaycols="true"/>
+        <inset plant="{{PLANT}}" author="{{AUTHOR}}" locmach="{{LOCMACH}}" title="" version="" filename="" auto_page_num="" displayAt="bottom" folio="%id/%total" indexrev="{{INDEXREV}}" date="null" customtitleblock="{{TITLEBLOCK_NAME}}"/>
+        <conductors text_color="#000000" displaytext="1" cable="" dash-size="1" bicolor="false" numsize="7" horizontal-alignment="AlignBottom" function="" color2="#000000" vertirotatetext="270" conductor_section="" formula="" conductor_color="" onetextperfolio="0" bus="" condsize="1" type="multi" num="_" vertical-alignment="AlignRight" horizrotatetext="0" tension_protocol=""/>
+        <report label="%f-%l%c"/>
+        <xrefs>
+            <xref delayprefix="" snapto="label" switchprefix="" type="coil" offset="0" displayhas="cross" powerprefix="" master_label="%f-%l%c" showpowerctc="true" xrefpos="" slave_label="(%f-%l%c)"/>
+            <xref delayprefix="" snapto="label" switchprefix="" type="protection" offset="0" displayhas="cross" powerprefix="" master_label="%f-%l%c" showpowerctc="true" xrefpos="" slave_label="(%f-%l%c)"/>
+            <xref delayprefix="" snapto="label" switchprefix="" type="commutator" offset="0" displayhas="cross" powerprefix="" master_label="%f-%l%c" showpowerctc="true" xrefpos="" slave_label="(%f-%l%c)"/>
+        </xrefs>
+        <conductors_autonums freeze_new_conductors="false" current_autonum="">
+            <!-- Decommenter pour activer l'auto-numerotation des conducteurs :
+            <conductor_autonum title="default">
+                <formula text="%{F}-%{id}" count="1"/>
+            </conductor_autonum>
+            -->
+        </conductors_autonums>
+        <folio_autonums/>
+        <element_autonums freeze_new_elements="false" current_autonum="">
+            <!-- Decommenter pour activer l'auto-numerotation des elements :
+            <element_autonum title="default">
+                <formula text="%{F}-%{l}%{c}" count="1"/>
+            </element_autonum>
+            -->
+        </element_autonums>
+    </newdiagrams>
+    <!-- DIAGRAMS_PLACEHOLDER -->
+    <collection>
+        <category name="import">
+            <names>
+                <name lang="fr">Elements importes</name>
+                <name lang="en">Imported elements</name>
+                <name lang="de">Importierte elemente</name>
+                <name lang="ro">Elemente importate</name>
+                <name lang="es">Elementos importados</name>
+                <name lang="it">Elementi importati</name>
+            </names>
+        </category>
+    </collection>
+</project>
