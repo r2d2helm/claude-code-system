@@ -157,6 +157,16 @@ alert:
 # Path protection rules (used by path_guard.py)
 # ============================================================
 
+# Auto-allow: paths that subagents can write without confirmation
+# These are checked BEFORE system_paths but AFTER write_protected
+auto_allow_patterns:
+  - pattern: "skills[\/][^\/]+[\/]SKILL\.md$"
+    reason: "Definition de skill (auto-allow pour subagents)"
+  - pattern: "skills[\/]SKILL\.md$"
+    reason: "Meta-router (auto-allow pour subagents)"
+  - pattern: "\.claude[\/]CLAUDE\.md$"
+    reason: "Instructions systeme (auto-allow pour subagents)"
+
 # Read blocked: sensitive files that should never be read by hooks
 read_protected:
   - pattern: "\\.credentials\\.json$"

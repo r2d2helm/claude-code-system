@@ -2,7 +2,7 @@
 
 import json
 from pathlib import Path
-from collections import Counter
+from collections import Counter, deque
 
 
 def parse_transcript(transcript_path: str, max_lines: int = 200) -> dict:
@@ -12,11 +12,13 @@ def parse_transcript(transcript_path: str, max_lines: int = 200) -> dict:
     - message_count, tools_used, files_modified
     - bash_commands_count, bash_commands_sample
     - first_timestamp, last_timestamp
+    - malformed_lines (compteur de lignes JSON invalides)
     """
     tools_used = Counter()
     files_modified = set()
     bash_commands = []
     message_count = 0
+    malformed_count = 0
     first_timestamp = None
     last_timestamp = None
 
@@ -25,13 +27,11 @@ def parse_transcript(transcript_path: str, max_lines: int = 200) -> dict:
         if not path.exists():
             return {"error": "transcript not found"}
 
-        # Lire les dernieres max_lines lignes pour performance
-        lines = []
+        # Lire les dernieres max_lines lignes pour performance (deque O(1))
+        lines = deque(maxlen=max_lines)
         with open(path, "r", encoding="utf-8") as f:
             for line in f:
                 lines.append(line)
-                if len(lines) > max_lines:
-                    lines.pop(0)
 
         for line in lines:
             line = line.strip()
@@ -40,6 +40,12 @@ def parse_transcript(transcript_path: str, max_lines: int = 200) -> dict:
             try:
                 entry = json.loads(line)
             except json.JSONDecodeError:
+                malformed_count += 1
+                continue
+
+            # Check defensif: entry doit etre un dict
+            if not isinstance(entry, dict):
+                malformed_count += 1
                 continue
 
             message_count += 1
@@ -56,7 +62,11 @@ def parse_transcript(transcript_path: str, max_lines: int = 200) -> dict:
             if entry.get("type") != "assistant":
                 continue
 
-            content = entry.get("message", {}).get("content", [])
+            message = entry.get("message")
+            if not isinstance(message, dict):
+                continue
+
+            content = message.get("content", [])
             if not isinstance(content, list):
                 continue
 
@@ -78,7 +88,7 @@ def parse_transcript(transcript_path: str, max_lines: int = 200) -> dict:
                 # Extraire commandes Bash
                 if tool_name == "Bash":
                     cmd = tool_input.get("command", "")
-                    if cmd:
+                    if isinstance(cmd, str) and cmd:
                         bash_commands.append(cmd[:100])
 
     except Exception as e:
@@ -92,4 +102,5 @@ def parse_transcript(transcript_path: str, max_lines: int = 200) -> dict:
         "bash_commands_sample": bash_commands[:10],
         "first_timestamp": first_timestamp,
         "last_timestamp": last_timestamp,
+        "malformed_lines": malformed_count,
     }

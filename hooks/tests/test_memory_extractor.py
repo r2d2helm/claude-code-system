@@ -1,6 +1,7 @@
 """Tests pour memory_extractor.py — extract_insights, create_vault_note, duration."""
 
 import json
+import textwrap
 from pathlib import Path
 
 import pytest
@@ -213,3 +214,74 @@ class TestCreateVaultNote:
         }
         # Should not raise
         create_vault_note(insight, "session-001")
+
+
+class TestMemoryRulesYAML:
+    """Tests pour le chargement dynamique de memory_rules.yaml."""
+
+    def _write_yaml(self, tmp_path, text):
+        rules_file = tmp_path / "memory_rules.yaml"
+        rules_file.write_text(text, encoding="utf-8")
+        return rules_file
+
+    def test_load_valid_yaml(self, tmp_path, monkeypatch):
+        import memory_extractor
+        memory_extractor._cached_rules = None
+        monkeypatch.setattr(memory_extractor, "CONFIG_DIR", tmp_path)
+        yaml_text = textwrap.dedent("""\
+            insights:
+              - pattern: "(?:the issue was)(.{20,200})"
+                reason: "test"
+            patterns:
+              - pattern: "(?:always)(.{20,150})"
+                reason: "test"
+            signals:
+              complexity:
+                low: 3
+        """)
+        self._write_yaml(tmp_path, yaml_text)
+        result = memory_extractor.load_memory_rules()
+        assert result is not None
+        assert len(result["insights"]) == 1
+        assert len(result["patterns"]) == 1
+        assert result["signals"]["complexity"]["low"] == 3
+
+    def test_load_missing_yaml(self, tmp_path, monkeypatch):
+        import memory_extractor
+        memory_extractor._cached_rules = None
+        monkeypatch.setattr(memory_extractor, "CONFIG_DIR", tmp_path / "nonexistent")
+        result = memory_extractor.load_memory_rules()
+        assert result is None
+
+    def test_load_invalid_yaml(self, tmp_path, monkeypatch):
+        import memory_extractor
+        memory_extractor._cached_rules = None
+        monkeypatch.setattr(memory_extractor, "CONFIG_DIR", tmp_path)
+        self._write_yaml(tmp_path, ": : : invalid yaml [[[")
+        result = memory_extractor.load_memory_rules()
+        assert result is None
+
+    def test_load_broken_regex(self, tmp_path, monkeypatch):
+        import memory_extractor
+        memory_extractor._cached_rules = None
+        monkeypatch.setattr(memory_extractor, "CONFIG_DIR", tmp_path)
+        yaml_text = textwrap.dedent("""\
+            insights:
+              - pattern: "[invalid(regex"
+                reason: "broken"
+              - pattern: "(?:valid pattern)(.{20,200})"
+                reason: "ok"
+        """)
+        self._write_yaml(tmp_path, yaml_text)
+        result = memory_extractor.load_memory_rules()
+        assert result is not None
+        assert len(result["insights"]) == 1
+
+    def test_get_rules_fallback(self, tmp_path, monkeypatch):
+        """When YAML is missing, _get_rules returns hardcoded fallback."""
+        import memory_extractor
+        memory_extractor._cached_rules = None
+        monkeypatch.setattr(memory_extractor, "CONFIG_DIR", tmp_path / "nonexistent")
+        rules = memory_extractor._get_rules()
+        assert len(rules["insights"]) == len(memory_extractor._FALLBACK_INSIGHT_PATTERNS)
+        assert len(rules["patterns"]) == len(memory_extractor._FALLBACK_PATTERN_PATTERNS)

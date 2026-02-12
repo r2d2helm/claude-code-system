@@ -47,7 +47,7 @@ def load_path_rules() -> dict:
 
     # Compiler les regex pour les categories de chemins
     compiled = {}
-    for category in ("read_protected", "write_protected", "system_paths"):
+    for category in ("read_protected", "write_protected", "system_paths", "auto_allow_patterns"):
         compiled[category] = []
         for rule in raw_rules.get(category, []):
             try:
@@ -79,11 +79,14 @@ def validate_path(tool_name: str, file_path: str) -> tuple:
             if rule["regex"].search(resolved):
                 return "blocked", rule["reason"], rule["pattern"]
 
-    # Write/Edit: verifier write_protected puis system_paths (confirm)
+    # Write/Edit: verifier write_protected, puis auto_allow, puis system_paths
     if tool_name in ("Write", "Edit"):
         for rule in rules.get("write_protected", []):
             if rule["regex"].search(resolved):
                 return "confirm", rule["reason"], rule["pattern"]
+        for rule in rules.get("auto_allow_patterns", []):
+            if rule["regex"].search(resolved):
+                return "auto_allow", rule["reason"], rule["pattern"]
         for rule in rules.get("system_paths", []):
             if rule["regex"].search(resolved):
                 return "confirm", rule["reason"], rule["pattern"]
@@ -131,6 +134,15 @@ def main():
                 "decision": "block",
                 "reason": f"ATTENTION: {reason}. Confirmation requise.",
             })
+            sys.exit(0)
+
+        elif category == "auto_allow":
+            log_audit("path_guard", "auto_allow", {
+                "tool": tool_name,
+                "path": file_path[:200],
+                "reason": reason,
+            })
+            # Auto-allow - pas de confirmation requise
             sys.exit(0)
 
         else:

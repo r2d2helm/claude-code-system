@@ -2,6 +2,7 @@
 
 import json
 import sys
+import textwrap
 from io import StringIO
 from pathlib import Path
 
@@ -103,41 +104,49 @@ def sample_transcript(tmp_path):
 def sample_security_rules(tmp_path):
     """Cree un fichier security_rules.yaml minimal pour tests."""
     rules = tmp_path / "security_rules.yaml"
-    rules.write_text(
-        'blocked:\n'
-        '  - pattern: "rm\\\\s+-rf\\\\s+/"\n'
-        '    reason: "Suppression recursive racine"\n'
-        '  - pattern: "format\\\\s+[a-zA-Z]:"\n'
-        '    reason: "Formatage disque"\n'
-        '  - pattern: "curl\\\\s+.*\\\\|\\\\s*bash"\n'
-        '    reason: "Script distant"\n'
-        'confirm:\n'
-        '  - pattern: "git\\\\s+push.*--force"\n'
-        '    reason: "Force push"\n'
-        '  - pattern: "DROP\\\\s+TABLE"\n'
-        '    reason: "Drop table"\n'
-        'alert:\n'
-        '  - pattern: "pip\\\\s+install"\n'
-        '    reason: "Installation package"\n'
-        'read_protected:\n'
-        '  - pattern: "\\\\.credentials\\\\.json$"\n'
-        '    reason: "Credentials"\n'
-        '  - pattern: "\\\\.env$"\n'
-        '    reason: "Env file"\n'
-        '  - pattern: "id_rsa"\n'
-        '    reason: "SSH key"\n'
-        'write_protected:\n'
-        '  - pattern: "_Templates"\n'
-        '    reason: "Templates proteges"\n'
-        '  - pattern: "\\\\.claude[\\\\\\\\/]agents[\\\\\\\\/]"\n'
-        '    reason: "Agents proteges"\n'
-        'system_paths:\n'
-        '  - pattern: "CLAUDE\\\\.md$"\n'
-        '    reason: "Fichier systeme"\n'
-        '  - pattern: "SKILL\\\\.md$"\n'
-        '    reason: "Meta-router"\n',
-        encoding="utf-8",
-    )
+    rules.write_text(textwrap.dedent("""\
+        blocked:
+          - pattern: "rm\\\\s+-rf\\\\s+/"
+            reason: "Suppression recursive racine"
+          - pattern: "format\\\\s+[a-zA-Z]:"
+            reason: "Formatage disque"
+          - pattern: "curl\\\\s+.*\\\\|\\\\s*bash"
+            reason: "Script distant"
+        confirm:
+          - pattern: "git\\\\s+push.*--force"
+            reason: "Force push"
+          - pattern: "DROP\\\\s+TABLE"
+            reason: "Drop table"
+        alert:
+          - pattern: "pip\\\\s+install"
+            reason: "Installation package"
+        auto_allow_patterns:
+          - pattern: "skills[\\\\\\\\/][^\\\\\\\\/]+[\\\\\\\\/]SKILL\\\\.md$"
+            reason: "Definition de skill"
+          - pattern: "skills[\\\\\\\\/]SKILL\\\\.md$"
+            reason: "Meta-router"
+          - pattern: "\\\\.claude[\\\\\\\\/]CLAUDE\\\\.md$"
+            reason: "Instructions systeme"
+        read_protected:
+          - pattern: "\\\\.credentials\\\\.json$"
+            reason: "Credentials"
+          - pattern: "\\\\.env$"
+            reason: "Env file"
+          - pattern: "id_rsa"
+            reason: "SSH key"
+        write_protected:
+          - pattern: "_Templates"
+            reason: "Templates proteges"
+          - pattern: "\\\\.claude[\\\\\\\\/]agents[\\\\\\\\/]"
+            reason: "Agents proteges"
+          - pattern: "\\\\.claude[\\\\\\\\/]hooks[\\\\\\\\/]lib[\\\\\\\\/]"
+            reason: "Librairie hooks systeme"
+        system_paths:
+          - pattern: "CLAUDE\\\\.md$"
+            reason: "Fichier systeme"
+          - pattern: "SKILL\\\\.md$"
+            reason: "Meta-router"
+    """), encoding="utf-8")
     return rules
 
 

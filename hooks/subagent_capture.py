@@ -35,13 +35,12 @@ def parse_subagent_transcript(transcript_path: str, max_lines: int = 50) -> dict
         if not path.exists():
             return {"error": "transcript not found"}
 
-        # Lire les dernieres max_lines lignes pour performance
-        lines = []
+        # Lire les dernieres max_lines lignes pour performance (deque O(1))
+        from collections import deque as _deque
+        lines = _deque(maxlen=max_lines)
         with open(path, "r", encoding="utf-8") as f:
             for line in f:
                 lines.append(line)
-                if len(lines) > max_lines:
-                    lines.pop(0)
 
         for line in lines:
             line = line.strip()

@@ -1,4 +1,4 @@
-"""Tests pour path_guard.py — read_protected/write_protected/system_paths."""
+"""Tests pour path_guard.py — read_protected/write_protected/system_paths/auto_allow."""
 
 import pytest
 
@@ -15,6 +15,7 @@ class TestLoadPathRules:
         assert "read_protected" in rules
         assert "write_protected" in rules
         assert "system_paths" in rules
+        assert "auto_allow_patterns" in rules
         assert len(rules["read_protected"]) >= 2
 
     def test_load_rules_missing_file(self, tmp_path, monkeypatch):
@@ -22,7 +23,7 @@ class TestLoadPathRules:
         monkeypatch.setattr(path_guard, "CONFIG_DIR", tmp_path / "nonexistent")
         path_guard._compiled_rules = None
         rules = load_path_rules()
-        assert rules == {"read_protected": [], "write_protected": [], "system_paths": []}
+        assert rules == {"read_protected": [], "write_protected": [], "system_paths": [], "auto_allow_patterns": []}
 
 
 class TestValidatePath:
@@ -59,15 +60,36 @@ class TestValidatePath:
         cat, _, _ = validate_path("Edit", "C:/Users/test/.claude/agents/builder.md")
         assert cat == "confirm"
 
-    # --- System paths ---
-    def test_write_claude_md_confirm(self):
-        cat, _, _ = validate_path("Write", "C:/Users/test/.claude/CLAUDE.md")
+    # --- Auto-allow (subagents) ---
+    def test_auto_allow_skill_definition(self):
+        """Writing a skill's SKILL.md should be auto-allowed."""
+        cat, reason, _ = validate_path("Write", "C:/Users/test/.claude/skills/docker-skill/SKILL.md")
+        assert cat == "auto_allow"
+        assert "skill" in reason.lower()
+
+    def test_auto_allow_meta_router(self):
+        """Writing the meta-router SKILL.md should be auto-allowed."""
+        cat, reason, _ = validate_path("Edit", "C:/Users/test/.claude/skills/SKILL.md")
+        assert cat == "auto_allow"
+        assert "meta-router" in reason.lower() or "router" in reason.lower()
+
+    def test_auto_allow_claude_md(self):
+        """Writing CLAUDE.md should be auto-allowed."""
+        cat, reason, _ = validate_path("Write", "C:/Users/test/.claude/CLAUDE.md")
+        assert cat == "auto_allow"
+        assert "systeme" in reason.lower() or "instructions" in reason.lower()
+
+    def test_hooks_lib_still_confirm(self):
+        """hooks/lib/ is write_protected, NOT auto-allowed."""
+        cat, _, _ = validate_path("Write", "C:/Users/test/.claude/hooks/lib/utils.py")
         assert cat == "confirm"
 
-    def test_write_skill_md_confirm(self):
-        cat, _, _ = validate_path("Edit", "C:/Users/test/.claude/skills/SKILL.md")
+    def test_write_protected_beats_auto_allow(self):
+        """write_protected is checked BEFORE auto_allow (agents/ stays confirm)."""
+        cat, _, _ = validate_path("Edit", "C:/Users/test/.claude/agents/builder.md")
         assert cat == "confirm"
 
+    # --- System paths (confirm for non-auto-allowed) ---
     def test_write_normal_file_allowed(self):
         cat, _, _ = validate_path("Write", "C:/Users/test/project/foo.py")
         assert cat == "allow"

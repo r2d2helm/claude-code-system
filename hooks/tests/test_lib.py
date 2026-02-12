@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from datetime import datetime, timezone, timedelta
 
 import pytest
 
@@ -124,3 +125,100 @@ class TestTranscript:
         result = parse_transcript(str(transcript), max_lines=50)
         # Should only parse last 50 lines, not all 300
         assert result["message_count"] == 50
+
+class TestDSTFallback:
+    """Tests pour _compute_paris_offset (fallback DST dynamique)."""
+
+    def test_winter_cet(self):
+        from lib.utils import _compute_paris_offset
+        # 15 janvier 2026 12:00 UTC -> CET (UTC+1)
+        now = datetime(2026, 1, 15, 12, 0, tzinfo=timezone.utc)
+        assert _compute_paris_offset(now) == timedelta(hours=1)
+
+    def test_summer_cest(self):
+        from lib.utils import _compute_paris_offset
+        # 15 juillet 2026 12:00 UTC -> CEST (UTC+2)
+        now = datetime(2026, 7, 15, 12, 0, tzinfo=timezone.utc)
+        assert _compute_paris_offset(now) == timedelta(hours=2)
+
+    def test_march_transition_before(self):
+        from lib.utils import _compute_paris_offset
+        # 2026: dernier dimanche de mars = 29 mars
+        # Juste avant la transition (29 mars 00:59 UTC) -> encore CET
+        now = datetime(2026, 3, 29, 0, 59, tzinfo=timezone.utc)
+        assert _compute_paris_offset(now) == timedelta(hours=1)
+
+    def test_march_transition_after(self):
+        from lib.utils import _compute_paris_offset
+        # 29 mars 2026 01:00 UTC -> bascule CEST (UTC+2)
+        now = datetime(2026, 3, 29, 1, 0, tzinfo=timezone.utc)
+        assert _compute_paris_offset(now) == timedelta(hours=2)
+
+    def test_october_transition_before(self):
+        from lib.utils import _compute_paris_offset
+        # 2026: dernier dimanche d'octobre = 25 octobre
+        # Juste avant (25 oct 00:59 UTC) -> encore CEST
+        now = datetime(2026, 10, 25, 0, 59, tzinfo=timezone.utc)
+        assert _compute_paris_offset(now) == timedelta(hours=2)
+
+    def test_october_transition_after(self):
+        from lib.utils import _compute_paris_offset
+        # 25 octobre 2026 01:00 UTC -> bascule CET (UTC+1)
+        now = datetime(2026, 10, 25, 1, 0, tzinfo=timezone.utc)
+        assert _compute_paris_offset(now) == timedelta(hours=1)
+
+
+class TestTranscriptRobustness:
+    """Tests de robustesse pour parse_transcript."""
+
+    def test_malformed_json_lines(self, tmp_path):
+        from lib.transcript import parse_transcript
+        transcript = tmp_path / "malformed.jsonl"
+        lines = [
+            "not json",
+            json.dumps({"type": "assistant", "timestamp": "2026-01-01T00:00:00Z",
+                        "message": {"content": [{"type": "text", "text": "hello"}]}}),
+            "{broken",
+        ]
+        transcript.write_text(chr(10).join(lines) + chr(10), encoding="utf-8")
+        result = parse_transcript(str(transcript))
+        assert result["malformed_lines"] == 2
+        assert result["message_count"] == 1
+
+    def test_message_is_none(self, tmp_path):
+        from lib.transcript import parse_transcript
+        transcript = tmp_path / "msg_none.jsonl"
+        entry = {"type": "assistant", "timestamp": "2026-01-01T00:00:00Z", "message": None}
+        transcript.write_text(json.dumps(entry) + chr(10), encoding="utf-8")
+        result = parse_transcript(str(transcript))
+        assert result["message_count"] == 1
+        assert result["tools_used"] == {}
+
+    def test_content_is_string_not_list(self, tmp_path):
+        from lib.transcript import parse_transcript
+        transcript = tmp_path / "content_str.jsonl"
+        entry = {"type": "assistant", "timestamp": "2026-01-01T00:00:00Z",
+                 "message": {"content": "just a string"}}
+        transcript.write_text(json.dumps(entry) + chr(10), encoding="utf-8")
+        result = parse_transcript(str(transcript))
+        assert result["message_count"] == 1
+        assert result["tools_used"] == {}
+
+    def test_missing_message_key(self, tmp_path):
+        from lib.transcript import parse_transcript
+        transcript = tmp_path / "no_msg.jsonl"
+        entry = {"type": "assistant", "timestamp": "2026-01-01T00:00:00Z"}
+        transcript.write_text(json.dumps(entry) + chr(10), encoding="utf-8")
+        result = parse_transcript(str(transcript))
+        assert result["message_count"] == 1
+        assert result["tools_used"] == {}
+
+    def test_command_non_string(self, tmp_path):
+        from lib.transcript import parse_transcript
+        transcript = tmp_path / "cmd_int.jsonl"
+        entry = {"type": "assistant", "timestamp": "2026-01-01T00:00:00Z",
+                 "message": {"content": [{"type": "tool_use", "name": "Bash",
+                 "input": {"command": 12345}}]}}
+        transcript.write_text(json.dumps(entry) + chr(10), encoding="utf-8")
+        result = parse_transcript(str(transcript))
+        assert result["bash_commands_count"] == 0

@@ -25,8 +25,8 @@ from lib.utils import read_stdin_json, log_audit, append_jsonl, now_paris
 # PARTIE 2: Extraction d'insights et patterns
 # ============================================================
 
-# Patterns compiles pour detecter des insights
-INSIGHT_PATTERNS = [
+# Hardcoded fallback patterns (utilises si YAML absent ou invalide)
+_FALLBACK_INSIGHT_PATTERNS = [
     re.compile(
         r"(?:the (?:issue|problem|bug|error) was|root cause)"
         r"(.{20,200})", re.IGNORECASE
@@ -49,7 +49,7 @@ INSIGHT_PATTERNS = [
     ),
 ]
 
-PATTERN_PATTERNS = [
+_FALLBACK_PATTERN_PATTERNS = [
     re.compile(
         r"(?:always|never|must|should always|should never)"
         r"(.{20,150})", re.IGNORECASE
@@ -59,6 +59,56 @@ PATTERN_PATTERNS = [
         r"(.{20,150})", re.IGNORECASE
     ),
 ]
+
+# Cache module-level pour les regles chargees
+_cached_rules = None
+
+
+def load_memory_rules() -> dict | None:
+    """Charge les regles depuis config/memory_rules.yaml.
+
+    Retourne un dict avec insights, patterns, signals compiles,
+    ou None en cas d'erreur (fail-open).
+    """
+    rules_file = CONFIG_DIR / "memory_rules.yaml"
+    try:
+        if not rules_file.exists():
+            return None
+        import yaml
+        raw = yaml.safe_load(rules_file.read_text(encoding="utf-8")) or {}
+
+        compiled = {"insights": [], "patterns": [], "signals": raw.get("signals", {})}
+        for entry in raw.get("insights", []):
+            try:
+                compiled["insights"].append(re.compile(entry["pattern"], re.IGNORECASE))
+            except (re.error, KeyError):
+                continue
+        for entry in raw.get("patterns", []):
+            try:
+                compiled["patterns"].append(re.compile(entry["pattern"], re.IGNORECASE))
+            except (re.error, KeyError):
+                continue
+        return compiled
+    except Exception:
+        return None
+
+
+def _get_rules() -> dict:
+    """Retourne les regles compilees (YAML avec fallback hardcoded)."""
+    global _cached_rules
+    if _cached_rules is not None:
+        return _cached_rules
+
+    loaded = load_memory_rules()
+    if loaded and loaded.get("insights"):
+        _cached_rules = loaded
+    else:
+        _cached_rules = {
+            "insights": _FALLBACK_INSIGHT_PATTERNS,
+            "patterns": _FALLBACK_PATTERN_PATTERNS,
+            "signals": {},
+        }
+    return _cached_rules
 
 
 def _content_hash(text: str) -> str:
@@ -81,12 +131,11 @@ def extract_insights(transcript_path: str, max_lines: int = 200) -> dict:
         if not path.exists():
             return {"insights": [], "patterns": [], "errors_count": 0}
 
-        lines = []
+        from collections import deque
+        lines = deque(maxlen=max_lines)
         with open(path, "r", encoding="utf-8") as f:
             for line in f:
                 lines.append(line)
-                if len(lines) > max_lines:
-                    lines.pop(0)
 
         for line in lines:
             line = line.strip()
@@ -95,6 +144,9 @@ def extract_insights(transcript_path: str, max_lines: int = 200) -> dict:
             try:
                 entry = json.loads(line)
             except json.JSONDecodeError:
+                continue
+
+            if not isinstance(entry, dict):
                 continue
 
             # Compter les erreurs dans les resultats d'outils
@@ -107,7 +159,11 @@ def extract_insights(transcript_path: str, max_lines: int = 200) -> dict:
             if entry.get("type") != "assistant":
                 continue
 
-            content = entry.get("message", {}).get("content", [])
+            message = entry.get("message")
+            if not isinstance(message, dict):
+                continue
+
+            content = message.get("content", [])
             if not isinstance(content, list):
                 continue
 
@@ -120,7 +176,8 @@ def extract_insights(transcript_path: str, max_lines: int = 200) -> dict:
                     continue
 
                 # Chercher des insights
-                for pattern in INSIGHT_PATTERNS:
+                rules = _get_rules()
+                for pattern in rules["insights"]:
                     for match in pattern.finditer(text):
                         matched = match.group(0).strip()
                         h = _content_hash(matched)
@@ -138,7 +195,7 @@ def extract_insights(transcript_path: str, max_lines: int = 200) -> dict:
                         break
 
                 # Chercher des patterns techniques
-                for pattern in PATTERN_PATTERNS:
+                for pattern in rules["patterns"]:
                     for match in pattern.finditer(text):
                         matched = match.group(0).strip()
                         h = _content_hash(matched)
@@ -312,6 +369,22 @@ def main():
             "insights_count": len(memory.get("insights", [])),
             "patterns_count": len(memory.get("patterns", [])),
         }
+
+        # Filtrage des signaux triviaux selon seuils YAML
+        rules = _get_rules()
+        sig_cfg = rules.get("signals", {})
+        complexity_low = sig_cfg.get("complexity", {}).get("low", 5)
+        duration_short = sig_cfg.get("duration", {}).get("short", 300)
+        error_threshold = sig_cfg.get("error_threshold", 3)
+        is_trivial = (
+            unique_tools < complexity_low
+            and duration_s < duration_short
+            and memory.get("errors_count", 0) < error_threshold
+            and signal["insights_count"] == 0
+            and signal["patterns_count"] == 0
+        )
+        signal["trivial"] = is_trivial
+
         append_jsonl(MEMORY_DIR / "signals.jsonl", signal)
 
         # --- Partie 3: Audit ---
