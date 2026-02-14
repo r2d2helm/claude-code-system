@@ -104,7 +104,7 @@ function Get-KWConfig {
 
     $configFile = Join-Path $script:ConfigPath "config.json"
     if (Test-Path $configFile) {
-        return Get-Content $configFile -Raw | ConvertFrom-Json
+        return Read-Utf8File -Path $configFile | ConvertFrom-Json
     }
     throw "Configuration file not found: $configFile"
 }
@@ -119,7 +119,7 @@ function Get-KWSources {
 
     $sourcesFile = Join-Path $script:ConfigPath "sources.json"
     if (Test-Path $sourcesFile) {
-        return (Get-Content $sourcesFile -Raw | ConvertFrom-Json).sources
+        return (Read-Utf8File -Path $sourcesFile | ConvertFrom-Json).sources
     }
     throw "Sources file not found: $sourcesFile"
 }
@@ -127,14 +127,14 @@ function Get-KWSources {
 function Get-KWRules {
     <#
     .SYNOPSIS
-        Charge les règles de classification
+        Charge les règles de classification (UTF-8 explicite pour accents)
     #>
     [CmdletBinding()]
     param()
 
     $rulesFile = Join-Path $script:ConfigPath "rules.json"
     if (Test-Path $rulesFile) {
-        return Get-Content $rulesFile -Raw | ConvertFrom-Json
+        return Read-Utf8File -Path $rulesFile | ConvertFrom-Json
     }
     throw "Rules file not found: $rulesFile"
 }
