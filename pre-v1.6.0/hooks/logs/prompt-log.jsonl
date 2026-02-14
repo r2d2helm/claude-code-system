@@ -1,0 +1,3 @@
+{"timestamp": "2026-02-11T14:09:58.930265+01:00", "session_id": "test-123", "message_type": "command", "skills_detected": ["daily-maintenance"], "keywords": ["maintenance"], "message_length": 18, "message_preview": "/daily-maintenance"}
+{"timestamp": "2026-02-12T18:16:18.674139+01:00", "session_id": "test-phase4", "message_type": "question", "skills_detected": [], "keywords": ["container", "network", "fix", "docker"], "message_length": 38, "message_preview": "how to fix docker container networking"}
+{"timestamp": "2026-02-12T18:16:27.408125+01:00", "session_id": "test-phase4", "message_type": "instruction", "skills_detected": [], "keywords": [], "message_length": 5, "message_preview": "hello"}

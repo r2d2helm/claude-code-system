@@ -4,7 +4,6 @@ Injecte un additionalContext avec:
 - Liste des skills actifs
 - Nombre de notes dans le vault
 - Date de derniere maintenance guardian
-- Memory v2: memoires recentes injectees au demarrage
 """
 
 import sys
@@ -20,18 +19,21 @@ from lib.utils import read_stdin_json, log_audit, output_json, now_paris
 
 
 def get_active_skills() -> list[str]:
-    """Detecte les skills actifs par scan filesystem (methode primaire).
-
-    Un skill est actif s'il a un dossier avec un SKILL.md dedans.
-    Plus robuste que parser le tableau markdown du meta-router.
-    """
+    """Extrait les skills actifs depuis SKILL.md."""
     try:
-        if not SKILLS_DIR.exists():
+        skill_file = SKILLS_DIR / "SKILL.md"
+        if not skill_file.exists():
             return []
+        content = skill_file.read_text(encoding="utf-8")
+        # Chercher les lignes du tableau avec "Actif"
         skills = []
-        for d in sorted(SKILLS_DIR.iterdir()):
-            if d.is_dir() and (d / "SKILL.md").exists() and d.name != "commands":
-                skills.append(d.name)
+        for match in re.finditer(r"\|\s*\S+\s+(\w[\w-]+)\s*\|.*?\|\s*.*?Actif", content):
+            skills.append(match.group(1))
+        if not skills:
+            # Fallback: chercher les dossiers *-skill
+            for d in SKILLS_DIR.iterdir():
+                if d.is_dir() and d.name.endswith("-skill"):
+                    skills.append(d.name)
         return skills
     except Exception:
         return []

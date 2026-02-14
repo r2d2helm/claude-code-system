@@ -105,10 +105,24 @@ def parse_subagent_transcript(transcript_path: str, max_lines: int = 50) -> dict
     if first_timestamp and last_timestamp:
         try:
             from datetime import datetime
-            t1 = datetime.fromisoformat(first_timestamp.replace("Z", "+00:00"))
-            t2 = datetime.fromisoformat(last_timestamp.replace("Z", "+00:00"))
-            duration_s = int((t2 - t1).total_seconds())
-        except (ValueError, TypeError):
+            fmt_patterns = ["%Y-%m-%dT%H:%M:%S.%fZ", "%Y-%m-%dT%H:%M:%SZ",
+                            "%Y-%m-%dT%H:%M:%S.%f%z", "%Y-%m-%dT%H:%M:%S%z"]
+            t1 = t2 = None
+            for fmt in fmt_patterns:
+                try:
+                    t1 = datetime.strptime(first_timestamp, fmt)
+                    break
+                except ValueError:
+                    continue
+            for fmt in fmt_patterns:
+                try:
+                    t2 = datetime.strptime(last_timestamp, fmt)
+                    break
+                except ValueError:
+                    continue
+            if t1 and t2:
+                duration_s = int((t2 - t1).total_seconds())
+        except Exception:
             pass
 
     return {

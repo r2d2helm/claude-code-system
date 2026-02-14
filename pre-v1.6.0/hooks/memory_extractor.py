@@ -1,15 +1,9 @@
-"""Stop hook: shim redirecting main() to memory_extractor_v2.py.
+"""Stop hook etendu: capture metriques de session ET extrait des insights.
 
-DEPRECATED: This file exists for backward compatibility only.
-The actual main() implementation is in memory_extractor_v2.py which uses
-SQLite (Memory v2) instead of JSONL-only storage.
-
-Functions (extract_insights, create_vault_note, etc.) are preserved
-from the repo v1.5 version for backward compatibility with tests.
-
-Previous versions:
-- _deprecated/memory_extractor_repo_v1.5.py (repo v1.5 JSONL version)
-- _deprecated/memory_extractor_v1.py (original v1)
+Remplace session_capture.py avec 3 parties:
+1. Metriques de session (via lib/transcript.py)
+2. Extraction d'insights et patterns depuis le transcript
+3. Persistance dans data/memory/ et creation de notes vault si significatif
 """
 
 import sys
@@ -28,7 +22,7 @@ from lib.utils import read_stdin_json, log_audit, append_jsonl, now_paris
 
 
 # ============================================================
-# PARTIE 2: Extraction d'insights et patterns (v1.5 legacy)
+# PARTIE 2: Extraction d'insights et patterns
 # ============================================================
 
 # Hardcoded fallback patterns (utilises si YAML absent ou invalide)
@@ -71,7 +65,11 @@ _cached_rules = None
 
 
 def load_memory_rules() -> dict | None:
-    """Charge les regles depuis config/memory_rules.yaml."""
+    """Charge les regles depuis config/memory_rules.yaml.
+
+    Retourne un dict avec insights, patterns, signals compiles,
+    ou None en cas d'erreur (fail-open).
+    """
     rules_file = CONFIG_DIR / "memory_rules.yaml"
     try:
         if not rules_file.exists():
@@ -254,7 +252,11 @@ def _compute_duration_s(first_ts: str, last_ts: str) -> int:
 
 
 def create_vault_note(insight: dict, session_id: str) -> None:
-    """Cree une note dans _Inbox/ pour un insight significatif."""
+    """Cree une note dans _Inbox/ pour un insight significatif.
+
+    Seulement si contenu > 50 chars et semble etre un fix ou decision.
+    Verifie que le chemin cible est bien dans le vault attendu (path guard).
+    """
     try:
         content = insight.get("content", "")
         if len(content) < 50:
@@ -308,17 +310,100 @@ def create_vault_note(insight: dict, session_id: str) -> None:
 
 
 # ============================================================
-# Main: delegate to memory_extractor_v2.py
+# PARTIE 3: Main
 # ============================================================
 
 def main():
-    """Delegate to memory_extractor_v2 main()."""
     try:
-        from memory_extractor_v2 import main as v2_main
-        v2_main()
-    except Exception:
-        # Fail-open: si v2 echoue, exit silencieusement
-        sys.exit(0)
+        input_data = read_stdin_json()
+        session_id = input_data.get("session_id", "unknown")
+        transcript_path = input_data.get("transcript_path", "")
+
+        # --- Partie 1: Metriques (identique a session_capture.py) ---
+        metrics = {}
+        if transcript_path:
+            metrics = parse_transcript(transcript_path)
+
+        session_summary = {
+            "timestamp": now_paris(),
+            "session_id": session_id,
+            "metrics": metrics,
+        }
+
+        # Append dans session-log.jsonl (compatibilite)
+        append_jsonl(LOGS_DIR / "session-log.jsonl", session_summary)
+
+        # --- Partie 2: Extraction d'insights ---
+        memory = {"insights": [], "patterns": [], "errors_count": 0}
+        if transcript_path:
+            memory = extract_insights(transcript_path)
+
+        # Creer le dossier memory si absent
+        MEMORY_DIR.mkdir(parents=True, exist_ok=True)
+
+        # Persister insights
+        for insight in memory.get("insights", []):
+            insight["session_id"] = session_id
+            append_jsonl(MEMORY_DIR / "insights.jsonl", insight)
+            # Creer note vault si significatif
+            create_vault_note(insight, session_id)
+
+        # Persister patterns
+        for pattern in memory.get("patterns", []):
+            pattern["session_id"] = session_id
+            append_jsonl(MEMORY_DIR / "patterns.jsonl", pattern)
+
+        # Persister signal de session
+        duration_s = _compute_duration_s(
+            metrics.get("first_timestamp", ""),
+            metrics.get("last_timestamp", ""),
+        )
+        unique_tools = len(metrics.get("tools_used", {}))
+        signal = {
+            "timestamp": now_paris(),
+            "session_id": session_id,
+            "duration_s": duration_s,
+            "complexity": unique_tools,
+            "files_modified": len(metrics.get("files_modified", [])),
+            "errors": memory.get("errors_count", 0),
+            "insights_count": len(memory.get("insights", [])),
+            "patterns_count": len(memory.get("patterns", [])),
+        }
+
+        # Filtrage des signaux triviaux selon seuils YAML
+        rules = _get_rules()
+        sig_cfg = rules.get("signals", {})
+        complexity_low = sig_cfg.get("complexity", {}).get("low", 5)
+        duration_short = sig_cfg.get("duration", {}).get("short", 300)
+        error_threshold = sig_cfg.get("error_threshold", 3)
+        is_trivial = (
+            unique_tools < complexity_low
+            and duration_s < duration_short
+            and memory.get("errors_count", 0) < error_threshold
+            and signal["insights_count"] == 0
+            and signal["patterns_count"] == 0
+        )
+        signal["trivial"] = is_trivial
+
+        append_jsonl(MEMORY_DIR / "signals.jsonl", signal)
+
+        # --- Partie 3: Audit ---
+        log_audit("memory_extractor", "session_end", {
+            "session_id": session_id,
+            "messages": metrics.get("message_count", 0),
+            "tools": unique_tools,
+            "files_modified": len(metrics.get("files_modified", [])),
+            "insights": len(memory.get("insights", [])),
+            "patterns": len(memory.get("patterns", [])),
+            "errors": memory.get("errors_count", 0),
+            "duration_s": duration_s,
+        })
+
+    except Exception as e:
+        log_audit("memory_extractor", "error", {"error": str(e)})
+
+    # Toujours exit 0 - logging silencieux
+    sys.exit(0)
 
 
 if __name__ == "__main__":

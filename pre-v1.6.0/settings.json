@@ -1,0 +1,139 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\load_context.py"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\security_validator.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\path_guard.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\path_guard.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\path_guard.py"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\memory_extractor_v2.py"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\subagent_capture.py"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\prompt_analyzer.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -Command \"$f = $env:CLAUDE_TOOL_ARG_FILE_PATH; if ($f -and $f -match '\\.md$') { Write-Output \\\"[hook] Markdown saved: $f\\\" }\""
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -Command \"[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; [System.Windows.Forms.MessageBox]::Show('Claude Code task completed', 'Claude Code', 'OK', 'Information') | Out-Null\""
+          }
+        ]
+      }
+    ]
+  },
+  "autoUpdatesChannel": "latest",
+  "mcpServers": {
+    "knowledge-assistant": {
+      "args": [
+        "run",
+        "--directory",
+        "C:\\Users\\r2d2\\.claude\\mcp-servers\\knowledge-assistant",
+        "python",
+        "-m",
+        "src.server"
+      ],
+      "command": "uv",
+      "type": "stdio"
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@anthropic/claude-code-memory"
+      ],
+      "type": "stdio"
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@anthropic/claude-code-github"
+      ],
+      "type": "stdio"
+    }
+  }
+}

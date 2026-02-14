@@ -160,11 +160,11 @@ alert:
 # Auto-allow: paths that subagents can write without confirmation
 # These are checked BEFORE system_paths but AFTER write_protected
 auto_allow_patterns:
-  - pattern: "skills[\/][^\/]+[\/]SKILL\\.md$"
+  - pattern: "skills[\/][^\/]+[\/]SKILL\.md$"
     reason: "Definition de skill (auto-allow pour subagents)"
-  - pattern: "skills[\/]SKILL\\.md$"
+  - pattern: "skills[\/]SKILL\.md$"
     reason: "Meta-router (auto-allow pour subagents)"
-  - pattern: "\\.claude[\/]CLAUDE\\.md$"
+  - pattern: "\.claude[\/]CLAUDE\.md$"
     reason: "Instructions systeme (auto-allow pour subagents)"
 
 # Read blocked: sensitive files that should never be read by hooks
@@ -194,14 +194,12 @@ write_protected:
     reason: "Configuration Claude Code"
   - pattern: "\\.claude[\\\\/]commands[\\\\/]"
     reason: "Commandes globales"
-  - pattern: "\\.claude[\\\\/]hooks[\\\\/]config[\\\\/]"
-    reason: "Configuration des hooks (regles de securite)"
 
 # System paths: critical system files requiring confirmation for write/edit
 system_paths:
   - pattern: "\\.claude[\\\\/]skills[\\\\/]SKILL\\.md$"
     reason: "Meta-router (fichier systeme critique)"
-  - pattern: "\\.claude[\\\\/]hooks[\\\\/](load_context|security_validator|session_capture|memory_extractor|memory_extractor_v2|memory_consolidator|path_guard|prompt_analyzer|subagent_capture|error_capture|notify_write|notify_complete)\\.py$"
+  - pattern: "\\.claude[\\\\/]hooks[\\\\/](load_context|security_validator|session_capture|memory_extractor|path_guard|prompt_analyzer|subagent_capture)\\.py$"
     reason: "Hooks systeme"
   - pattern: "\\.claude[\\\\/]CLAUDE\\.md$"
     reason: "Instructions systeme globales"

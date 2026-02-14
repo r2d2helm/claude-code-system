@@ -1,0 +1,218 @@
+# Configuration Memory v2 - Systeme de memoire auto-apprenant
+# Toutes les valeurs sont ajustables sans modifier le code
+
+# --- Extraction heuristique ---
+extraction:
+  # Nombre max de memoires par type par session
+  max_per_type: 5
+  # Longueur minimale de contenu pour etre considere
+  min_content_length: 30
+  # Nombre max de lignes de transcript a analyser
+  max_transcript_lines: 500
+  # Importance par defaut selon le type de memoire
+  importance_defaults:
+    tool_sequence: 7.0
+    problem_solution: 7.5
+    decision: 6.5
+    insight: 6.0
+    pattern: 6.0
+
+# --- Retrieval ---
+retrieval:
+  # SessionStart: memoires injectees au demarrage
+  startup:
+    max_chars: 500
+    max_facts: 5
+    max_memories: 5
+    facts_min_confidence: 0.7
+    memories_min_importance: 6.0
+    memories_days_back: 7
+
+  # UserPromptSubmit: memoires injectees par prompt
+  per_prompt:
+    max_chars: 300
+    max_results: 3
+    min_message_length: 20
+    skip_commands: true
+
+  # Scoring de pertinence
+  scoring:
+    recency_boost_7d: 0.5
+    recency_boost_14d: 0.3
+    decay_rate_per_week: 0.9
+
+# --- Consolidation ---
+consolidation:
+  # Decay: applique si non accede depuis N jours
+  decay_threshold_days: 7
+  decay_factor: 0.9
+  # Prune: supprime si score effectif < seuil ET age > N jours
+  prune_min_score: 0.5
+  prune_min_age_days: 30
+  # Promotion: booste si acces >= N fois
+  promote_min_access: 3
+  promote_boost: 1.0
+  # Merge: similarite minimale (proportion de mots communs)
+  merge_similarity_threshold: 0.6
+
+# --- Signals (repris de memory_rules.yaml) ---
+signals:
+  complexity:
+    low: 5
+    medium: 15
+    high: 100
+  duration:
+    short: 300
+    medium: 1800
+    long: 86400
+  error_threshold: 3
+
+# --- Stopwords pour extraction de topics ---
+stopwords:
+  fr:
+    - le
+    - la
+    - les
+    - de
+    - du
+    - des
+    - un
+    - une
+    - et
+    - en
+    - est
+    - que
+    - qui
+    - dans
+    - pour
+    - pas
+    - sur
+    - avec
+    - ce
+    - cette
+    - il
+    - elle
+    - je
+    - nous
+    - vous
+    - sont
+    - mais
+    - ou
+    - donc
+    - ni
+    - car
+    - par
+    - plus
+    - tout
+    - fait
+    - etre
+    - avoir
+    - faire
+    - comme
+    - aussi
+  en:
+    - the
+    - a
+    - an
+    - is
+    - are
+    - was
+    - were
+    - be
+    - been
+    - being
+    - have
+    - has
+    - had
+    - do
+    - does
+    - did
+    - will
+    - would
+    - could
+    - should
+    - may
+    - might
+    - shall
+    - can
+    - to
+    - of
+    - in
+    - for
+    - on
+    - with
+    - at
+    - by
+    - from
+    - as
+    - into
+    - through
+    - during
+    - before
+    - after
+    - above
+    - below
+    - and
+    - but
+    - or
+    - not
+    - no
+    - if
+    - then
+    - so
+    - than
+    - too
+    - very
+    - just
+    - about
+    - this
+    - that
+    - these
+    - those
+    - it
+    - its
+    - i
+    - me
+    - my
+    - we
+    - our
+    - you
+    - your
+    - he
+    - she
+    - they
+    - them
+    - their
+    - what
+    - which
+    - who
+    - when
+    - where
+    - how
+    - all
+    - each
+    - every
+    - both
+    - few
+    - more
+    - most
+    - other
+    - some
+    - such
+    - only
+    - own
+    - same
+    - here
+    - there
+    - file
+    - use
+    - using
+    - used
+    - need
+    - want
+    - let
+    - now
+    - get
+    - got
+    - make
+    - made

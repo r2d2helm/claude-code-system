@@ -1,0 +1,216 @@
+# Router rules - keyword to skill mapping
+# Used by the UserPromptSubmit hook for intelligent skill routing
+# Priority: primary keywords match first, secondary require context
+
+skills:
+  proxmox-skill:
+    prefix: "/pve-"
+    primary:
+      - proxmox
+      - pve
+      - qemu
+      - lxc
+      - vzdump
+      - pveam
+      - corosync
+      - pmxcfs
+      - ceph
+    secondary:
+      - vm
+      - conteneur
+      - template
+      - snapshot
+
+  windows-skill:
+    prefix: "/win-"
+    primary:
+      - windows
+      - powershell
+      - defender
+      - bitlocker
+      - gpo
+      - "group policy"
+      - "active directory"
+      - rdp
+      - iis
+      - hyper-v
+      - ntfs
+      - winrm
+    secondary:
+      - cmd
+      - batch
+      - registre
+      - registry
+
+  docker-skill:
+    prefix: "/dk-"
+    primary:
+      - docker
+      - dockerfile
+      - compose
+      - swarm
+      - kubernetes
+      - k8s
+      - pod
+      - helm
+    secondary:
+      - container
+      - conteneur
+      - image
+      - volume
+
+  linux-skill:
+    prefix: "/lx-"
+    primary:
+      - ubuntu
+      - debian
+      - apt
+      - systemd
+      - nginx
+      - apache
+      - linux
+      - bash
+      - certbot
+    secondary:
+      - ssh
+      - cron
+      - journalctl
+      - ufw
+      - nftables
+
+  obsidian-skill:
+    prefix: "/obs-"
+    primary:
+      - obsidian
+      - vault
+      - wikilink
+      - frontmatter
+      - dataview
+    secondary:
+      - liens
+      - orphelines
+      - backup-vault
+
+  knowledge-skill:
+    prefix: "/know-"
+    primary:
+      - know-save
+      - know-search
+      - zettelkasten
+      - pkm
+    secondary:
+      - capture
+      - resume
+      - note
+
+  knowledge-watcher-skill:
+    prefix: "/kwatch-"
+    primary:
+      - kwatch
+      - watcher
+      - surveillance
+      - pipeline
+    secondary:
+      - queue
+      - sources
+      - tier
+
+  fileorg-skill:
+    prefix: "/file-"
+    primary:
+      - file-organize
+      - doublons
+      - dupliqu
+    secondary:
+      - fichiers
+      - renommer
+      - downloads
+
+  vault-guardian-skill:
+    prefix: "/guardian-"
+    primary:
+      - vault-guardian
+      - guardian
+      - auto-fix
+    secondary:
+      - health
+      - rapport-vault
+
+  qelectrotech-skill:
+    prefix: "/qet-"
+    primary:
+      - qelectrotech
+      - qet
+      - electrique
+      - schema electrique
+      - folio
+      - unifilaire
+      - disjoncteur
+    secondary:
+      - tableau electrique
+      - norme nf
+
+  sop-creator:
+    prefix: "/sop-"
+    primary:
+      - sop
+      - runbook
+      - playbook
+    secondary:
+      - procedure
+      - checklist
+      - documentation operationnelle
+
+  skill-creator:
+    prefix: "/skill-"
+    primary:
+      - skill-create
+      - new-skill
+      - create skill
+      - build skill
+    secondary:
+      - init skill
+
+# Disambiguation rules for shared keywords
+disambiguation:
+  backup:
+    - context: ["proxmox", "pve", "vzdump"]
+      skill: proxmox-skill
+    - context: ["windows", "systeme", "bitlocker"]
+      skill: windows-skill
+    - context: ["vault", "obsidian"]
+      skill: obsidian-skill
+
+  service:
+    - context: ["windows", "powershell", "sc"]
+      skill: windows-skill
+    - context: ["linux", "systemd", "systemctl"]
+      skill: linux-skill
+    - context: ["docker", "compose"]
+      skill: docker-skill
+
+  firewall:
+    - context: ["proxmox", "pve"]
+      skill: proxmox-skill
+    - context: ["windows", "defender", "netsh"]
+      skill: windows-skill
+    - context: ["linux", "iptables", "ufw", "nftables"]
+      skill: linux-skill
+
+  maintenance:
+    - context: ["vault", "obsidian", "notes"]
+      skill: vault-guardian-skill
+    - context: ["windows", "systeme", "disque"]
+      skill: windows-skill
+
+  tags:
+    - context: ["vault", "obsidian", "notes"]
+      skill: obsidian-skill
+    - context: ["capture", "know", "pkm"]
+      skill: knowledge-skill
+
+  notes:
+    - context: ["vault", "liens", "orphelines"]
+      skill: obsidian-skill
+    - context: ["capture", "resume", "save"]
+      skill: knowledge-skill

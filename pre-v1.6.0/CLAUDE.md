@@ -1,4 +1,4 @@
-﻿# Système r2d2 - Claude Code Configuration
+# Système r2d2 - Claude Code Configuration
 
 ## Identité
 
@@ -83,7 +83,7 @@ Système de planification structurée inspiré du Context Engineering :
 **Chemin :** `~/.claude/mcp-servers/knowledge-assistant/`
 **Env :** `KNOWLEDGE_VAULT_PATH=C:\Users\r2d2\Documents\Knowledge`, `KNOWLEDGE_INDEX_PATH=~\.claude\skills\knowledge-watcher-skill\data\notes-index.json`
 
-### Hooks (9)
+### Hooks (6)
 
 Hooks Python executés automatiquement sur les événements Claude Code :
 
@@ -95,9 +95,6 @@ Hooks Python executés automatiquement sur les événements Claude Code :
 | `memory_extractor_v2.py` | Stop | * | Memory v2: extraction heuristique + SQLite |
 | `subagent_capture.py` | SubagentStop | * | Log résultats des subagents |
 | `prompt_analyzer.py` | UserPromptSubmit | * | Analyse requêtes + injection mémoires contextuelles |
-| `error_capture.py` | PostToolUse | Bash | Capture commandes en echec dans errors.jsonl |
-| `notify_write.py` | PostToolUse | Write | Notification ecriture fichier markdown |
-| `notify_complete.py` | Notification | * | Notification OS de fin de tache |
 
 **Chemin :** `~/.claude/hooks/`
 **Config :** `~/.claude/settings.json` -> `hooks`
@@ -268,9 +265,6 @@ Principes :
 | Hooks logs | `C:\Users\r2d2\.claude\hooks\logs\` |
 | Memory data | `C:\Users\r2d2\.claude\hooks\data\memory\` |
 | Memory DB | `C:\Users\r2d2\.claude\hooks\data\memory.db` |
-| Proxmox Host | `192.168.1.215` (SSH root, Web UI :8006) |
-| VM 100 (MultiPass) | `192.168.1.161` (SSH root, 18 containers Docker) |
-| VM 100 credentials | `C:\Users\r2d2\Documents\claude-config-backup\vm100-credentials.md` |
 
 ## Règles pour Claude Code
 

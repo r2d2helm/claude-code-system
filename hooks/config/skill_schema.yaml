@@ -1,0 +1,40 @@
+# Schema de validation pour SKILL.md
+# Utilise par le hook de validation et la commande /validate
+
+required_sections:
+  - pattern: "^#\\s+.+"
+    name: "Titre principal (H1)"
+    min: 1
+    max: 1
+  - pattern: "^##\\s+(Description|Présentation)"
+    name: "Section Description"
+    min: 1
+  - pattern: "^##\\s+Commandes"
+    name: "Section Commandes"
+    min: 1
+
+recommended_sections:
+  - pattern: "^##\\s+Conventions"
+    name: "Section Conventions"
+  - pattern: "^##\\s+Workflows"
+    name: "Section Workflows"
+
+structure:
+  max_lines: 500
+  encoding: "utf-8"
+  required_dirs:
+    - "commands/"
+  recommended_dirs:
+    - "wizards/"
+    - "references/"
+
+naming:
+  skill_dir: "^[a-z0-9]+(-[a-z0-9]+)*$"
+  command_prefix: "^/[a-z]+-"
+  command_files: "^[a-z0-9]+(-[a-z0-9]+)*\\.md$"
+  wizard_files: "^wizard-[a-z0-9]+(-[a-z0-9]+)*\\.md$"
+
+command_table:
+  required: true
+  pattern: "\\|\\s*`/[a-z]+-"
+  min_entries: 1

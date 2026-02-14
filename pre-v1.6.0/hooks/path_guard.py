@@ -84,10 +84,9 @@ def validate_path(tool_name: str, file_path: str) -> tuple:
         for rule in rules.get("write_protected", []):
             if rule["regex"].search(resolved):
                 return "confirm", rule["reason"], rule["pattern"]
-        # Auto-allow: chemins autorises sans confirmation (ex: subagents)
         for rule in rules.get("auto_allow_patterns", []):
             if rule["regex"].search(resolved):
-                return "allow", "", ""
+                return "auto_allow", rule["reason"], rule["pattern"]
         for rule in rules.get("system_paths", []):
             if rule["regex"].search(resolved):
                 return "confirm", rule["reason"], rule["pattern"]
@@ -135,6 +134,15 @@ def main():
                 "decision": "block",
                 "reason": f"ATTENTION: {reason}. Confirmation requise.",
             })
+            sys.exit(0)
+
+        elif category == "auto_allow":
+            log_audit("path_guard", "auto_allow", {
+                "tool": tool_name,
+                "path": file_path[:200],
+                "reason": reason,
+            })
+            # Auto-allow - pas de confirmation requise
             sys.exit(0)
 
         else:

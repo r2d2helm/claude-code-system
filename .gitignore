@@ -19,15 +19,23 @@ plans/
 mcp-servers/
 
 # Settings with potential secrets
-settings.json
 settings.local.json
 .credentials.json
 credentials.json
+vm100-credentials.md
 *.key
 
 # Temporary files
 *.tmp
 *.bak
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Runtime data (not config)
+hooks/data/
+*.db
 
 # Knowledge Watcher runtime data
 skills/knowledge-watcher-skill/data/queue.json

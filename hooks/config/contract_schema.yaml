@@ -1,0 +1,69 @@
+# Schema de validation pour les contrats inter-agents (Contract-First)
+# Utilise par les subagents skill-builder, router-updater, knowledge-indexer
+
+# Contrat publie par skill-builder (upstream)
+skill_contract:
+  required_fields:
+    - name: "skill_name"
+      type: "string"
+      pattern: "^[a-z0-9]+(-[a-z0-9]+)*$"
+    - name: "prefix"
+      type: "string"
+      pattern: "^/[a-z]+-$"
+    - name: "commands_count"
+      type: "integer"
+      min: 1
+    - name: "keywords"
+      type: "list"
+      min_items: 3
+    - name: "description_router"
+      type: "string"
+      max_length: 200
+    - name: "description_claude_md"
+      type: "string"
+      max_length: 200
+  optional_fields:
+    - name: "wizards_count"
+      type: "integer"
+    - name: "dependencies"
+      type: "list"
+    - name: "mcp_impact"
+      type: "boolean"
+
+# Contrat consomme par router-updater (downstream)
+router_update:
+  required_from_contract:
+    - "skill_name"
+    - "prefix"
+    - "keywords"
+    - "description_router"
+  output:
+    - "skills/SKILL.md updated"
+    - "CLAUDE.md updated"
+
+# Contrat consomme par knowledge-indexer (downstream)
+knowledge_update:
+  required_from_contract:
+    - "skill_name"
+    - "description_router"
+    - "keywords"
+  output:
+    - "vault note created"
+    - "MOC updated"
+
+# Validation des agents markdown
+agent_frontmatter:
+  required_fields:
+    - "name"
+    - "description"
+    - "tools"
+  valid_tools:
+    - "Bash"
+    - "Read"
+    - "Write"
+    - "Edit"
+    - "Grep"
+    - "Glob"
+    - "WebFetch"
+    - "WebSearch"
+    - "Task"
