@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\load_context.py"
+            "command": "python C:/Users/r2d2/.claude/hooks/load_context.py"
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\security_validator.py"
+            "command": "python C:/Users/r2d2/.claude/hooks/security_validator.py"
           }
         ]
       },
@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\path_guard.py"
+            "command": "python C:/Users/r2d2/.claude/hooks/path_guard.py"
           }
         ]
       },
@@ -35,7 +35,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\path_guard.py"
+            "command": "python C:/Users/r2d2/.claude/hooks/path_guard.py"
           }
         ]
       },
@@ -44,7 +44,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\path_guard.py"
+            "command": "python C:/Users/r2d2/.claude/hooks/path_guard.py"
           }
         ]
       }
@@ -55,7 +55,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\memory_extractor_v2.py"
+            "command": "python C:/Users/r2d2/.claude/hooks/memory_extractor_v2.py"
           }
         ]
       }
@@ -66,7 +66,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\subagent_capture.py"
+            "command": "python C:/Users/r2d2/.claude/hooks/subagent_capture.py"
           }
         ]
       }
@@ -77,7 +77,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\prompt_analyzer.py"
+            "command": "python C:/Users/r2d2/.claude/hooks/prompt_analyzer.py"
           }
         ]
       }
@@ -88,7 +88,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\error_capture.py"
+            "command": "python C:/Users/r2d2/.claude/hooks/error_capture.py"
           }
         ]
       },
@@ -97,7 +97,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\notify_write.py"
+            "command": "python C:/Users/r2d2/.claude/hooks/notify_write.py"
           }
         ]
       }
@@ -108,7 +108,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python C:\\Users\\r2d2\\.claude\\hooks\\notify_complete.py"
+            "command": "python C:/Users/r2d2/.claude/hooks/notify_complete.py"
           }
         ]
       }
@@ -120,7 +120,7 @@
       "args": [
         "run",
         "--directory",
-        "C:\\Users\\r2d2\\.claude\\mcp-servers\\knowledge-assistant",
+        "C:/Users/r2d2/.claude/mcp-servers/knowledge-assistant",
         "python",
         "-m",
         "src.server"

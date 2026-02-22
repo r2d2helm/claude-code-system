@@ -18,6 +18,17 @@ from .memory_db import (
     get_facts, increment_access, log_retrieval,
 )
 
+# Import hybrid search (fail-open si absent)
+try:
+    from .memory_search import search as hybrid_search
+    from .embeddings import is_available as embeddings_available
+    HAS_HYBRID = True
+except Exception:
+    HAS_HYBRID = False
+
+    def embeddings_available():
+        return False
+
 # ============================================================
 # Configuration
 # ============================================================
@@ -53,8 +64,9 @@ def _load_retrieval_config() -> dict:
             for key in defaults:
                 if key in retrieval and isinstance(retrieval[key], dict):
                     defaults[key].update(retrieval[key])
-    except Exception:
-        pass
+    except Exception as e:
+        import logging
+        logging.warning("memory_retriever: config load failed, using defaults: %s", e)
     return defaults
 
 
@@ -208,34 +220,46 @@ def retrieve_for_prompt(message: str, session_id: str = "") -> str:
         if not keywords:
             return ""
 
-        # Chercher memoires matchant
-        memories = search_memories(keywords=keywords, limit=max_results * 2)
+        # v3: utiliser recherche hybride si embeddings disponibles
+        if HAS_HYBRID and embeddings_available():
+            hybrid_results = hybrid_search(
+                query=message,
+                mode="hybrid",
+                limit=max_results,
+                session_id=session_id,
+                log_retrieval_event="UserPromptSubmit",
+            )
+        else:
+            # Fallback: recherche keyword classique
+            hybrid_results = []
+            raw_memories = search_memories(keywords=keywords, limit=max_results * 2)
+            for m in raw_memories:
+                score = _effective_score(m, keywords)
+                if score > 0.5:
+                    hybrid_results.append({**m, "score": score})
+            hybrid_results.sort(key=lambda x: x["score"], reverse=True)
+            hybrid_results = hybrid_results[:max_results]
+            # Log retrieval pour fallback
+            for m in hybrid_results:
+                if m.get("id"):
+                    increment_access(m["id"])
+                    if session_id:
+                        log_retrieval(m["id"], None, session_id, "UserPromptSubmit")
 
         # Chercher facts par prefixe
         matching_facts = []
         for kw in keywords[:3]:
             matching_facts.extend(get_facts(prefix=kw, limit=2))
 
-        if not memories and not matching_facts:
+        if not hybrid_results and not matching_facts:
             return ""
-
-        # Scorer et trier les memoires
-        scored = []
-        for m in memories:
-            score = _effective_score(m, keywords)
-            if score > 0.5:
-                scored.append((score, m))
-        scored.sort(key=lambda x: x[0], reverse=True)
 
         # Formatter le resultat
         parts = []
 
-        for _, m in scored[:max_results]:
-            parts.append(f"[{m['type']}] {m['content'][:70]}")
-            if m.get("id"):
-                increment_access(m["id"])
-                if session_id:
-                    log_retrieval(m["id"], None, session_id, "UserPromptSubmit")
+        for m in hybrid_results[:max_results]:
+            mode_tag = m.get("mode", "kw")
+            parts.append(f"[{m.get('type', '?')}|{mode_tag}] {m.get('content', '')[:70]}")
 
         for f in matching_facts[:2]:
             parts.append(f"[fact] {f['key']}: {f['value'][:50]}")

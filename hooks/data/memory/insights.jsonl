@@ -1,0 +1,11 @@
+{"timestamp": "2026-02-12T05:54:07.689627+01:00", "type": "insight", "content": "fix: migration dossier phantom RAcfAcrences + ajout notes Supabase\"", "hash": "1f9f14884b96", "session_id": "f54ca2ce-0ff3-4a1b-873e-7a8d84f6ffda"}
+{"timestamp": "2026-02-12T06:04:14.066580+01:00", "type": "insight", "content": "fix: migration dossier phantom RAcfAcrences + ajout notes Supabase\"", "hash": "1f9f14884b96", "session_id": "f54ca2ce-0ff3-4a1b-873e-7a8d84f6ffda"}
+{"timestamp": "2026-02-12T06:04:18.829562+01:00", "type": "insight", "content": "fix: migration dossier phantom RAcfAcrences + ajout notes Supabase\"", "hash": "1f9f14884b96", "session_id": "f54ca2ce-0ff3-4a1b-873e-7a8d84f6ffda"}
+{"timestamp": "2026-02-12T06:04:23.200370+01:00", "type": "insight", "content": "fix: migration dossier phantom RAcfAcrences + ajout notes Supabase\"", "hash": "1f9f14884b96", "session_id": "f54ca2ce-0ff3-4a1b-873e-7a8d84f6ffda"}
+{"timestamp": "2026-02-12T06:04:27.915785+01:00", "type": "insight", "content": "fix: migration dossier phantom RAcfAcrences + ajout notes Supabase\"", "hash": "1f9f14884b96", "session_id": "f54ca2ce-0ff3-4a1b-873e-7a8d84f6ffda"}
+{"timestamp": "2026-02-12T13:45:27.525701+01:00", "type": "insight", "content": "fix:, refactor:, etc.)\",", "hash": "100d465c90ea", "session_id": "70df4112-c0ad-4e83-8927-cc2ce48d49b5"}
+{"timestamp": "2026-02-12T17:25:52.522385+01:00", "type": "insight", "content": "the issue was...\"` | Identification de cause racine |", "hash": "c282fccf87a9", "session_id": "40f9737e-99e7-402f-9220-6d4c44dba07a"}
+{"timestamp": "2026-02-12T17:25:52.523384+01:00", "type": "insight", "content": "fixed by...\"` | Description d'un fix |", "hash": "793ee0f30405", "session_id": "40f9737e-99e7-402f-9220-6d4c44dba07a"}
+{"timestamp": "2026-02-12T17:25:52.523384+01:00", "type": "insight", "content": "solution is...\"` | Solution trouvée |", "hash": "d033b7f50ad4", "session_id": "40f9737e-99e7-402f-9220-6d4c44dba07a"}
+{"timestamp": "2026-02-12T17:25:52.524384+01:00", "type": "insight", "content": "found that...\"` | Découverte technique |", "hash": "88d92bf5c31e", "session_id": "40f9737e-99e7-402f-9220-6d4c44dba07a"}
+{"timestamp": "2026-02-12T17:25:52.524384+01:00", "type": "insight", "content": "the trick is...\"` | Apprentissage clé |", "hash": "72d8565e7971", "session_id": "40f9737e-99e7-402f-9220-6d4c44dba07a"}

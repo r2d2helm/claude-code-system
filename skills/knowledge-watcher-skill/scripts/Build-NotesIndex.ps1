@@ -153,7 +153,7 @@ function Build-Index {
         }
 
         try {
-            $content = Get-Content -Path $file.FullName -Raw -Encoding UTF8
+            $content = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8
             if ([string]::IsNullOrWhiteSpace($content)) {
                 continue
             }

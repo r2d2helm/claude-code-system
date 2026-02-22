@@ -30,11 +30,18 @@ try:
     from lib.memory_db import (
         upsert_session, insert_memory, upsert_fact,
         get_retrieved_memory_ids, boost_importance,
-        update_retrieval_success,
+        update_retrieval_success, upsert_vector,
     )
     HAS_DB = True
 except Exception:
     HAS_DB = False
+
+# Import embeddings (fail-open si fastembed absent)
+try:
+    from lib.embeddings import is_available as _emb_available, embed_text, embedding_to_blob
+    HAS_EMBEDDINGS = _emb_available()
+except Exception:
+    HAS_EMBEDDINGS = False
 
 
 # ============================================================
@@ -75,8 +82,9 @@ def _load_config() -> dict:
                         defaults[key].update(raw[key])
                     else:
                         defaults[key] = raw[key]
-    except Exception:
-        pass
+    except Exception as e:
+        import logging
+        logging.warning("memory_extractor_v2: config load failed, using defaults: %s", e)
     return defaults
 
 
@@ -102,7 +110,7 @@ def parse_transcript_entries(transcript_path: str, max_lines: int = 500) -> list
         if not path.exists():
             return entries
         lines = deque(maxlen=max_lines)
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
             for line in f:
                 lines.append(line)
         for line in lines:
@@ -203,11 +211,9 @@ def extract_tool_sequences(entries: list[dict], max_results: int = 5) -> list[di
 
         # Detecter pattern: Read -> erreur -> Edit sur meme fichier
         if _is_error_result(entry) and len(tool_history) >= 1:
-            # Chercher le Edit qui suit (dans les prochaines entrees)
             prev_tool = tool_history[-1] if tool_history else None
             if prev_tool and prev_tool[0] in ("Read", "Bash"):
                 error_text = _get_tool_result_text(entry)[:200]
-                # Chercher la resolution dans les entrees suivantes
                 for j in range(i + 1, min(i + 5, len(entries))):
                     fix_tools = _extract_tool_uses(entries[j])
                     for ft in fix_tools:
@@ -243,13 +249,11 @@ def extract_problem_solutions(entries: list[dict], max_results: int = 5) -> list
 
         error_text = _get_tool_result_text(entry)[:200]
 
-        # Chercher l'explication assistant qui suit
         for j in range(i + 1, min(i + 4, len(entries))):
             text = _extract_assistant_text(entries[j])
             if len(text) < 30:
                 continue
 
-            # Chercher des indicateurs de solution
             solution_indicators = [
                 r"(?:the (?:issue|problem|error|bug) (?:is|was))\s+(.{20,200})",
                 r"(?:fix(?:ed)?|resolv(?:ed|ing)|solv(?:ed|ing))\s+(?:by|with|this|the|it)\s+(.{20,200})",
@@ -270,7 +274,7 @@ def extract_problem_solutions(entries: list[dict], max_results: int = 5) -> list
                     break
 
             if pairs and pairs[-1].get("source_context") == error_text[:200]:
-                break  # Found solution for this error
+                break
 
         if len(pairs) >= max_results:
             break
@@ -297,9 +301,7 @@ def extract_topics(entries: list[dict]) -> list[str]:
         if not text:
             continue
         total_texts += 1
-        # Tokeniser: garder mots de 3+ chars, alphanumeriques
         words = re.findall(r"\b[a-zA-Z_][\w.-]{2,}\b", text.lower())
-        # Compter unique par message (pseudo-IDF)
         unique_words = set(words)
         for w in unique_words:
             if w not in stopwords and not w.startswith("http"):
@@ -308,7 +310,6 @@ def extract_topics(entries: list[dict]) -> list[str]:
     if total_texts == 0:
         return []
 
-    # Les mots les plus frequents mais pas dans > 80% des messages (trop communs)
     threshold = max(2, total_texts * 0.8)
     topics = [
         word for word, count in word_freq.most_common(20)
@@ -323,7 +324,7 @@ def extract_topics(entries: list[dict]) -> list[str]:
 # ============================================================
 
 def extract_decisions(entries: list[dict], max_results: int = 5) -> list[dict]:
-    """Detecte les decisions: 'I'll use X because...' apres exploration."""
+    """Detecte les decisions apres exploration."""
     decisions = []
     decision_patterns = [
         re.compile(r"(?:I(?:'ll| will) (?:use|go with|choose|implement|create))\s+(.{10,200})", re.IGNORECASE),
@@ -341,7 +342,6 @@ def extract_decisions(entries: list[dict], max_results: int = 5) -> list[dict]:
             match = pattern.search(text)
             if match:
                 decision_text = match.group(0)[:200]
-                # Verifier que c'est substantiel (pas juste "I'll use the Read tool")
                 trivial_words = {"read", "tool", "write", "edit", "bash", "file", "check"}
                 words = set(decision_text.lower().split())
                 if len(words - trivial_words) > 3:
@@ -363,19 +363,12 @@ def extract_decisions(entries: list[dict], max_results: int = 5) -> list[dict]:
 # ============================================================
 
 def extract_facts(entries: list[dict]) -> list[dict]:
-    """Detecte les conventions recurrentes (encodage, nommage, chemins).
-
-    Permet les updates: si un meme key est trouve plusieurs fois,
-    la derniere valeur l'emporte (upsert_fact gerera le merge).
-    """
-    facts = {}  # key -> {key, value} — last occurrence wins
+    """Detecte les conventions recurrentes (encodage, nommage, chemins)."""
+    facts = {}
     fact_patterns = [
-        # Encodage
         (r"UTF-8\s+(?:sans|with(?:out)?)\s+BOM", "encoding/utf8", "UTF-8 sans BOM pour fichiers md/json"),
         (r"UTF-8\s+avec\s+BOM", "encoding/powershell", "UTF-8 avec BOM pour scripts PowerShell"),
-        # Chemins
         (r"(?:vault|Knowledge)\s+(?:path|dir|dossier)\s*(?:is|est|:)\s*(.{10,100})", "path/vault", None),
-        # PowerShell
         (r"compatible?\s+PS\s*5\.1", "compat/powershell", "Scripts PS doivent etre compatibles PS 5.1"),
         (r"pas\s+de\s+\?\?|no\s+null\s+coalescing", "compat/powershell-syntax", "Pas de ?? en PowerShell 5.1"),
     ]
@@ -600,9 +593,9 @@ def main():
                 "created_at": now_paris(),
             })
 
-            # Insert memories
+            # Insert memories + embeddings (v3)
             for mem in all_memories:
-                insert_memory({
+                memory_id = insert_memory({
                     "session_id": session_id,
                     "type": mem["type"],
                     "content": mem["content"],
@@ -611,6 +604,15 @@ def main():
                     "created_at": now_paris(),
                     "source_context": mem.get("source_context", ""),
                 })
+                # v3: generer et stocker l'embedding si disponible
+                if memory_id and HAS_EMBEDDINGS:
+                    try:
+                        embedding = embed_text(mem["content"])
+                        if embedding:
+                            blob = embedding_to_blob(embedding)
+                            upsert_vector(memory_id, blob)
+                    except Exception:
+                        pass  # fail-open
 
             # Upsert facts
             for fact in facts:
@@ -670,6 +672,7 @@ def main():
             "duration_s": duration_s,
             "trivial": is_trivial,
             "db_available": HAS_DB,
+            "embeddings_available": HAS_EMBEDDINGS,
         })
 
         # --- Partie 7: Consolidation automatique (rate-limited) ---
@@ -677,13 +680,12 @@ def main():
             try:
                 from lib.memory_db import purge_old_retrieval_logs
                 purge_old_retrieval_logs(max_age_days=30)
-                # Consolidation max 1x/heure (check fichier timestamp)
                 consolidation_marker = MEMORY_DIR / ".last_consolidation"
                 should_consolidate = True
                 if consolidation_marker.exists():
                     try:
                         marker_age = datetime.now().timestamp() - consolidation_marker.stat().st_mtime
-                        if marker_age < 3600:  # < 1 heure
+                        if marker_age < 3600:
                             should_consolidate = False
                     except Exception:
                         pass

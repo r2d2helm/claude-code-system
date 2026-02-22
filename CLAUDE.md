@@ -1,4 +1,4 @@
-﻿# Système r2d2 - Claude Code Configuration
+# Système r2d2 - Claude Code Configuration
 
 ## Identité
 
@@ -78,10 +78,20 @@ Système de planification structurée inspiré du Context Engineering :
 | Serveur | Transport | Description |
 |---------|-----------|-------------|
 | **knowledge-assistant** | stdio (Python) | Accès au vault Obsidian : search, read, related, stats, tags, backlinks, recent (cache TTL 60s) |
+| **taskyn** | streamable-http | Gestion de projet AI-first : companies, projects, nodes, edges, milestones, tags, timers, reporting (40+ outils MCP) |
 
-**Config :** `~/.claude.json` -> `mcpServers.knowledge-assistant`
-**Chemin :** `~/.claude/mcp-servers/knowledge-assistant/`
-**Env :** `KNOWLEDGE_VAULT_PATH=C:\Users\r2d2\Documents\Knowledge`, `KNOWLEDGE_INDEX_PATH=~\.claude\skills\knowledge-watcher-skill\data\notes-index.json`
+**Config :** `~/.claude.json` -> `mcpServers`
+
+**knowledge-assistant :**
+- **Chemin :** `~/.claude/mcp-servers/knowledge-assistant/`
+- **Env :** `KNOWLEDGE_VAULT_PATH=C:\Users\r2d2\Documents\Knowledge`, `KNOWLEDGE_INDEX_PATH=~\.claude\skills\knowledge-watcher-skill\data\notes-index.json`
+
+**taskyn :**
+- **URL :** `http://192.168.1.162:8020/mcp` (VM 100, container taskyn-core)
+- **Web UI :** `http://192.168.1.162:3020` (container taskyn-web)
+- **Auth Web :** `r2d2helm@gmail.com` / `Jarvis@2025`
+- **Methodologies :** spec_driven et classic_agile
+- **Prerequis :** VM 100 doit etre demarree
 
 ### Hooks (9)
 
@@ -269,7 +279,7 @@ Principes :
 | Memory data | `C:\Users\r2d2\.claude\hooks\data\memory\` |
 | Memory DB | `C:\Users\r2d2\.claude\hooks\data\memory.db` |
 | Proxmox Host | `192.168.1.215` (SSH root, Web UI :8006) |
-| VM 100 (MultiPass) | `192.168.1.161` (SSH root, 18 containers Docker) |
+| VM 100 (MultiPass) | `192.168.1.162` (SSH root, 18 containers Docker) |
 | VM 100 credentials | `C:\Users\r2d2\Documents\claude-config-backup\vm100-credentials.md` |
 
 ## Règles pour Claude Code

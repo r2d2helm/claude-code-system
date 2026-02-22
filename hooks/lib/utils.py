@@ -67,13 +67,16 @@ def append_jsonl(path: Path, data: dict) -> None:
         pass
 
 
-def log_audit(hook_name: str, event: str, details: dict | None = None) -> None:
+def log_audit(hook_name: str, event: str, details: dict | None = None,
+              duration_ms: int | None = None) -> None:
     """Ecrit une entree d'audit dans hooks-audit.jsonl."""
     entry = {
         "timestamp": now_paris(),
         "hook": hook_name,
         "event": event,
     }
+    if duration_ms is not None:
+        entry["duration_ms"] = duration_ms
     if details:
         entry["details"] = details
     append_jsonl(LOGS_DIR / "hooks-audit.jsonl", entry)

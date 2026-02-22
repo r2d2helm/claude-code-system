@@ -1,6 +1,6 @@
 """Couche SQLite pour le systeme de memoire v2.
 
-Schema: sessions, memories, facts, retrieval_log
+Schema: sessions, memories, facts, retrieval_log, vectors
 Mode WAL pour performance concurrente.
 Toutes les operations sont fail-open (retournent des valeurs par defaut en erreur).
 Erreurs loguees via log_audit pour observabilite.
@@ -74,6 +74,15 @@ CREATE TABLE IF NOT EXISTS retrieval_log (
     session_success INTEGER
 );
 
+CREATE TABLE IF NOT EXISTS vectors (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    memory_id INTEGER NOT NULL UNIQUE,
+    embedding BLOB NOT NULL,
+    model TEXT DEFAULT 'all-MiniLM-L6-v2',
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (memory_id) REFERENCES memories(id) ON DELETE CASCADE
+);
+
 CREATE INDEX IF NOT EXISTS idx_memories_session ON memories(session_id);
 CREATE INDEX IF NOT EXISTS idx_memories_type ON memories(type);
 CREATE INDEX IF NOT EXISTS idx_memories_importance ON memories(importance_score);
@@ -81,6 +90,7 @@ CREATE INDEX IF NOT EXISTS idx_memories_created ON memories(created_at);
 CREATE INDEX IF NOT EXISTS idx_facts_key ON facts(key);
 CREATE INDEX IF NOT EXISTS idx_retrieval_session ON retrieval_log(session_id);
 CREATE INDEX IF NOT EXISTS idx_retrieval_timestamp ON retrieval_log(timestamp);
+CREATE INDEX IF NOT EXISTS idx_vectors_memory ON vectors(memory_id);
 """
 
 
@@ -101,6 +111,7 @@ def _get_connection() -> sqlite3.Connection:
     conn = sqlite3.connect(str(DB_PATH), timeout=5.0)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA busy_timeout=3000")
+    conn.execute("PRAGMA foreign_keys = ON")
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -590,6 +601,101 @@ def get_stats() -> dict:
         return stats
     except Exception as e:
         _log_db_error("get_stats", e)
+        return {}
+    finally:
+        if conn:
+            conn.close()
+
+
+# ============================================================
+# Vectors CRUD (v3 -- recherche semantique)
+# ============================================================
+
+def upsert_vector(memory_id: int, embedding_blob: bytes, model: str = "all-MiniLM-L6-v2") -> None:
+    """Insert ou update un vecteur pour une memoire."""
+    conn = None
+    try:
+        conn = _get_connection()
+        conn.execute(
+            """INSERT OR REPLACE INTO vectors (memory_id, embedding, model, created_at)
+            VALUES (?, ?, ?, ?)""",
+            (memory_id, embedding_blob, model, now_paris()),
+        )
+        conn.commit()
+    except Exception as e:
+        _log_db_error("upsert_vector", e)
+    finally:
+        if conn:
+            conn.close()
+
+
+def get_all_vectors() -> list[dict]:
+    """Recupere tous les vecteurs avec les memoires associees."""
+    conn = None
+    try:
+        conn = _get_connection()
+        rows = conn.execute(
+            """SELECT v.memory_id, v.embedding, m.content, m.type, m.tags,
+                      m.importance_score, m.decay_score, m.created_at, m.access_count
+               FROM vectors v
+               JOIN memories m ON v.memory_id = m.id
+               ORDER BY m.importance_score * m.decay_score DESC""",
+        ).fetchall()
+        return [dict(r) for r in rows]
+    except Exception as e:
+        _log_db_error("get_all_vectors", e)
+        return []
+    finally:
+        if conn:
+            conn.close()
+
+
+def get_vector(memory_id: int) -> bytes | None:
+    """Recupere le blob embedding d'une memoire."""
+    conn = None
+    try:
+        conn = _get_connection()
+        row = conn.execute(
+            "SELECT embedding FROM vectors WHERE memory_id = ?",
+            (memory_id,),
+        ).fetchone()
+        return row["embedding"] if row else None
+    except Exception as e:
+        _log_db_error("get_vector", e)
+        return None
+    finally:
+        if conn:
+            conn.close()
+
+
+def delete_vector(memory_id: int) -> None:
+    """Supprime le vecteur d'une memoire."""
+    conn = None
+    try:
+        conn = _get_connection()
+        conn.execute("DELETE FROM vectors WHERE memory_id = ?", (memory_id,))
+        conn.commit()
+    except Exception as e:
+        _log_db_error("delete_vector", e)
+    finally:
+        if conn:
+            conn.close()
+
+
+def get_vector_stats() -> dict:
+    """Retourne des statistiques sur les vecteurs."""
+    conn = None
+    try:
+        conn = _get_connection()
+        total = conn.execute("SELECT COUNT(*) FROM vectors").fetchone()[0]
+        memories_total = conn.execute("SELECT COUNT(*) FROM memories").fetchone()[0]
+        return {
+            "vectors_count": total,
+            "memories_count": memories_total,
+            "coverage_pct": round(total / memories_total * 100, 1) if memories_total > 0 else 0,
+        }
+    except Exception as e:
+        _log_db_error("get_vector_stats", e)
         return {}
     finally:
         if conn:
