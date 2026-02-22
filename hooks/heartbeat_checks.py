@@ -440,10 +440,12 @@ def check_memory_db() -> dict:
 # ============================================================
 
 def check_network_vm100() -> dict:
-    """Ping la VM 100 (192.168.1.162) pour verifier la connectivite."""
+    """Ping la VM 100 pour verifier la connectivite. IP lue depuis config."""
     try:
         import platform
-        host = "192.168.1.162"
+        config = _get_config()
+        hosts = config.get("monitoring_hosts", {})
+        host = hosts.get("vm100", "192.168.1.162")
         if platform.system().lower() == "windows":
             cmd = ["ping", "-n", "1", "-w", "3000", host]
         else:

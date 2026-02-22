@@ -14,7 +14,20 @@ from pathlib import Path
 from .paths import DATA_DIR, SKILLS_DIR, VAULT_PATH, CONFIG_DIR
 
 CACHE_PATH = DATA_DIR / ".context_cache.json"
-CACHE_TTL_S = 300  # 5 minutes
+
+def _get_cache_ttl() -> int:
+    """Lit le TTL depuis memory_v2.yaml, defaut 300s."""
+    try:
+        import yaml
+        config_file = CONFIG_DIR / "memory_v2.yaml"
+        if config_file.exists():
+            raw = yaml.safe_load(config_file.read_text(encoding="utf-8")) or {}
+            return raw.get("context_cache", {}).get("ttl_seconds", 300)
+    except Exception:
+        pass
+    return 300
+
+CACHE_TTL_S = _get_cache_ttl()
 
 
 def _is_cache_valid() -> bool:

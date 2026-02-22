@@ -67,6 +67,58 @@ signals:
     long: 86400
   error_threshold: 3
 
+# --- Heartbeat (Phase 2 - monitoring proactif) ---
+heartbeat:
+  # Intervalle entre les checks (en secondes, pour reference cron)
+  interval_seconds: 1800
+  # Disque: seuil d'alerte en pourcentage d'utilisation
+  disk_warning_percent: 80
+  disk_critical_percent: 95
+  # Points de montage a surveiller (vide = auto-detect)
+  disk_mountpoints: []
+  # Docker: seuil de restarts suspects
+  docker_restart_threshold: 5
+  # Services systemd critiques a surveiller
+  critical_services:
+    - ssh
+    - docker
+    - ufw
+  # Securite: activer la verification des mises a jour apt
+  check_apt_updates: true
+  # Logs: nombre de lignes recentes a analyser
+  log_lines_to_check: 100
+  # Logs: patterns d'erreur a detecter
+  log_error_patterns:
+    - "error"
+    - "failed"
+    - "critical"
+    - "out of memory"
+    - "segfault"
+  # Importance des memoires heartbeat dans Memory v2
+  memory_importance: 5.0
+  # Importance elevee pour les alertes critiques
+  memory_importance_critical: 8.0
+  # Hosts a surveiller (ping check)
+  monitoring_hosts:
+    vm100: "192.168.1.162"
+    proxmox: "192.168.1.215"
+
+# --- Infrastructure (centralise les IPs/ports eparpilles) ---
+infrastructure:
+  vm100:
+    host: "192.168.1.162"
+    ports:
+      taskyn_mcp: 8020
+      taskyn_web: 3020
+      knowledge_assistant_http: 8030
+  proxmox:
+    host: "192.168.1.215"
+    port: 8006
+
+# --- Context Cache ---
+context_cache:
+  ttl_seconds: 300
+
 # --- Stopwords pour extraction de topics ---
 stopwords:
   fr:
