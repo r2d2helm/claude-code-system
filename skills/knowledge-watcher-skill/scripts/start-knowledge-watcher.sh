@@ -172,12 +172,23 @@ process_file_change() {
         echo '{"items": [], "lastUpdated": null}' > "$queue_file"
     fi
 
-    # Vérifier si le hash existe déjà (déduplication)
+    # MF15: Cross-tier dedup - check processed hashes registry
+    local hashes_file="${DATA_DIR}/processed-hashes.json"
+    if [[ -f "$hashes_file" ]]; then
+        local already_processed
+        already_processed=$(jq -e --arg h "$content_hash" 'has($h)' "$hashes_file" 2>/dev/null || echo "false")
+        if [[ "$already_processed" == "true" ]]; then
+            log_message "DEBUG" "Cross-tier duplicate, skipping: $file"
+            return 0
+        fi
+    fi
+
+    # Vérifier si le hash existe déjà dans la queue (déduplication)
     local existing
     existing=$(jq -r --arg hash "$content_hash" '.items[] | select(.hash == $hash) | .id' "$queue_file" 2>/dev/null || echo "")
 
     if [[ -n "$existing" ]]; then
-        log_message "DEBUG" "Duplicate detected, skipping: $file"
+        log_message "DEBUG" "Queue duplicate detected, skipping: $file"
         return 0
     fi
 
