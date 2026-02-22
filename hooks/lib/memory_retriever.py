@@ -173,7 +173,7 @@ def retrieve_for_startup(session_id: str = "") -> str:
                 fact_lines.append(f"- {f['key']}: {f['value'][:60]}")
                 # Log retrieval
                 if session_id:
-                    log_retrieval(None, f.get("id"), session_id, "SessionStart")
+                    log_retrieval(None, f.get("id"), session_id, "SessionStart", search_mode="startup")
             parts.append("Facts: " + "; ".join(f"{f['key']}: {f['value'][:40]}" for f in facts))
 
         if memories:
@@ -184,7 +184,7 @@ def retrieve_for_startup(session_id: str = "") -> str:
                 if m.get("id"):
                     increment_access(m["id"])
                     if session_id:
-                        log_retrieval(m["id"], None, session_id, "SessionStart")
+                        log_retrieval(m["id"], None, session_id, "SessionStart", search_mode="startup")
             parts.append("Recent: " + "; ".join(
                 f"{m['content'][:50]}" for m in memories
             ))
@@ -244,7 +244,7 @@ def retrieve_for_prompt(message: str, session_id: str = "") -> str:
                 if m.get("id"):
                     increment_access(m["id"])
                     if session_id:
-                        log_retrieval(m["id"], None, session_id, "UserPromptSubmit")
+                        log_retrieval(m["id"], None, session_id, "UserPromptSubmit", search_mode="keyword_fallback")
 
         # Chercher facts par prefixe
         matching_facts = []
@@ -264,7 +264,7 @@ def retrieve_for_prompt(message: str, session_id: str = "") -> str:
         for f in matching_facts[:2]:
             parts.append(f"[fact] {f['key']}: {f['value'][:50]}")
             if session_id:
-                log_retrieval(None, f.get("id"), session_id, "UserPromptSubmit")
+                log_retrieval(None, f.get("id"), session_id, "UserPromptSubmit", search_mode="fact_lookup")
 
         if not parts:
             return ""

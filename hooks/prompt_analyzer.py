@@ -17,6 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from lib.paths import LOGS_DIR, CONFIG_DIR
+from lib.context_cache import get_or_compute_context
 from lib.utils import read_stdin_json, log_audit, append_jsonl, now_paris, output_json
 
 # Regex pour detecter les commandes skill (/prefix-action)
@@ -137,8 +138,9 @@ def main():
         msg_type = classify_message(message)
         explicit_skills = SKILL_COMMAND_RE.findall(message)
 
-        # Load router rules and detect skills by keywords
-        router_rules = _load_router_rules()
+        # Load router rules from cache (shared with load_context)
+        ctx_cache = get_or_compute_context()
+        router_rules = ctx_cache.get("router_rules", _load_router_rules())
         message_lower = message.lower()
         routed_skills = _detect_skill_from_keywords(message_lower, router_rules)
         keywords = _get_technical_keywords(message_lower, router_rules)

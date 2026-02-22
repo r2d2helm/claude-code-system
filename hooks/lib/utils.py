@@ -85,3 +85,57 @@ def log_audit(hook_name: str, event: str, details: dict | None = None,
 def output_json(data: dict) -> None:
     """Print JSON sur stdout pour Claude Code."""
     print(json.dumps(data, ensure_ascii=False))
+
+
+# ============================================================
+# Critical error marker
+# ============================================================
+
+_CRITICAL_MARKER = Path(__file__).resolve().parent.parent / "data" / ".critical_error"
+
+
+def mark_critical_error(hook_name: str, error_type: str, detail: str = "") -> None:
+    """Ecrit un marker file pour signaler une erreur critique.
+
+    Erreurs critiques: DB corruption, schema failure, permission denied sur data.
+    Les hooks downstream consultent ce marker pour adapter leur comportement.
+    """
+    try:
+        _CRITICAL_MARKER.parent.mkdir(parents=True, exist_ok=True)
+        marker = {
+            "timestamp": now_paris(),
+            "hook": hook_name,
+            "error_type": error_type,
+            "detail": detail[:200],
+        }
+        _CRITICAL_MARKER.write_text(json.dumps(marker, ensure_ascii=False), encoding="utf-8")
+        log_audit(hook_name, "critical_error", marker)
+    except Exception:
+        pass
+
+
+def check_critical_error() -> dict | None:
+    """Verifie si un marker d'erreur critique existe.
+
+    Retourne le marker dict si present et recent (< 1h), None sinon.
+    """
+    try:
+        if not _CRITICAL_MARKER.exists():
+            return None
+        # Ignorer les markers > 1h (auto-recovery)
+        age_s = datetime.now(timezone.utc).timestamp() - _CRITICAL_MARKER.stat().st_mtime
+        if age_s > 3600:
+            _CRITICAL_MARKER.unlink(missing_ok=True)
+            return None
+        marker = json.loads(_CRITICAL_MARKER.read_text(encoding="utf-8"))
+        return marker
+    except Exception:
+        return None
+
+
+def clear_critical_error() -> None:
+    """Supprime le marker d'erreur critique (apres resolution)."""
+    try:
+        _CRITICAL_MARKER.unlink(missing_ok=True)
+    except Exception:
+        pass

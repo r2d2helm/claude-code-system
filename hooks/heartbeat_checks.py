@@ -381,6 +381,203 @@ def check_logs() -> dict:
         return {"status": "error", "data": {}, "message": f"log check failed: {e}"}
 
 
+
+
+# ============================================================
+# Probe: Memory DB Health
+# ============================================================
+
+def check_memory_db() -> dict:
+    """Verifie la sante de la base SQLite memory.db."""
+    try:
+        import sqlite3
+        db_path = Path(os.path.expanduser("~")) / ".claude" / "hooks" / "data" / "memory.db"
+
+        if not db_path.exists():
+            return {"status": "warning", "data": {}, "message": "memory.db not found"}
+
+        size_mb = db_path.stat().st_size / (1024 * 1024)
+        if size_mb > 500:
+            return {"status": "critical", "data": {"size_mb": round(size_mb, 1)},
+                    "message": f"memory.db too large: {size_mb:.1f} MB"}
+
+        conn = sqlite3.connect(str(db_path), timeout=5.0)
+        conn.row_factory = sqlite3.Row
+
+        result = conn.execute("PRAGMA integrity_check").fetchone()
+        integrity = result[0] if result else "unknown"
+
+        try:
+            memories = conn.execute("SELECT COUNT(*) FROM memories").fetchone()[0]
+            sessions = conn.execute("SELECT COUNT(*) FROM sessions").fetchone()[0]
+            facts = conn.execute("SELECT COUNT(*) FROM facts").fetchone()[0]
+            retrievals = conn.execute("SELECT COUNT(*) FROM retrieval_log").fetchone()[0]
+        except Exception:
+            memories = sessions = facts = retrievals = -1
+
+        conn.close()
+
+        data = {
+            "size_mb": round(size_mb, 2),
+            "integrity": integrity,
+            "memories": memories, "sessions": sessions,
+            "facts": facts, "retrievals": retrievals,
+        }
+
+        if integrity != "ok":
+            return {"status": "critical", "data": data,
+                    "message": f"DB integrity failed: {integrity}"}
+
+        return {"status": "ok", "data": data,
+                "message": f"DB healthy: {memories} memories, {sessions} sessions, {size_mb:.1f} MB"}
+
+    except Exception as e:
+        return {"status": "error", "data": {}, "message": f"DB check failed: {e}"}
+
+
+# ============================================================
+# Probe: Network VM 100
+# ============================================================
+
+def check_network_vm100() -> dict:
+    """Ping la VM 100 (192.168.1.162) pour verifier la connectivite."""
+    try:
+        import platform
+        host = "192.168.1.162"
+        if platform.system().lower() == "windows":
+            cmd = ["ping", "-n", "1", "-w", "3000", host]
+        else:
+            cmd = ["ping", "-c", "1", "-W", "3", host]
+
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=20)
+
+        if result.returncode == 0:
+            import re as re_mod
+            time_match = re_mod.search(r"time[=<](\d+(?:\.\d+)?)", result.stdout)
+            latency = float(time_match.group(1)) if time_match else -1
+            data = {"host": host, "reachable": True, "latency_ms": latency}
+            if latency > 100:
+                return {"status": "warning", "data": data,
+                        "message": f"VM 100 slow: {latency}ms"}
+            return {"status": "ok", "data": data,
+                    "message": f"VM 100 reachable ({latency}ms)"}
+        else:
+            return {"status": "critical", "data": {"host": host, "reachable": False},
+                    "message": "VM 100 unreachable"}
+
+    except subprocess.TimeoutExpired:
+        return {"status": "critical", "data": {"host": "192.168.1.162"},
+                "message": "VM 100 ping timeout"}
+    except Exception as e:
+        return {"status": "error", "data": {}, "message": f"VM 100 check failed: {e}"}
+
+
+# ============================================================
+# Probe: Vault Integrity
+# ============================================================
+
+def check_vault_integrity() -> dict:
+    """Verifie l'integrite basique du vault Obsidian."""
+    try:
+        import glob as glob_mod
+        vault_path = Path(os.path.expanduser("~")) / "Documents" / "Knowledge"
+
+        if not vault_path.exists():
+            return {"status": "critical", "data": {},
+                    "message": "Vault path not found"}
+
+        md_files = glob_mod.glob(str(vault_path / "**" / "*.md"), recursive=True)
+        total = len(md_files)
+
+        no_frontmatter = 0
+        sample = md_files[:50]
+        for f in sample:
+            try:
+                with open(f, "r", encoding="utf-8", errors="replace") as fh:
+                    first_line = fh.readline().strip()
+                    if first_line != "---":
+                        no_frontmatter += 1
+            except Exception:
+                continue
+
+        estimated_no_fm = int(no_frontmatter * total / len(sample)) if sample else 0
+
+        data = {
+            "total_notes": total,
+            "no_frontmatter_sample": no_frontmatter,
+            "no_frontmatter_estimated": estimated_no_fm,
+        }
+
+        if total < 10:
+            return {"status": "warning", "data": data,
+                    "message": f"Vault nearly empty: {total} notes"}
+        if estimated_no_fm > total * 0.2:
+            return {"status": "warning", "data": data,
+                    "message": f"{estimated_no_fm}/{total} notes missing frontmatter"}
+
+        return {"status": "ok", "data": data,
+                "message": f"Vault healthy: {total} notes"}
+
+    except Exception as e:
+        return {"status": "error", "data": {}, "message": f"Vault check failed: {e}"}
+
+
+# ============================================================
+# Probe: Hook Latency
+# ============================================================
+
+def check_hook_latency() -> dict:
+    """Analyse les logs d'audit pour detecter des hooks lents."""
+    try:
+        import json as json_mod
+        audit_log = Path(os.path.expanduser("~")) / ".claude" / "hooks" / "logs" / "hooks-audit.jsonl"
+
+        if not audit_log.exists():
+            return {"status": "ok", "data": {"available": False},
+                    "message": "No audit log available"}
+
+        lines = []
+        with open(audit_log, "r", encoding="utf-8", errors="replace") as f:
+            for line in f:
+                lines.append(line)
+        lines = lines[-200:]
+
+        durations = {}
+        for line in lines:
+            try:
+                entry = json_mod.loads(line)
+                hook = entry.get("hook", "")
+                dur = entry.get("duration_ms")
+                if dur is not None and hook:
+                    durations.setdefault(hook, []).append(dur)
+            except Exception:
+                continue
+
+        if not durations:
+            return {"status": "ok", "data": {"hooks_tracked": 0},
+                    "message": "No duration data yet (QF1 needed)"}
+
+        slow_hooks = []
+        stats = {}
+        for hook, durs in durations.items():
+            avg = sum(durs) / len(durs)
+            stats[hook] = {"avg_ms": round(avg, 1), "samples": len(durs)}
+            if avg > 2000:
+                slow_hooks.append(f"{hook}: {avg:.0f}ms")
+
+        data = {"hooks_tracked": len(durations), "stats": stats}
+
+        if slow_hooks:
+            return {"status": "warning", "data": data,
+                    "message": f"Slow hooks: {'; '.join(slow_hooks)}"}
+
+        return {"status": "ok", "data": data,
+                "message": f"{len(durations)} hooks tracked, all within limits"}
+
+    except Exception as e:
+        return {"status": "error", "data": {}, "message": f"Hook latency check failed: {e}"}
+
+
 # ============================================================
 # Registry des probes
 # ============================================================
@@ -391,6 +588,10 @@ ALL_PROBES = {
     "services": check_services,
     "security_updates": check_security_updates,
     "logs": check_logs,
+    "memory_db": check_memory_db,
+    "network_vm100": check_network_vm100,
+    "vault_integrity": check_vault_integrity,
+    "hook_latency": check_hook_latency,
 }
 
 

@@ -13,7 +13,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 
 from .paths import DATA_DIR
-from .utils import now_paris, log_audit
+from .utils import now_paris, log_audit, mark_critical_error
 
 DB_PATH = DATA_DIR / "memory.db"
 
@@ -71,7 +71,8 @@ CREATE TABLE IF NOT EXISTS retrieval_log (
     session_id TEXT NOT NULL,
     hook_event TEXT NOT NULL,
     timestamp TEXT NOT NULL,
-    session_success INTEGER
+    session_success INTEGER,
+    search_mode TEXT
 );
 
 CREATE TABLE IF NOT EXISTS vectors (
@@ -95,12 +96,24 @@ CREATE INDEX IF NOT EXISTS idx_vectors_memory ON vectors(memory_id);
 
 
 def _log_db_error(func_name: str, error: Exception) -> None:
-    """Log une erreur DB via log_audit (fail-open)."""
+    """Log une erreur DB via log_audit (fail-open).
+
+    Detecte les erreurs critiques (corruption, schema) vs non-critiques (timeout).
+    """
+    error_str = str(error)[:200]
+    error_type = type(error).__name__
+    is_critical = any(kw in error_str.lower() for kw in (
+        "corrupt", "malformed", "disk i/o", "readonly database",
+        "unable to open", "no such table", "schema",
+    ))
     try:
         log_audit("memory_db", f"error_{func_name}", {
-            "error": str(error)[:200],
-            "type": type(error).__name__,
+            "error": error_str,
+            "type": error_type,
+            "critical": is_critical,
         })
+        if is_critical:
+            mark_critical_error("memory_db", error_type, error_str)
     except Exception:
         pass
 
@@ -122,6 +135,12 @@ def ensure_schema() -> None:
     try:
         conn = _get_connection()
         conn.executescript(_SCHEMA_SQL)
+        # Migration: add search_mode column if missing
+        try:
+            conn.execute("ALTER TABLE retrieval_log ADD COLUMN search_mode TEXT")
+            conn.commit()
+        except Exception:
+            pass  # Column already exists
     except Exception as e:
         _log_db_error("ensure_schema", e)
     finally:
@@ -396,15 +415,16 @@ def get_high_confidence_facts(min_confidence: float = 0.7, limit: int = 10) -> l
 # ============================================================
 
 def log_retrieval(memory_id: int | None, fact_id: int | None,
-                  session_id: str, hook_event: str) -> None:
+                  session_id: str, hook_event: str,
+                  search_mode: str | None = None) -> None:
     """Log un evenement de recuperation pour feedback loop."""
     conn = None
     try:
         conn = _get_connection()
         conn.execute(
-            """INSERT INTO retrieval_log (memory_id, fact_id, session_id, hook_event, timestamp)
-            VALUES (?, ?, ?, ?, ?)""",
-            (memory_id, fact_id, session_id, hook_event, now_paris()),
+            """INSERT INTO retrieval_log (memory_id, fact_id, session_id, hook_event, timestamp, search_mode)
+            VALUES (?, ?, ?, ?, ?, ?)""",
+            (memory_id, fact_id, session_id, hook_event, now_paris(), search_mode),
         )
         conn.commit()
     except Exception as e:
