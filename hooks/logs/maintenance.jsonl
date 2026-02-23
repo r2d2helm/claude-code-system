@@ -1,0 +1,4 @@
+{"timestamp": "2026-02-22T21:47:33.895833+01:00", "mode": "quick", "overall_status": "warning", "duration_s": 2.1, "alerts": ["[WARNING] skills_integrity"]}
+{"timestamp": "2026-02-22T21:58:55.159889+01:00", "mode": "quick", "overall_status": "warning", "duration_s": 0.2, "alerts": ["[WARNING] skills_integrity"]}
+{"timestamp": "2026-02-22T21:59:48.592166+01:00", "mode": "quick", "overall_status": "warning", "duration_s": 0.2, "alerts": ["[WARNING] skills_integrity"]}
+{"timestamp": "2026-02-22T22:01:35.713304+01:00", "mode": "quick", "overall_status": "warning", "duration_s": 0.3, "alerts": ["[WARNING] skills_integrity"]}
