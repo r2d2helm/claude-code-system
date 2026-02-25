@@ -1,3 +1,10 @@
+---
+name: meta-router
+description: Routeur intelligent pour les 19 skills du systeme MultiPass
+prefix: /router
+version: 1.7.0
+---
+
 # 🎯 Meta-Agent Router
 
 Orchestrateur intelligent qui détecte automatiquement le contexte de la requête et active l'agent approprié.
@@ -18,7 +25,14 @@ Orchestrateur intelligent qui détecte automatiquement le contexte de la requêt
 | ⚡ QElectroTech | Plans électriques, schémas, normes NF C 15-100 | `/qet-*` | ✅ Actif |
 | 📋 SOP Creator | Runbooks, playbooks, SOPs, documentation opérationnelle | `/sop-*` | ✅ Actif |
 | 🔧 Skill Creator | Création et validation de skills Claude Code | `/skill-*` | ✅ Actif |
-| ☁️ Cloud | AWS, Azure, GCP, Terraform | `/cloud-*` | ⏳ Prévu |
+| 📡 Monitoring | Metriques, alertes, containers, logs, disponibilite | `/mon-*` | ✅ Actif |
+| 💾 Backup | Sauvegardes, restauration, retention, disaster recovery | `/bak-*` | ✅ Actif |
+| 🔒 Security | Securite, audit, hardening, SSL/TLS, vulnerabilites | `/sec-*` | ✅ Actif |
+| 🌐 Network | Reseau, DNS, ports, routing, VPN, connectivite inter-VM | `/net-*` | ✅ Actif |
+| 🚀 DevOps | CI/CD, deploiement, pipelines, git workflows | `/devops-*` | ✅ Actif |
+| 🤖 AI Infra | LiteLLM, Langfuse, RAG, modeles LLM, embeddings | `/ai-*` | ✅ Actif |
+| 🗄️ Supabase | Auth, database PostgreSQL, storage, edge functions, RLS | `/supa-*` | ✅ Actif |
+<!-- cloud-skill: prevu, non implemente | ☁️ Cloud | AWS, Azure, GCP, Terraform | `/cloud-*` | ⏳ Prévu | -->
 
 ## Détection Automatique du Contexte
 
@@ -49,9 +63,9 @@ Orchestrateur intelligent qui détecte automatiquement le contexte de la requêt
 │  │                                                              │
 │  └──→ 🐧 LINUX-SKILL                                           │
 │                                                                 │
-│  aws|azure|gcp|terraform|ansible|cloud|s3|ec2|lambda           │
-│  │                                                              │
-│  └──→ ☁️ CLOUD-SKILL                                           │
+│  [cloud-skill: prevu, non implemente]                           │
+│  <!-- aws|azure|gcp|terraform|ansible|cloud|s3|ec2|lambda -->   │
+│  <!-- └──→ ☁️ CLOUD-SKILL -->                                   │
 │                                                                 │
 │  obsidian|vault|liens|orphelines|frontmatter|tags|backup-vault  │
 │  │                                                              │
@@ -85,6 +99,41 @@ Orchestrateur intelligent qui détecte automatiquement le contexte de la requêt
 │  │                                                              │
 │  └──→ 🔧 SKILL-CREATOR                                         │
 │                                                                 │
+│  monitoring|beszel|netdata|uptime|kuma|dozzle|ntfy|metriques    │
+│  |alertes|containers status|logs docker                         │
+│  │                                                              │
+│  └──→ 📡 MONITORING-SKILL                                      │
+│                                                                 │
+│  backup|restore|snapshot|recovery|disaster|rsync|retention       │
+│  |dump|pg_dump|sauvegarde|archivage                              │
+│  │                                                              │
+│  └──→ 💾 BACKUP-SKILL                                           │
+│                                                                 │
+│  security|securite|ssl|tls|certificate|audit|hardening          │
+│  |vulnerability|cve|fail2ban|chiffrement                        │
+│  │                                                              │
+│  └──→ 🔒 SECURITY-SKILL                                         │
+│                                                                 │
+│  network|reseau|dns|vlan|subnet|ping|traceroute|nmap|netstat    │
+│  |routing|arp|interface|bridge|gateway                          │
+│  │                                                              │
+│  └──→ 🌐 NETWORK-SKILL                                          │
+│                                                                 │
+│  devops|deploy|deploiement|pipeline|cicd|release|rollback       │
+│  |automatisation|cron|crontab                                    │
+│  │                                                              │
+│  └──→ 🚀 DEVOPS-SKILL                                           │
+│                                                                 │
+│  litellm|langfuse|rag|llm|embedding|vector|pgvector|ollama     │
+│  |inference|prompt management|ai infra                           │
+│  │                                                              │
+│  └──→ 🤖 AI-INFRA-SKILL                                         │
+│                                                                 │
+│  supabase|postgrest|gotrue|realtime|rls|row level security      │
+│  |edge function|supabase auth|supabase storage                   │
+│  │                                                              │
+│  └──→ 🗄️ SUPABASE-SKILL                                        │
+│                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -112,6 +161,11 @@ Certains keywords secondaires sont partagés entre skills. Appliquer ces règles
 | `tags` | + capture/know/pkm | knowledge-skill |
 | `notes` | + vault/liens/orphelines | obsidian-skill |
 | `notes` | + capture/résumé/save | knowledge-skill |
+| `containers` | + monitoring/metriques/stats | monitoring-skill |
+| `containers` | + docker/compose/build | docker-skill |
+| `alertes` | + monitoring/beszel/serveurs | monitoring-skill |
+| `logs` | + monitoring/containers/dozzle | monitoring-skill |
+| `logs` | + linux/systemd/journalctl | linux-skill |
 
 **Règle générale** : si un keyword ambigu est utilisé SEUL sans contexte clair, demander à l'utilisateur de préciser le domaine avant de router.
 
@@ -298,6 +352,30 @@ Certains keywords secondaires sont partagés entre skills. Appliquer ces règles
 
 **Commandes activees**: `/skill-create`
 
+#### 📡 Monitoring (monitoring-skill)
+
+**Keywords primaires** (haute confiance):
+- `monitoring`, `beszel`, `netdata`, `uptime kuma`, `dozzle`, `ntfy`
+- `mon-status`, `mon-systems`, `mon-containers`, `mon-alerts`
+- `metriques serveur`, `dashboard monitoring`, `alertes monitoring`
+- `homelab monitoring`, `sante infra`, `health check infra`
+
+**Keywords secondaires** (contexte requis):
+- `containers`, `stats` -> si contexte monitoring/metriques (pas docker-skill)
+- `alertes`, `notifications` -> si contexte monitoring/serveurs
+- `logs` -> si contexte monitoring/containers (pas linux-skill)
+- `uptime`, `disponibilite` -> si contexte services/monitoring
+
+**Commandes activees** (10): `/mon-status`, `/mon-systems`, `/mon-containers`, `/mon-alerts`, `/mon-metrics`, `/mon-logs`, `/mon-uptime`, `/mon-notify`, `/mon-config`, `/mon-health`
+
+
+| 💾 Backup | Sauvegardes, restauration, retention, disaster recovery | `/bak-*` | ✅ Actif |
+| 🔒 Security | Securite, audit, hardening, SSL/TLS, vulnerabilites | `/sec-*` | ✅ Actif |
+| 🌐 Network | Reseau, DNS, ports, routing, VPN, connectivite inter-VM | `/net-*` | ✅ Actif |
+| 🚀 DevOps | CI/CD, deploiement, pipelines, git workflows | `/devops-*` | ✅ Actif |
+| 🤖 AI Infra | LiteLLM, Langfuse, RAG, modeles LLM, embeddings | `/ai-*` | ✅ Actif |
+| 🗄️ Supabase | Auth, database PostgreSQL, storage, edge functions, RLS | `/supa-*` | ✅ Actif |
+<!-- cloud-skill: prevu, non implemente
 #### ☁️ Cloud (cloud-skill) [Prévu]
 
 **Keywords primaires**:
@@ -305,6 +383,7 @@ Certains keywords secondaires sont partagés entre skills. Appliquer ces règles
 - `azure`, `microsoft cloud`, `blob`, `aks`
 - `gcp`, `google cloud`, `gke`, `bigquery`
 - `terraform`, `ansible`, `pulumi`
+-->
 
 ## Commandes Meta-Agent
 
@@ -427,7 +506,8 @@ Chaque réponse indique l'agent actif:
 ├── qelectrotech-skill/   ← CAO: Plans électriques (35 cmd, 9 wizards)
 ├── sop-creator/          ← Docs: SOPs et runbooks (1 cmd, 6 templates)
 ├── skill-creator/        ← Meta: Création de skills (1 cmd)
-└── cloud-skill/          [Prévu]
+├── monitoring-skill/     ← Infra: Monitoring homelab (10 cmd, 2 wizards)
+<!-- └── cloud-skill/       [Prévu - cloud-skill: prevu, non implemente] -->
 ```
 
 ## Exemples de Routing

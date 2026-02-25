@@ -55,7 +55,7 @@ Système de planification structurée inspiré du Context Engineering :
 **Chemin :** `~/.claude/PRPs/`
 **Workflow :** `INITIAL.md` → `/generate-prp` → PRP complet → `/execute-prp` → Code validé
 
-### Skills (12 actifs + meta-router)
+### Skills (19 actifs + meta-router)
 
 | Skill | Chemin | Description | Commandes |
 |-------|--------|-------------|-----------|
@@ -63,15 +63,22 @@ Système de planification structurée inspiré du Context Engineering :
 | **windows-skill** | `skills/windows-skill/` | Administration Windows 11/Server 2025 | `/win-*`, 37 cmd, 10 wizards |
 | **docker-skill** | `skills/docker-skill/` | Administration Docker et conteneurs | `/dk-*`, 13 cmd, 3 wizards |
 | **linux-skill** | `skills/linux-skill/` | Administration serveurs Linux | `/lx-*`, 17 cmd, 3 wizards |
-| **knowledge-skill** | `skills/knowledge-skill/` | Capture et résumé de connaissances | `/know-*`, 3 cmd, 1 wizard |
+| **knowledge-skill** | `skills/knowledge-skill/` | Capture et résumé de connaissances | `/know-*`, 10 cmd, 1 wizard |
 | **knowledge-watcher-skill** | `skills/knowledge-watcher-skill/` | Surveillance automatique des sources | `/kwatch-*`, 6 cmd, 2 wizards |
 | **obsidian-skill** | `skills/obsidian-skill/` | Maintenance vault Obsidian | `/obs-*`, 28 cmd, 3 wizards |
 | **fileorg-skill** | `skills/fileorg-skill/` | Organisation fichiers Windows | `/file-*`, 20 cmd, 1 wizard |
-| **vault-guardian-skill** | `skills/vault-guardian-skill/` | Maintenance proactive automatisée | `/guardian-*`, 3 cmd |
-| **qelectrotech-skill** | `skills/qelectrotech-skill/` | Plans électriques QElectroTech | `/qet-*`, 42 cmd, 9 wizards |
+| **vault-guardian-skill** | `skills/vault-guardian-skill/` | Maintenance proactive automatisée | `/guardian-*`, 4 cmd |
+| **qelectrotech-skill** | `skills/qelectrotech-skill/` | Plans électriques QElectroTech | `/qet-*`, 34 cmd, 9 wizards |
 | **sop-creator** | `skills/sop-creator/` | Runbooks, SOPs, documentation opérationnelle | `/sop-*`, 1 cmd, 6 templates |
 | **skill-creator** | `skills/skill-creator/` | Création et validation de skills Claude Code | `/skill-*`, 1 cmd |
-| **meta-router** | `skills/SKILL.md` + `skills/commands/` | Routage intelligent des 12 skills | `/router`, `/agents`, `/context`, `/infra` |
+| **monitoring-skill** | `skills/monitoring-skill/` | Monitoring temps reel homelab (Beszel, Netdata, Uptime Kuma) | `/mon-*`, 10 cmd, 2 wizards |
+| **backup-skill** | `skills/backup-skill/` | Backup et restauration | `/bak-*`, 8 cmd, 2 wizards |
+| **security-skill** | `skills/security-skill/` | Securite infrastructure | `/sec-*`, 9 cmd, 2 wizards |
+| **network-skill** | `skills/network-skill/` | Administration reseau | `/net-*`, 10 cmd, 2 wizards |
+| **devops-skill** | `skills/devops-skill/` | DevOps et deploiement | `/devops-*`, 10 cmd, 2 wizards |
+| **ai-infra-skill** | `skills/ai-infra-skill/` | Infrastructure AI (LiteLLM, Langfuse, RAG) | `/ai-*`, 9 cmd, 2 wizards |
+| **supabase-skill** | `skills/supabase-skill/` | Administration Supabase | `/supa-*`, 8 cmd, 2 wizards |
+| **meta-router** | `skills/SKILL.md` + `skills/commands/` | Routage intelligent des 19 skills | `/router`, `/agents`, `/context`, `/infra` |
 
 ### MCP Servers
 
@@ -79,6 +86,8 @@ Système de planification structurée inspiré du Context Engineering :
 |---------|-----------|-------------|
 | **knowledge-assistant** | stdio (Python) | Accès au vault Obsidian : search, read, related, stats, tags, backlinks, recent (cache TTL 60s) |
 | **taskyn** | streamable-http | Gestion de projet AI-first : companies, projects, nodes, edges, milestones, tags, timers, reporting (40+ outils MCP) |
+| **beszel-assistant** | stdio (Python) | Monitoring homelab Beszel : systems, containers, alerts, overview (5 outils MCP) |
+| **netdata-vm100** | http | Metriques Netdata detaillees VM 100 : CPU, RAM, IO, network, anomalies (MCP natif v2.9+) |
 
 **Config :** `~/.claude.json` -> `mcpServers`
 
@@ -87,11 +96,58 @@ Système de planification structurée inspiré du Context Engineering :
 - **Env :** `KNOWLEDGE_VAULT_PATH=C:\Users\r2d2\Documents\Knowledge`, `KNOWLEDGE_INDEX_PATH=~\.claude\skills\knowledge-watcher-skill\data\notes-index.json`
 
 **taskyn :**
-- **URL :** `http://192.168.1.162:8020/mcp` (VM 100, container taskyn-core)
-- **Web UI :** `http://192.168.1.162:3020` (container taskyn-web)
+- **URL :** `http://192.168.1.163:8020/mcp` (VM 103 r2d2-main, container taskyn-core)
+- **Web UI :** `http://192.168.1.163:3020` (container taskyn-web)
 - **Auth Web :** `r2d2helm@gmail.com` / `Jarvis@2025`
 - **Methodologies :** spec_driven et classic_agile
-- **Prerequis :** VM 100 doit etre demarree
+- **Prerequis :** VM 103 doit etre demarree
+- **Aussi sur :** VM 105 r2d2-lab (`192.168.1.161:8020/3020`)
+
+**beszel-assistant :**
+- **Chemin :** `~/.claude/mcp-servers/beszel-assistant/`
+- **Env :** `BESZEL_HUB_URL=http://192.168.1.162:8091` (VM 100 r2d2-stage), `BESZEL_ADMIN_EMAIL=r2d2helm@gmail.com`, `BESZEL_ADMIN_PASSWORD`
+- **Auth endpoint :** `/api/collections/_superusers/auth-with-password` (PocketBase v0.23+)
+- **Outils :** beszel_systems, beszel_system_detail, beszel_containers, beszel_alerts, beszel_overview
+- **Systemes monitores :** vm100 (localhost), proxmox (192.168.1.215), windows-r2d2 (192.168.1.243)
+
+**netdata-vm100 :**
+- **URL :** `http://192.168.1.162:19999/mcp` (VM 100, container netdata)
+- **Version :** Netdata v2.9.0+ (MCP natif integre)
+
+### Monitoring Stack (distribue)
+
+Services monitoring repliques sur VM 100, 103 et 104. Instances primaires sur VM 100 :
+
+| Service | VM 100 (primary) | VM 103 | VM 104 |
+|---------|-------------------|--------|--------|
+| **Beszel Hub** | `:8091` | `:8091`* | `:8091`* |
+| **Uptime Kuma** | `:3003` | `:3003` | `:3003` |
+| **Netdata** | `:19999` | local | local |
+| **Dozzle** | `:8082` | `:8082` | `:8082` |
+| **ntfy** | `:8084` | `:8084` | `:8084` |
+| **Beszel Agent** | Docker | Docker | Docker |
+
+*Beszel Hub sur VM 103/104 sans port expose (interne)
+
+**URLs primaires (VM 100 `192.168.1.162`) :**
+- Beszel Hub: `http://192.168.1.162:8091`
+- Uptime Kuma: `http://192.168.1.162:3003`
+- Netdata: `http://192.168.1.162:19999`
+- Dozzle: `http://192.168.1.162:8082`
+- ntfy: `http://192.168.1.162:8084`
+
+**Agents Beszel :** VM 100 (:45876 Docker), Proxmox (:45876 systemd), Windows (:45876 NSSM)
+**Alertes Telegram :** Bot token dans credentials, notifie sur tous les monitors Uptime Kuma
+
+### Services par VM
+
+| VM | Containers | Role |
+|----|-----------|------|
+| 100 r2d2-stage (6) | beszel-hub, beszel-agent, uptime-kuma, netdata, dozzle, ntfy | Monitoring primaire |
+| 101 r2d2-monitor (0) | Pas de Docker | Desktop (Linux Mint) |
+| 103 r2d2-main (29) | MultiPass stack (Supabase, LiteLLM, Langfuse, Frontend, API, Redis, NetBox) + Taskyn + Monitoring | Dev principal |
+| 104 r2d2-store (7) | postgres-shared, monitoring stack + NFS | Stockage & BDD |
+| 105 r2d2-lab (3) | rag-indexer, taskyn-web, taskyn-core | Lab & RAG |
 
 ### Hooks (9)
 
@@ -279,8 +335,12 @@ Principes :
 | Memory data | `C:\Users\r2d2\.claude\hooks\data\memory\` |
 | Memory DB | `C:\Users\r2d2\.claude\hooks\data\memory.db` |
 | Proxmox Host | `192.168.1.215` (SSH root, Web UI :8006) |
-| VM 100 (MultiPass) | `192.168.1.162` (SSH root, 18 containers Docker) |
-| VM 100 credentials | `C:\Users\r2d2\Documents\claude-config-backup\vm100-credentials.md` |
+| VM 100 r2d2-stage | `192.168.1.162` (SSH root, DHCP, 6 containers monitoring) |
+| VM 101 r2d2-monitor | `192.168.1.101` (SSH mint, desktop Linux Mint, pas de Docker) |
+| VM 103 r2d2-main | `192.168.1.163` (SSH root, 29 containers, MultiPass stack + Taskyn + monitoring) |
+| VM 104 r2d2-store | `192.168.1.164` (SSH r2d2helm, 7 containers, PostgreSQL + NFS + monitoring) |
+| VM 105 r2d2-lab | `192.168.1.161` (SSH r2d2helm, 3 containers, RAG + Taskyn) |
+| VM credentials | `C:\Users\r2d2\Documents\claude-config-backup\vm100-credentials.md` |
 
 ## Règles pour Claude Code
 
