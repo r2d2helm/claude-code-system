@@ -22,28 +22,43 @@ New-Item -ItemType Directory -Force -Path (Split-Path $logFile) | Out-Null
 Log "========== BACKUP START $date =========="
 
 # -----------------------------------------------
-# 1. VAULT OBSIDIAN - git commit + push
+# 1. GIT REPOS - commit + push to Forgejo (origin) AND GitHub (mirror)
+#    Repos: ~/.claude (config), Knowledge (vault), R2D2-Memory (doctrine)
+#    Forgejo = forge souveraine sur le Dell (VM 103) ; GitHub = miroir redondant
 # -----------------------------------------------
-try {
-    Log "[1/5] Vault Obsidian - git commit..."
-    Push-Location "C:\Users\r2d2\Documents\Knowledge"
-    git add -A 2>&1 | Out-Null
-    $changes = git status --porcelain
-    if ($changes) {
-        git commit -m "auto-backup $date" 2>&1 | Out-Null
-        Log "[1/5] Vault: committed changes"
-    } else {
-        Log "[1/5] Vault: no changes"
+$gitRepos = @(
+    @{ Name = "config (~/.claude)"; Path = "C:\Users\r2d2\.claude" },
+    @{ Name = "vault (Knowledge)";  Path = "C:\Users\r2d2\Documents\Knowledge" },
+    @{ Name = "doctrine (R2D2-Memory)"; Path = "C:\Users\r2d2\Documents\R2D2-Memory" }
+)
+foreach ($repo in $gitRepos) {
+    try {
+        if (-not (Test-Path (Join-Path $repo.Path ".git"))) {
+            Log "[1/5] $($repo.Name): no .git, skip"
+            continue
+        }
+        Push-Location $repo.Path
+        git add -A 2>&1 | Out-Null
+        $changes = git status --porcelain
+        if ($changes) {
+            git commit -m "auto-backup $date" 2>&1 | Out-Null
+            Log "[1/5] $($repo.Name): committed"
+        } else {
+            Log "[1/5] $($repo.Name): no changes"
+        }
+        $remotes = git remote 2>&1
+        foreach ($r in @("origin", "github")) {
+            if ($remotes -contains $r) {
+                git push $r HEAD 2>&1 | Out-Null
+                if ($LASTEXITCODE -eq 0) { Log "[1/5] $($repo.Name): pushed -> $r" }
+                else { Log "[1/5] WARN $($repo.Name): push -> $r failed (exit $LASTEXITCODE)" }
+            }
+        }
+        Pop-Location
+    } catch {
+        Log "[1/5] WARN $($repo.Name) git backup failed: $_"
+        try { Pop-Location } catch {}
     }
-    # Push if remote exists
-    $remote = git remote 2>&1
-    if ($remote) {
-        git push 2>&1 | Out-Null
-        Log "[1/5] Vault: pushed to remote"
-    }
-    Pop-Location
-} catch {
-    Log "[1/5] WARN Vault backup failed: $_"
 }
 
 # -----------------------------------------------
