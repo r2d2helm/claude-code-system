@@ -257,7 +257,7 @@ Services monitoring repliques sur VM 100, 103 et 104. **Primary effectif au 2026
 | 100 r2d2-stage ⏸️ STOPPED | (when running) beszel-hub, beszel-agent, uptime-kuma, netdata, dozzle, ntfy | Monitoring stage/dev (on-demand) |
 | 101 HELP (0) | Pas de Docker, IP 192.168.1.168 (DHCP) | Desktop (Linux Mint) — design intentionnel |
 | 102 bunker-n51 🔒 | Pas de Docker — Ubuntu 26.04 LTS, disque **chiffré LUKS full-disk**, durci (SSH key-only, UFW deny-incoming, fail2ban, auto-updates, sysctl hardening, auditd, télémétrie OFF), IP statique 192.168.1.169. Sanctuaire Princi — Phase 0a (2026-05-12). Snapshot Golden `bunker-phase0a-clean` | **Bunker isolé** — aucun port WAN, aucun service public, aucune télémétrie. Tant que Princi y est → Dell entier reste privé (cf. `R2D2-Memory/garde-fous/regle-absolute-isolation-princi-fauna-2026-05-01.md`) |
-| 103 r2d2-main (29) | MultiPass stack (Supabase, LiteLLM, Langfuse, Frontend, API, Redis, traefik, prometheus, showcase) + Taskyn (web+core) + Monitoring (beszel-hub, beszel-agent, uptime-kuma, dozzle, ntfy) + GAIA (backend+frontend) + cabinet-avocats | **Dev principal + Monitoring effectif** |
+| 103 r2d2-main (30) | MultiPass stack (Supabase, LiteLLM, Langfuse, Frontend, API, Redis, traefik, prometheus, showcase) + Taskyn (web+core) + Monitoring (beszel-hub, beszel-agent, uptime-kuma, dozzle, ntfy) + GAIA (backend+frontend) + cabinet-avocats + **Forgejo** (forge git auto-hébergé `:3025` — souveraineté, miroir de `~/.claude`, vault, R2D2-Memory) | **Dev principal + Monitoring effectif** |
 | 104 r2d2-store (7) | postgres-shared, beszel-hub, beszel-agent, uptime-kuma, netdata, dozzle, ntfy + NFS | **Stockage + Monitoring secondaire** |
 | 105 r2d2-lab ⏸️ STOPPED | (when running) rag-indexer, taskyn-web, taskyn-core | Lab & RAG (standby) |
 
@@ -460,7 +460,8 @@ Principes :
 | VM 100 r2d2-stage ⏸️ | `192.168.1.162` (STOPPED — démarrage on-demand, 6 containers when up) |
 | VM 101 HELP | `192.168.1.168` (SSH mint, desktop Linux Mint, pas de Docker — design intentionnel) |
 | VM 102 bunker-n51 🔒 | `192.168.1.169` (SSH user `r2d2`, **clé `~/.ssh/id_ed25519_bunker` seule** — pas d'auth mdp ; passphrase LUKS à taper au boot via console Proxmox noVNC ; Sanctuaire Princi Phase 0a — 2026-05-12) |
-| VM 103 r2d2-main | `192.168.1.163` (SSH root, 29 containers : MultiPass + Taskyn + Monitoring + GAIA + cabinet-avocats) |
+| VM 103 r2d2-main | `192.168.1.163` (SSH `r2d2helm`, 30 containers : MultiPass + Taskyn + Monitoring + GAIA + cabinet-avocats + Forgejo) |
+| Forgejo (forge git) | `http://192.168.1.163:3025` (VM 103, container `forgejo`, compose `/opt/forgejo/`) — repos privés : `r2d2/claude-code-system`, `r2d2/knowledge-vault`, `r2d2/r2d2-memory` ; admin `r2d2` (cf. credentials-skill `cred-get forgejo`) ; sur le laptop `origin`=Forgejo, `github`=miroir redondant |
 | VM 104 r2d2-store | `192.168.1.164` (SSH r2d2helm, 7 containers : PostgreSQL + Monitoring secondaire + NFS) |
 | VM 105 r2d2-lab ⏸️ | `192.168.1.161` (STOPPED — standby, 3 containers when up : RAG + Taskyn-fallback) |
 | VM credentials | `C:\Users\r2d2\Documents\claude-config-backup\vm100-credentials.md` |
