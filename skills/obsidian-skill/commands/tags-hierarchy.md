@@ -12,44 +12,37 @@ Afficher l'arbre hierarchique des tags du vault.
 
 ### Afficher l'arbre
 
-```powershell
-$VaultPath = "$env:USERPROFILE\Documents\Knowledge"
-$Notes = Get-ChildItem -Path $VaultPath -Recurse -Filter "*.md"
-$Tags = @{}
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
 
-foreach ($Note in $Notes) {
-    $Content = Get-Content $Note.FullName -Raw -ErrorAction SilentlyContinue
-    if ($Content) {
-        [regex]::Matches($Content, '(?<=\s|^)#([\w/-]+)') | ForEach-Object {
-            $Tag = $_.Groups[1].Value
-            if (-not $Tags.ContainsKey($Tag)) { $Tags[$Tag] = 0 }
-            $Tags[$Tag]++
-        }
-    }
-}
+declare -A tags
 
-# Construire et afficher l'arbre
-$Tree = @{}
-foreach ($Tag in $Tags.Keys | Sort-Object) {
-    $Parts = $Tag -split '/'
-    $Current = $Tree
-    foreach ($Part in $Parts) {
-        if (-not $Current.ContainsKey($Part)) { $Current[$Part] = @{} }
-        $Current = $Current[$Part]
-    }
-}
+while IFS= read -r note; do
+    while IFS= read -r tag; do
+        [ -n "$tag" ] && tags["$tag"]=$((${tags["$tag"]:-0} + 1))
+    done < <(grep -oP '(?<=\s|^)#\K[\w/-]+' "$note" 2>/dev/null || true)
+done < <(find "$VAULT" -name "*.md" -type f)
 
-# Affichage ASCII
+# Afficher l'arbre par groupes de prefixes
+echo "=== HIERARCHIE DES TAGS ==="
+for tag in $(printf '%s\n' "${!tags[@]}" | sort); do
+    count="${tags[$tag]}"
+    depth=$(echo "$tag" | tr -cd '/' | wc -c)
+    indent=$(printf '%0.s  ' $(seq 1 "$depth"))
+    tag_name=$(basename "$tag")
+    echo "${indent}${tag_name} ($count)"
+done
+
+# Exemple de sortie attendue:
 # dev/
-#   powershell (5)
 #   python (3)
-#   claude-code (8)
+#   bash (5)
 # ai/
 #   claude (12)
 #   agents (4)
 # infra/
 #   proxmox (7)
-#   windows (15)
+#   linux (15)
 ```
 
 ## Options
@@ -62,7 +55,7 @@ foreach ($Tag in $Tags.Keys | Sort-Object) {
 
 ## Exemples
 
-```powershell
+```bash
 /obs-tags hierarchy              # Arbre complet
 /obs-tags hierarchy --counts     # Avec compteurs
 /obs-tags hierarchy --min 3      # Tags utilises 3+ fois

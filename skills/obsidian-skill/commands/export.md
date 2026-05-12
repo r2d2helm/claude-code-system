@@ -12,42 +12,51 @@ Exporter des notes ou le vault entier dans differents formats.
 
 ### Export JSON
 
-```powershell
-$VaultPath = "$env:USERPROFILE\Documents\Knowledge"
-$Notes = Get-ChildItem -Path $VaultPath -Recurse -Filter "*.md" |
-    Where-Object { $_.FullName -notmatch '_Templates|\.obsidian|\.git' }
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+output="vault-export.json"
 
-$Data = foreach ($Note in $Notes) {
-    $Content = Get-Content $Note.FullName -Raw
-    $Frontmatter = @{}
-    if ($Content -match '(?s)^---\s*\n(.+?)\n---') {
-        # Parser le frontmatter basique
-    }
-    @{
-        name = $Note.BaseName
-        path = $Note.FullName.Replace($VaultPath, '').TrimStart('\')
-        size = $Note.Length
-        modified = $Note.LastWriteTime.ToString('yyyy-MM-dd')
-    }
-}
+echo "[" > "$output"
+first=true
+find "$VAULT" -name "*.md" -type f | grep -vE '_Templates|\.obsidian|\.git' | while IFS= read -r note; do
+    name=$(basename "$note" .md)
+    rel_path="${note#$VAULT/}"
+    size=$(stat -c %s "$note")
+    modified=$(date -r "$note" '+%Y-%m-%d')
 
-$Data | ConvertTo-Json -Depth 3 | Set-Content "vault-export.json"
-Write-Output "Exporte: $($Data.Count) notes -> vault-export.json"
+    [ "$first" = true ] && first=false || echo "," >> "$output"
+    printf '  {"name":"%s","path":"%s","size":%d,"modified":"%s"}' \
+        "$name" "$rel_path" "$size" "$modified" >> "$output"
+done
+echo "]" >> "$output"
+
+count=$(grep -c '"name"' "$output")
+echo "Exporte: $count notes -> $output"
 ```
 
 ### Export CSV (metadonnees)
 
-```powershell
-$Data | ForEach-Object { [PSCustomObject]$_ } |
-    Export-Csv -Path "vault-export.csv" -NoTypeInformation -Encoding UTF8
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+output="vault-export.csv"
+
+echo "name,path,size,modified" > "$output"
+find "$VAULT" -name "*.md" -type f | grep -vE '_Templates|\.obsidian|\.git' | while IFS= read -r note; do
+    name=$(basename "$note" .md)
+    rel_path="${note#$VAULT/}"
+    size=$(stat -c %s "$note")
+    modified=$(date -r "$note" '+%Y-%m-%d')
+    echo "\"$name\",\"$rel_path\",$size,$modified"
+done >> "$output"
 ```
 
 ### Export HTML
 
-```powershell
-# Convertir une note Markdown en HTML basique
-$Note = Get-Content "note.md" -Raw
-# Utiliser un module comme PSMarkdown ou conversion manuelle
+```bash
+# Convertir une note Markdown en HTML
+# Necessite pandoc : sudo apt install pandoc
+note="note.md"
+pandoc "$note" -o "${note%.md}.html"
 ```
 
 ## Options
@@ -62,7 +71,7 @@ $Note = Get-Content "note.md" -Raw
 
 ## Exemples
 
-```powershell
+```bash
 /obs-export json                         # Export complet JSON
 /obs-export csv --folder Concepts        # CSV des concepts
 /obs-export html C_Docker                # Note en HTML

@@ -1,0 +1,320 @@
+{
+  "version": "2.0.0",
+  "last_updated": "2026-04-04",
+  "technologies": [
+    {
+      "name": "zclaw",
+      "category": "edge-ai",
+      "description": "Agent IA complet sur ESP32, 35KB code, Telegram + Claude/Anthropic",
+      "maturity": 4, "relevance": 5, "accessibility": 5, "score": 4.7,
+      "status": "A_PROTOTYPER",
+      "url": "https://abit.ee/en/artificial-intelligence/zclaw-esp32-ai-agent-microcontroller-open-source-freertos-smart-home-iot-en",
+      "cost": "5 EUR (board)",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "MimiClaw",
+      "category": "edge-ai",
+      "description": "ESP32-S3 + Claude + Telegram + GPIO control",
+      "maturity": 3, "relevance": 5, "accessibility": 5, "score": 4.3,
+      "status": "A_PROTOTYPER",
+      "url": "https://www.cnx-software.com/2026/02/13/mimiclaw-is-an-openclaw-like-ai-assistant-for-esp32-s3-boards/",
+      "cost": "10 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "esp32-llm",
+      "category": "edge-ai",
+      "description": "LLM tournant directement sur ESP32, 19 tokens/sec",
+      "maturity": 3, "relevance": 4, "accessibility": 5, "score": 4.0,
+      "status": "A_PROTOTYPER",
+      "url": "https://github.com/DaveBben/esp32-llm",
+      "cost": "5 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "MCP over MQTT (ESP32)",
+      "category": "integration",
+      "description": "LLM controle hardware via MCP + MQTT sur ESP32",
+      "maturity": 3, "relevance": 5, "accessibility": 4, "score": 4.0,
+      "status": "A_PROTOTYPER",
+      "url": "https://emqx.medium.com/building-your-ai-companion-with-esp32-mcp-over-mqtt-from-scratch-1-getting-online-de123b9f360c",
+      "cost": "5 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "Ollama",
+      "category": "modeles-frugaux",
+      "description": "Inference LLM locale, multi-modeles, API compatible OpenAI",
+      "maturity": 5, "relevance": 5, "accessibility": 5, "score": 5.0,
+      "status": "EN_USAGE",
+      "url": "https://ollama.ai",
+      "cost": "0 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "Qwen3-30B-A3B",
+      "category": "modeles-frugaux",
+      "description": "LLM quantise optimise pour agents, raisonnement",
+      "maturity": 4, "relevance": 5, "accessibility": 4, "score": 4.3,
+      "status": "A_PROTOTYPER",
+      "url": "https://huggingface.co/Qwen",
+      "cost": "0 EUR (open weight)",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "CrewAI",
+      "category": "agents",
+      "description": "Orchestration multi-agents role-based, 44k stars GitHub",
+      "maturity": 4, "relevance": 5, "accessibility": 4, "score": 4.3,
+      "status": "A_EVALUER",
+      "url": "https://github.com/joaomdmoura/crewAI",
+      "cost": "0 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "MountAIn (TinyML cameras)",
+      "category": "edge-ai",
+      "description": "IA embarquee sur MCU, 500x moins energie, cameras autonomes",
+      "maturity": 4, "relevance": 3, "accessibility": 2, "score": 3.0,
+      "status": "SURVEILLER",
+      "url": "https://mountainedge.ai",
+      "cost": "Commercial",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "SO-101 + LeRobot",
+      "category": "robotique",
+      "subcategory": "bras",
+      "description": "Bras robotique IA 3D-printable, imitation learning, VLA, ecosysteme Hugging Face. 22.9k stars.",
+      "maturity": 5, "relevance": 5, "accessibility": 5, "score": 5.0,
+      "status": "A_PROTOTYPER",
+      "url": "https://github.com/huggingface/lerobot",
+      "cost": "90-220 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "Annin AR4 MK3",
+      "category": "robotique",
+      "subcategory": "bras",
+      "description": "6 DOF desktop industriel, stepper motors, CNC-like precision. Gold standard DIY.",
+      "maturity": 5, "relevance": 4, "accessibility": 3, "score": 4.0,
+      "status": "A_EVALUER",
+      "url": "https://anninrobotics.com/",
+      "cost": "~1800 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "reBot Arm B601",
+      "category": "robotique",
+      "subcategory": "bras",
+      "description": "6 DOF + gripper, 650mm reach, 1.5kg payload, <0.2mm repeatabilite. Seeed Studio.",
+      "maturity": 2, "relevance": 4, "accessibility": 4, "score": 3.3,
+      "status": "SURVEILLER",
+      "url": "https://github.com/Seeed-Projects/reBot-DevArm",
+      "cost": "<900 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "Thor Arm",
+      "category": "robotique",
+      "subcategory": "bras",
+      "description": "6 DOF ultra-low cost, 3D-printable, educatif.",
+      "maturity": 3, "relevance": 3, "accessibility": 5, "score": 3.7,
+      "status": "SURVEILLER",
+      "url": "http://thor.angel-lm.com/",
+      "cost": "320-450 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "Petoi Bittle X",
+      "category": "robotique",
+      "subcategory": "quadrupede",
+      "description": "OpenCat framework, Arduino+RPi, modulaire (camera, LIDAR, gripper). 4000 stars.",
+      "maturity": 5, "relevance": 4, "accessibility": 5, "score": 4.7,
+      "status": "A_PROTOTYPER",
+      "url": "https://github.com/PetoiCamp/OpenCat",
+      "cost": "210-270 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "Mini Pupper 2",
+      "category": "robotique",
+      "subcategory": "quadrupede",
+      "description": "12 DOF, ROS 2 + ESP32, SLAM/navigation/CV. Pont education-recherche.",
+      "maturity": 4, "relevance": 4, "accessibility": 4, "score": 4.0,
+      "status": "A_PROTOTYPER",
+      "url": "https://github.com/mangdangroboticsclub/QuadrupedRobot",
+      "cost": "390-450 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "Unitree Go2 Air",
+      "category": "robotique",
+      "subcategory": "quadrupede",
+      "description": "SDK ouvert (Python, C++, ROS2), le plus performant a ce prix. Pas open hardware.",
+      "maturity": 5, "relevance": 4, "accessibility": 3, "score": 4.0,
+      "status": "A_EVALUER",
+      "url": "https://www.unitree.com/go2/",
+      "cost": "~1450 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "Stanford Pupper",
+      "category": "robotique",
+      "subcategory": "quadrupede",
+      "description": "Brushless motors, jumping/trotting, 3D-printable, RPi. Pedigree academique.",
+      "maturity": 3, "relevance": 3, "accessibility": 3, "score": 3.0,
+      "status": "SURVEILLER",
+      "url": "https://github.com/stanfordroboticsclub/StanfordQuadruped",
+      "cost": "550-1800 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "mjbots quad",
+      "category": "robotique",
+      "subcategory": "quadrupede",
+      "description": "Mini-Cheetah inspire, BLDC custom (moteus), dynamique avancee. Apache 2.0.",
+      "maturity": 3, "relevance": 3, "accessibility": 2, "score": 2.7,
+      "status": "SURVEILLER",
+      "url": "https://github.com/mjbots/quad",
+      "cost": "1800-3600 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "Reachy Mini",
+      "category": "robotique",
+      "subcategory": "humanoide",
+      "description": "28cm desktop humanoide, 6 DOF tete, RPi 5, full open source, ecosysteme Hugging Face.",
+      "maturity": 3, "relevance": 4, "accessibility": 5, "score": 4.0,
+      "status": "A_PROTOTYPER",
+      "url": "https://www.pollen-robotics.com/reachy-mini/",
+      "cost": "270-410 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "Berkeley Humanoid Lite",
+      "category": "robotique",
+      "subcategory": "humanoide",
+      "description": "1m, 16kg, 3D-printed + cycloidal gearboxes, Isaac Lab sim-to-real. MIT license.",
+      "maturity": 3, "relevance": 3, "accessibility": 2, "score": 2.7,
+      "status": "SURVEILLER",
+      "url": "https://github.com/HybridRobotics/Berkeley-Humanoid-Lite",
+      "cost": "3000-4000 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "Roboto Origin",
+      "category": "robotique",
+      "subcategory": "humanoide",
+      "description": "1.25m, 34kg, 3 m/s, Xiaomi-backed. Premier full-stack open source bipede.",
+      "maturity": 2, "relevance": 3, "accessibility": 1, "score": 2.0,
+      "status": "SURVEILLER",
+      "url": "https://github.com/Roboparty/roboto_origin",
+      "cost": "Eleve (custom actuators)",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "Poppy Humanoid",
+      "category": "robotique",
+      "subcategory": "humanoide",
+      "description": "25 DOF, Dynamixel, RPi, communaute academique francaise. Depuis 2014.",
+      "maturity": 4, "relevance": 3, "accessibility": 2, "score": 3.0,
+      "status": "SURVEILLER",
+      "url": "https://github.com/poppy-project/poppy-humanoid",
+      "cost": "5000-8200 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "ROSA (NASA JPL)",
+      "category": "robotique-ia",
+      "description": "Controle ROS via langage naturel, LangChain, compatible tout robot ROS.",
+      "maturity": 4, "relevance": 5, "accessibility": 4, "score": 4.3,
+      "status": "A_PROTOTYPER",
+      "url": "https://github.com/nasa-jpl/rosa",
+      "cost": "0 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "ROS-LLM",
+      "category": "robotique-ia",
+      "description": "LLM -> actions ROS, 3 modes comportement, publie Nature Machine Intelligence.",
+      "maturity": 3, "relevance": 5, "accessibility": 4, "score": 4.0,
+      "status": "A_PROTOTYPER",
+      "url": "https://github.com/Auromix/ROS-LLM",
+      "cost": "0 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "llama_ros",
+      "category": "robotique-ia",
+      "description": "LLM quantise GGUF comme noeud ROS 2, RAG, tourne sur Jetson. Publie academiquement.",
+      "maturity": 4, "relevance": 5, "accessibility": 4, "score": 4.3,
+      "status": "A_PROTOTYPER",
+      "url": "https://github.com/mgonzs13/llama_ros",
+      "cost": "0 EUR (+ hardware Jetson ~250 EUR)",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "SmolVLA",
+      "category": "robotique-ia",
+      "description": "VLA 450M params Hugging Face, tourne sur CPU, egalise modeles 10x plus gros.",
+      "maturity": 4, "relevance": 5, "accessibility": 5, "score": 4.7,
+      "status": "A_PROTOTYPER",
+      "url": "https://huggingface.co/blog/smolvla",
+      "cost": "0 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "OpenVLA",
+      "category": "robotique-ia",
+      "description": "VLA 7B params, MIT license, 970k demos, surpasse RT-2-X avec 7x moins de params.",
+      "maturity": 4, "relevance": 4, "accessibility": 3, "score": 3.7,
+      "status": "A_EVALUER",
+      "url": "https://github.com/openvla/openvla",
+      "cost": "0 EUR (GPU A100 pour fine-tuning)",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "MuJoCo Playground",
+      "category": "simulation",
+      "description": "Sim robotique Google DeepMind, pip install, 1 GPU, sim-to-real valide. RSS 2025.",
+      "maturity": 5, "relevance": 5, "accessibility": 5, "score": 5.0,
+      "status": "A_PROTOTYPER",
+      "url": "https://github.com/google-deepmind/mujoco_playground",
+      "cost": "0 EUR",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "NVIDIA Isaac Lab",
+      "category": "simulation",
+      "description": "GPU-accelerated robot learning, 82-94k FPS, 4096 envs paralleles. Apache 2.0.",
+      "maturity": 5, "relevance": 4, "accessibility": 3, "score": 4.0,
+      "status": "A_EVALUER",
+      "url": "https://github.com/isaac-sim/IsaacLab",
+      "cost": "0 EUR (GPU NVIDIA RTX 3070+ requis)",
+      "added": "2026-04-04"
+    },
+    {
+      "name": "MCP-ROS2 (concept)",
+      "category": "integration",
+      "description": "Serveur MCP exposant capteurs ROS comme Resources et actuateurs comme Tools. CRENEAU VIERGE.",
+      "maturity": 1, "relevance": 5, "accessibility": 4, "score": 3.3,
+      "status": "A_PROTOTYPER",
+      "url": "N/A (concept R2D2)",
+      "cost": "0 EUR (dev time)",
+      "added": "2026-04-04",
+      "note": "Angle unique R2D2 - personne ne fait le lien MCP + ROS2"
+    },
+    {
+      "name": "ROS 2",
+      "category": "robotique",
+      "description": "Framework robotique standard industrie, lingua franca, micro-ROS sur ESP32",
+      "maturity": 5, "relevance": 5, "accessibility": 3, "score": 4.3,
+      "status": "A_EVALUER",
+      "url": "https://www.openrobotics.org/",
+      "cost": "0 EUR",
+      "added": "2026-04-04"
+    }
+  ]
+}

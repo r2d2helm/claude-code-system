@@ -12,34 +12,30 @@ Trouver les notes sans aucun lien entrant ou sortant.
 
 ### Trouver notes non liees
 
-```powershell
-$VaultPath = "$env:USERPROFILE\Documents\Knowledge"
-$Notes = Get-ChildItem -Path $VaultPath -Recurse -Filter "*.md" |
-    Where-Object { $_.FullName -notmatch '_Templates|\.obsidian' }
-$AllLinks = @()
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
 
-foreach ($Note in $Notes) {
-    $Content = Get-Content $Note.FullName -Raw -ErrorAction SilentlyContinue
-    if ($Content) {
-        $Links = [regex]::Matches($Content, '\[\[([^\]|]+)') |
-            ForEach-Object { $_.Groups[1].Value }
-        $AllLinks += $Links
-    }
-}
+# Collecter tous les liens sortants de toutes les notes
+all_links=$(find "$VAULT" -name "*.md" -type f | grep -vE '_Templates|\.obsidian' | \
+    xargs grep -hoP '\[\[\K[^\]|]+' 2>/dev/null | sort -u)
 
 # Notes sans backlinks (personne ne pointe vers elles)
-$NoIncoming = $Notes | Where-Object { $_.BaseName -notin $AllLinks }
+echo "=== Sans backlinks ==="
+find "$VAULT" -name "*.md" -type f | grep -vE '_Templates|\.obsidian' | while IFS= read -r note; do
+    name=$(basename "$note" .md)
+    if ! echo "$all_links" | grep -qxF "$name"; then
+        echo "  - $(basename "$note")"
+    fi
+done
 
 # Notes sans liens sortants
-$NoOutgoing = $Notes | Where-Object {
-    $Content = Get-Content $_.FullName -Raw -ErrorAction SilentlyContinue
-    $Content -notmatch '\[\['
-}
-
-Write-Output "Sans backlinks: $($NoIncoming.Count)"
-$NoIncoming | ForEach-Object { "  - $($_.Name)" }
-Write-Output "`nSans liens sortants: $($NoOutgoing.Count)"
-$NoOutgoing | ForEach-Object { "  - $($_.Name)" }
+echo ""
+echo "=== Sans liens sortants ==="
+find "$VAULT" -name "*.md" -type f | grep -vE '_Templates|\.obsidian' | while IFS= read -r note; do
+    if ! grep -qP '\[\[' "$note" 2>/dev/null; then
+        echo "  - $(basename "$note")"
+    fi
+done
 ```
 
 ## Options
@@ -52,7 +48,7 @@ $NoOutgoing | ForEach-Object { "  - $($_.Name)" }
 
 ## Exemples
 
-```powershell
+```bash
 /obs-links unlinked                      # Toutes les notes non liees
 /obs-links unlinked --no-incoming        # Sans backlinks
 /obs-links unlinked --exclude _Daily     # Exclure les daily notes

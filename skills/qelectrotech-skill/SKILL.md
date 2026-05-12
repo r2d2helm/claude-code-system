@@ -1,6 +1,7 @@
 ---
 name: qelectrotech-skill
 description: "Plans electriques QElectroTech : schemas unifilaires, multifilaires, nomenclatures, elements, folios. Normes NF C 15-100 et IEC 60617."
+prefix: /qet-*
 ---
 
 # Agent QElectroTech - Plans Electriques Professionnels

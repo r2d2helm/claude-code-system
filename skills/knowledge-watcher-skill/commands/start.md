@@ -10,15 +10,15 @@ Démarre le Knowledge Watcher Agent.
 
 ## Description
 
-Cette commande démarre les FileSystemWatchers pour les sources Tier 1 (temps réel) et active la surveillance automatique des fichiers.
+Cette commande démarre les watchers inotifywait pour les sources Tier 1 (temps réel) et active la surveillance automatique des fichiers.
 
 ## Exécution
 
-**IMPORTANT**: Exécute ce script PowerShell:
+**IMPORTANT**: Exécute ce script bash:
 
-```powershell
-$SkillPath = "$env:USERPROFILE\.claude\skills\knowledge-watcher-skill"
-& "$SkillPath\scripts\Start-KnowledgeWatcher.ps1"
+```bash
+SKILL_PATH="$HOME/.claude/skills/knowledge-watcher-skill"
+bash "$SKILL_PATH/scripts/start-knowledge-watcher.sh"
 ```
 
 ## Options
@@ -31,16 +31,16 @@ $SkillPath = "$env:USERPROFILE\.claude\skills\knowledge-watcher-skill"
 
 | Source | Chemin | Patterns |
 |--------|--------|----------|
-| Claude History | `~\.claude\history.jsonl` | *.jsonl |
-| Projets | `~\Projets` | *.md, *.ps1, *.py, *.json |
-| Knowledge | `~\Documents\Knowledge` | *.md |
+| Claude History | `~/.claude/history.jsonl` | *.jsonl |
+| Projets | `~/Projets` | *.md, *.sh, *.py, *.json |
+| Knowledge | `~/Documents/Knowledge` | *.md |
 
 ## Exemple de sortie
 
 ```
 🚀 Starting Knowledge Watcher...
-  ✅ Watching: Projets Actifs (C:\Users\r2d2\Projets)
-  ✅ Watching: Knowledge Vault (C:\Users\r2d2\Documents\Knowledge)
+  ✅ Watching: Projets Actifs (~/Projets)
+  ✅ Watching: Knowledge Vault (~/Documents/Knowledge)
   ✅ Watching: Claude History
 
 ✅ Knowledge Watcher started
@@ -59,6 +59,6 @@ $SkillPath = "$env:USERPROFILE\.claude\skills\knowledge-watcher-skill"
 
 ## Prérequis
 
-- PowerShell 7.4+
+- inotify-tools installé (`sudo apt install inotify-tools`)
 - Les chemins sources doivent exister
 - Claude CLI installé pour les résumés IA

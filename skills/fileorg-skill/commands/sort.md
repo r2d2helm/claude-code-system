@@ -12,42 +12,54 @@ Trier fichiers dans des sous-dossiers par type, date ou taille.
 
 ### Trier par extension
 
-```powershell
-$Path = $args[0]
-$Files = Get-ChildItem -Path $Path -File
+```bash
+#!/usr/bin/env bash
+path="${1}"
 
-$Files | Group-Object Extension | ForEach-Object {
-    $Folder = Join-Path $Path ($_.Name.TrimStart('.').ToUpper())
-    if (-not (Test-Path $Folder)) { New-Item -ItemType Directory -Path $Folder -Force | Out-Null }
-    $_.Group | Move-Item -Destination $Folder
-    Write-Output "  $($_.Name): $($_.Count) fichiers -> $($_.Name.TrimStart('.').ToUpper())/"
-}
+find "$path" -maxdepth 1 -type f | while IFS= read -r file; do
+  name=$(basename "$file")
+  ext="${name##*.}"
+  folder=$(echo "$ext" | tr '[:lower:]' '[:upper:]')
+  dest="${path}/${folder}"
+  mkdir -p "$dest"
+  mv "$file" "$dest/"
+  echo "  .${ext}: $name -> ${folder}/"
+done | sort | uniq -c
 ```
 
 ### Trier par date
 
-```powershell
-$Files | ForEach-Object {
-    $DateFolder = $_.LastWriteTime.ToString('yyyy-MM')
-    $Dest = Join-Path $Path $DateFolder
-    if (-not (Test-Path $Dest)) { New-Item -ItemType Directory -Path $Dest -Force | Out-Null }
-    Move-Item -Path $_.FullName -Destination $Dest
-}
+```bash
+#!/usr/bin/env bash
+path="${1}"
+
+find "$path" -maxdepth 1 -type f | while IFS= read -r file; do
+  mod_time=$(stat -c %Y "$file")
+  date_folder=$(date -d "@$mod_time" +%Y-%m)
+  dest="${path}/${date_folder}"
+  mkdir -p "$dest"
+  mv "$file" "$dest/"
+done
 ```
 
 ### Trier par taille
 
-```powershell
-$Files | ForEach-Object {
-    $Size = switch ($_.Length) {
-        { $_ -lt 1MB } { "Petit_<1MB" }
-        { $_ -lt 100MB } { "Moyen_1-100MB" }
-        default { "Gros_>100MB" }
-    }
-    $Dest = Join-Path $Path $Size
-    if (-not (Test-Path $Dest)) { New-Item -ItemType Directory -Path $Dest -Force | Out-Null }
-    Move-Item -Path $_.FullName -Destination $Dest
-}
+```bash
+#!/usr/bin/env bash
+path="${1}"
+
+find "$path" -maxdepth 1 -type f -printf '%s %p\n' | while read -r size file; do
+  if [ "$size" -lt 1048576 ]; then
+    folder="Petit_lt1MB"
+  elif [ "$size" -lt 104857600 ]; then
+    folder="Moyen_1-100MB"
+  else
+    folder="Gros_gt100MB"
+  fi
+  dest="${path}/${folder}"
+  mkdir -p "$dest"
+  mv "$file" "$dest/"
+done
 ```
 
 ## Options
@@ -61,10 +73,10 @@ $Files | ForEach-Object {
 
 ## Exemples
 
-```powershell
-/file-sort C:\Users\r2d2\Downloads by-type        # Par extension
-/file-sort C:\Users\r2d2\Downloads by-date        # Par mois
-/file-sort C:\Users\r2d2\Desktop by-size --dry-run # Preview
+```bash
+/file-sort ~/Downloads by-type         # Par extension
+/file-sort ~/Downloads by-date         # Par mois
+/file-sort ~/Desktop by-size --dry-run # Preview
 ```
 
 ## Voir Aussi

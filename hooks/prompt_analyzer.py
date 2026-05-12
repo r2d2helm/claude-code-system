@@ -176,14 +176,10 @@ def main():
         if msg_type == "debug":
             context_parts.append("Request type: debugging/troubleshooting")
 
-        # Memory v2: injection contextuelle de memoires par prompt
-        try:
-            from lib.memory_retriever import retrieve_for_prompt
-            memory_context = retrieve_for_prompt(message, session_id)
-            if memory_context:
-                context_parts.append(f"Memory: {memory_context}")
-        except Exception:
-            pass  # Fail-open
+        # Memory v2: injection SQLite desactivee — R2D2-Memory/MEMORY.md est la source unique
+        # Les extracteurs continuent de collecter, seule l injection est coupee
+        # Reactiver si R2D2-Memory est abandonne
+        pass
 
         if context_parts:
             output_json({"additionalContext": " | ".join(context_parts)})

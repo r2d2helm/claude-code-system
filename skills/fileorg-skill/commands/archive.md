@@ -1,6 +1,6 @@
 # Commande: /file-archive
 
-Archiver les fichiers anciens dans une structure par année.
+Archiver les fichiers anciens dans une structure par annee.
 
 ## Syntaxe
 
@@ -10,84 +10,70 @@ Archiver les fichiers anciens dans une structure par année.
 
 ## Comportement
 
-Déplace les fichiers plus anciens qu'un seuil donné vers un dossier `_ARCHIVE/YYYY/` organisé par année de dernière modification.
+Deplace les fichiers plus anciens qu'un seuil donne vers un dossier `_ARCHIVE/YYYY/` organise par annee de derniere modification.
 
-## Script PowerShell
+## Script bash
 
-```powershell
-param(
-    [string]$Path = ".",
-    [int]$OlderThanMonths = 12,
-    [string]$ArchiveDir = "_ARCHIVE",
-    [switch]$DryRun
-)
+```bash
+#!/usr/bin/env bash
+path="${1:-.}"
+older_than_months="${2:-12}"
+archive_dir="${3:-_ARCHIVE}"
+dry_run="${4:-}"
 
-$CutoffDate = (Get-Date).AddMonths(-$OlderThanMonths)
-$Files = Get-ChildItem -Path $Path -File -Recurse -ErrorAction SilentlyContinue |
-    Where-Object { $_.LastWriteTime -lt $CutoffDate -and $_.FullName -notmatch '_ARCHIVE' }
+cutoff_days=$(( older_than_months * 30 ))
+archive_path="${path}/${archive_dir}"
+moved=0
+total_size=0
 
-$ArchivePath = Join-Path $Path $ArchiveDir
-$Moved = 0
-$TotalSize = 0
+echo ""
+echo "╔══════════════════════════════════════════════╗"
+echo "║     ARCHIVAGE DE FICHIERS                    ║"
+echo "╠══════════════════════════════════════════════╣"
+echo "║                                              ║"
+echo "║  Source:   $path"
+echo "║  Seuil:    > $older_than_months mois"
+echo "║                                              ║"
 
-Write-Host ""
-Write-Host "╔══════════════════════════════════════════════╗"
-Write-Host "║     📦 ARCHIVAGE DE FICHIERS                  ║"
-Write-Host "╠══════════════════════════════════════════════╣"
-Write-Host "║                                              ║"
-Write-Host "║  Source:   $Path"
-Write-Host "║  Seuil:    > $OlderThanMonths mois ($($CutoffDate.ToString('yyyy-MM-dd')))"
-Write-Host "║  Fichiers: $($Files.Count) à archiver"
-Write-Host "║                                              ║"
+while IFS= read -r -d '' file; do
+  year=$(date -r "$file" +%Y 2>/dev/null || stat -c %y "$file" | cut -c1-4)
+  year_dir="${archive_path}/${year}"
 
-if ($Files.Count -eq 0) {
-    Write-Host "║  ✅ Aucun fichier à archiver                 ║"
-    Write-Host "╚══════════════════════════════════════════════╝"
-    return
-}
+  if [ "${dry_run}" = "--dry-run" ]; then
+    echo "[DRY RUN] $(basename "$file") -> ${archive_dir}/${year}/"
+  else
+    mkdir -p "$year_dir"
+    dest="${year_dir}/$(basename "$file")"
+    if [ -e "$dest" ]; then
+      dest="${year_dir}/$(basename "${file%.*}")_$(date +%H%M%S).${file##*.}"
+    fi
+    mv "$file" "$dest"
+  fi
+  moved=$(( moved + 1 ))
+done < <(find "$path" -type f -mtime +"$cutoff_days" -not -path "*/${archive_dir}/*" -print0)
 
-foreach ($File in $Files) {
-    $Year = $File.LastWriteTime.ToString("yyyy")
-    $YearDir = Join-Path $ArchivePath $Year
-
-    if ($DryRun) {
-        Write-Host "[DRY RUN] $($File.Name) -> $ArchiveDir\$Year\"
-    } else {
-        if (-not (Test-Path $YearDir)) {
-            New-Item -Path $YearDir -ItemType Directory -Force | Out-Null
-        }
-        $dest = Join-Path $YearDir $File.Name
-        if (Test-Path $dest) {
-            $dest = Join-Path $YearDir "$($File.BaseName)_$(Get-Date -Format 'HHmmss')$($File.Extension)"
-        }
-        Move-Item -Path $File.FullName -Destination $dest
-    }
-    $Moved++
-    $TotalSize += $File.Length
-}
-
-Write-Host "║  $(if ($DryRun) { 'Simulé' } else { 'Archivé' }): $Moved fichiers ($('{0:N1} MB' -f ($TotalSize / 1MB)))"
-Write-Host "║                                              ║"
-Write-Host "╚══════════════════════════════════════════════╝"
+echo "║  Traite: $moved fichiers"
+echo "║                                              ║"
+echo "╚══════════════════════════════════════════════╝"
 ```
 
 ## Options
 
 | Option | Description |
 |--------|-------------|
-| `--older-than=N` | Mois d'ancienneté (défaut: 12) |
-| `--dest=path` | Dossier d'archive personnalisé |
-| `--dry-run` | Simuler sans déplacer |
+| `--older-than=N` | Mois d'anciennete (defaut: 12) |
+| `--dest=path` | Dossier d'archive personnalise |
+| `--dry-run` | Simuler sans deplacer |
 
 ## Exemples
 
-```powershell
+```bash
 # Archiver les fichiers > 1 an
 /file-archive Documents
 
 # Archiver les fichiers > 6 mois (dry run)
 /file-archive Downloads --older-than=6 --dry-run
 
-# Archive personnalisée
-/file-archive Documents --dest="D:\Archives"
+# Archive personnalisee
+/file-archive Documents --dest="/mnt/data/Archives"
 ```

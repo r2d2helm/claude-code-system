@@ -12,10 +12,12 @@ Guide la creation d'un nouveau skill Claude Code pour le systeme r2d2.
    - Verifier qu'aucun skill existant ne couvre deja ce domaine
    - Choisir un prefixe de commande unique
 
-2. **Initialiser la structure** : Executer le script d'initialisation
+2. **Initialiser la structure** : L'utilisateur execute le script d'initialisation **dans son terminal** (pas depuis Claude)
    ```bash
+   # Commande a copier-coller dans le terminal par l'utilisateur
    python ~/.claude/skills/skill-creator/scripts/init_skill.py <nom-skill> --path ~/.claude/skills
    ```
+   > **Note:** `init_skill.py` cree la structure de dossiers et les fichiers template. Il doit etre lance manuellement par l'utilisateur via son terminal. Claude n'invoque pas ce script directement -- il guide l'utilisateur et edite les fichiers generes ensuite.
 
 3. **Editer le SKILL.md** : Completer les TODO du template
    - Frontmatter : name + description (avec triggers)
@@ -47,3 +49,43 @@ Guide la creation d'un nouveau skill Claude Code pour le systeme r2d2.
 /skill-create backup-skill
 /skill-create network-skill
 ```
+
+## Walkthrough : creation de "monitoring-skill"
+
+Exemple concret de creation d'un skill de monitoring systeme :
+
+**Etape 1 - Analyser le besoin :**
+- Commandes necessaires : `/mon-status`, `/mon-alerts`, `/mon-dashboard`
+- Domaine : surveillance systeme (CPU, RAM, disque, services)
+- Prefixe : `mon`
+- Aucun skill existant ne couvre ce domaine
+
+**Etape 2 - L'utilisateur initialise :**
+```bash
+python ~/.claude/skills/skill-creator/scripts/init_skill.py monitoring-skill --path ~/.claude/skills
+```
+Resultat : `~/.claude/skills/monitoring-skill/` avec SKILL.md, commands/, wizards/
+
+**Etape 3 - Editer SKILL.md :**
+```yaml
+---
+name: monitoring-skill
+description: "Surveillance systeme Linux. Alertes CPU, RAM, disque, services Docker et systemd. Utiliser pour 'check system', 'alertes serveur', 'dashboard systeme', 'monitoring', 'etat du serveur'."
+prefix: /mon-*
+---
+```
+
+**Etape 4 - Creer les commandes :**
+- `commands/status.md` : Etat global systeme (CPU, RAM, disque, uptime)
+- `commands/alerts.md` : Verification des seuils et alertes actives
+- `commands/dashboard.md` : Vue synthetique avec metriques cles
+
+**Etape 5 - Valider :**
+```bash
+python ~/.claude/skills/skill-creator/scripts/quick_validate.py ~/.claude/skills/monitoring-skill
+```
+
+**Etape 6 - Integrer :**
+- Publier contrat pour router-updater et knowledge-indexer
+- Mettre a jour CLAUDE.md avec la ligne du skill
+- Creer `C_Monitoring-Skill.md` dans le vault

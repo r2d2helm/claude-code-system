@@ -43,8 +43,22 @@ docker compose logs -f <service>
 
 ## Exemples
 
+Suivre les logs en temps reel avec timestamps :
 ```bash
-/dk-logs myapp              # Tous les logs
-/dk-logs myapp --tail 50    # 50 dernieres lignes
-/dk-logs myapp -f           # Suivre en direct
+docker logs -f -t myapp
+```
+
+Afficher les 100 dernieres lignes :
+```bash
+docker logs --tail 100 myapp
+```
+
+Logs depuis les 30 dernieres minutes :
+```bash
+docker logs --since 30m myapp
+```
+
+Suivre les logs d'un service via Compose :
+```bash
+docker compose logs -f --tail 50 api
 ```

@@ -45,6 +45,13 @@ Conçu pour Claude Code avec commandes slash modulaires et wizards interactifs.
 | | `/pve-sdn` | Software-Defined Networking |
 | | `/pve-firewall` | Firewall Proxmox |
 | **HA** | `/pve-ha` | Haute Disponibilité |
+| | `/pve-snapshot` | Gestion snapshots VM/CT |
+| | `/pve-migrate` | Migration live/offline |
+| | `/pve-pool` | Pools de ressources |
+| | `/pve-replication` | Réplication ZFS inter-nodes |
+| | `/pve-tags` | Tags PVE 9+ |
+| **GPU** | `/pve-gpu` | Passthrough GPU/PCI (IOMMU, VFIO) |
+| **Certificats** | `/pve-acme` | Let's Encrypt SSL via ACME |
 | **Security** | `/pve-security` | Hardening et sécurité |
 | | `/pve-users` | Utilisateurs et permissions |
 | **Monitoring** | `/pve-monitor` | Monitoring et métriques |

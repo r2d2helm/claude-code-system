@@ -12,90 +12,102 @@ Assistant interactif pour organiser un dossier etape par etape.
 
 ### Etape 1 : Analyse du dossier
 
-```powershell
-$Path = $args[0]
-$Files = Get-ChildItem -Path $Path -File
-$Dirs = Get-ChildItem -Path $Path -Directory
+```bash
+#!/usr/bin/env bash
+path="${1}"
 
-$Extensions = $Files | Group-Object Extension | Sort-Object Count -Descending
-$TotalSize = ($Files | Measure-Object -Property Length -Sum).Sum
+total_files=$(find "$path" -maxdepth 1 -type f | wc -l)
+total_dirs=$(find "$path" -maxdepth 1 -type d | wc -l)
+total_size=$(du -sh "$path" 2>/dev/null | cut -f1)
 
-Write-Output "=== ANALYSE: $Path ==="
-Write-Output "Fichiers: $($Files.Count)"
-Write-Output "Dossiers: $($Dirs.Count)"
-Write-Output "Taille totale: $([math]::Round($TotalSize / 1MB, 1)) MB"
-Write-Output ""
-Write-Output "Extensions:"
-$Extensions | ForEach-Object {
-    "  $($_.Name): $($_.Count) fichiers"
-}
+echo "=== ANALYSE: $path ==="
+echo "Fichiers: $total_files"
+echo "Dossiers: $total_dirs"
+echo "Taille totale: $total_size"
+echo ""
+echo "Extensions:"
+find "$path" -maxdepth 1 -type f | grep -oE '\.[^./]+$' | sort | uniq -c | sort -rn | \
+  awk '{printf "  %s: %d fichiers\n", $2, $1}'
 ```
 
 ### Etape 2 : Detection des problemes
 
-```powershell
-$Issues = @()
+```bash
+#!/usr/bin/env bash
+path="${1}"
+issues=()
+
+files=$(find "$path" -maxdepth 1 -type f)
 
 # Fichiers sans extension
-$NoExt = $Files | Where-Object { -not $_.Extension }
-if ($NoExt.Count -gt 0) { $Issues += "  - $($NoExt.Count) fichiers sans extension" }
+no_ext=$(echo "$files" | while read -r f; do
+  name=$(basename "$f"); [ "${name%.*}" = "$name" ] && echo "$f"
+done | wc -l)
+[ "$no_ext" -gt 0 ] && issues+=("  - $no_ext fichiers sans extension")
 
 # Noms avec espaces ou caracteres speciaux
-$BadNames = $Files | Where-Object { $_.BaseName -match '[àâäéèêëîïôöùûüç\s@#$%&]' }
-if ($BadNames.Count -gt 0) { $Issues += "  - $($BadNames.Count) noms avec caracteres speciaux/espaces" }
+bad_names=$(find "$path" -maxdepth 1 -type f -name "*[ @#\$%&]*" | wc -l)
+[ "$bad_names" -gt 0 ] && issues+=("  - $bad_names noms avec caracteres speciaux/espaces")
 
 # Fichiers volumineux (>100MB)
-$Large = $Files | Where-Object { $_.Length -gt 100MB }
-if ($Large.Count -gt 0) { $Issues += "  - $($Large.Count) fichiers > 100 MB" }
+large=$(find "$path" -maxdepth 1 -type f -size +100M | wc -l)
+[ "$large" -gt 0 ] && issues+=("  - $large fichiers > 100 MB")
 
 # Doublons potentiels (meme taille + meme extension)
-$PossibleDupes = $Files | Group-Object { "$($_.Length)-$($_.Extension)" } | Where-Object { $_.Count -gt 1 }
-if ($PossibleDupes.Count -gt 0) { $Issues += "  - $($PossibleDupes.Count) groupes de doublons potentiels" }
+possible_dupes=$(find "$path" -maxdepth 1 -type f -printf '%s.%f\n' | \
+  awk -F'.' '{print $1"."$NF}' | sort | uniq -d | wc -l)
+[ "$possible_dupes" -gt 0 ] && issues+=("  - $possible_dupes groupes de doublons potentiels")
 
 # Fichiers anciens (>1 an)
-$OldFiles = $Files | Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-365) }
-if ($OldFiles.Count -gt 0) { $Issues += "  - $($OldFiles.Count) fichiers non modifies depuis >1 an" }
+old_files=$(find "$path" -maxdepth 1 -type f -mtime +365 | wc -l)
+[ "$old_files" -gt 0 ] && issues+=("  - $old_files fichiers non modifies depuis >1 an")
 
-if ($Issues.Count -eq 0) {
-    Write-Output "Aucun probleme detecte!"
-} else {
-    Write-Output "Problemes detectes:"
-    $Issues | ForEach-Object { Write-Output $_ }
-}
+if [ ${#issues[@]} -eq 0 ]; then
+  echo "Aucun probleme detecte!"
+else
+  echo "Problemes detectes:"
+  for issue in "${issues[@]}"; do echo "$issue"; done
+fi
 ```
 
 ### Etape 3 : Proposition d'organisation
 
-```powershell
-Write-Output "=== PLAN D'ORGANISATION ==="
-Write-Output ""
-Write-Output "Actions proposees:"
-Write-Output "  1. Trier par type (extension) dans des sous-dossiers"
-Write-Output "  2. Normaliser les noms (accents, espaces)"
-Write-Output "  3. Archiver les fichiers anciens (>1 an)"
-Write-Output "  4. Detecter et traiter les doublons"
-Write-Output "  5. Nettoyer les fichiers temporaires"
-Write-Output ""
-Write-Output "Commandes correspondantes:"
-Write-Output "  /file-sort $Path"
-Write-Output "  /file-normalize $Path"
-Write-Output "  /file-old $Path --archive"
-Write-Output "  /file-duplicates $Path"
-Write-Output "  /file-clean $Path"
+```bash
+#!/usr/bin/env bash
+path="${1}"
+
+echo "=== PLAN D'ORGANISATION ==="
+echo ""
+echo "Actions proposees:"
+echo "  1. Trier par type (extension) dans des sous-dossiers"
+echo "  2. Normaliser les noms (accents, espaces)"
+echo "  3. Archiver les fichiers anciens (>1 an)"
+echo "  4. Detecter et traiter les doublons"
+echo "  5. Nettoyer les fichiers temporaires"
+echo ""
+echo "Commandes correspondantes:"
+echo "  /file-sort $path"
+echo "  /file-normalize $path"
+echo "  /file-old $path --archive"
+echo "  /file-duplicates $path"
+echo "  /file-clean $path"
 ```
 
 ### Etape 4 : Execution guidee
 
-```powershell
+```bash
+#!/usr/bin/env bash
+path="${1}"
+
 # Creer un backup avant modification
-$Timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-$BackupDir = "$env:USERPROFILE\Documents\Backups\wizard_${Timestamp}"
-Write-Output "Backup de securite: $BackupDir"
+timestamp=$(date +%Y%m%d-%H%M%S)
+backup_dir="$HOME/Documents/Backups/wizard_${timestamp}"
+echo "Backup de securite: $backup_dir"
 
-robocopy $Path $BackupDir /MIR /NFL /NDL /NJH /NJS /NP | Out-Null
+rsync -a "$path/" "$backup_dir/" --quiet
 
-Write-Output "Backup cree. Pret pour l'organisation."
-Write-Output "Executer les commandes une par une avec confirmation."
+echo "Backup cree. Pret pour l'organisation."
+echo "Executer les commandes une par une avec confirmation."
 ```
 
 ## Options
@@ -109,10 +121,10 @@ Write-Output "Executer les commandes une par une avec confirmation."
 
 ## Exemples
 
-```powershell
-/file-wizard C:\Users\r2d2\Downloads                   # Wizard complet
-/file-wizard C:\Users\r2d2\Documents --dry-run          # Preview seulement
-/file-wizard D:\Data --auto                             # Mode automatique
+```bash
+/file-wizard ~/Downloads                   # Wizard complet
+/file-wizard ~/Documents --dry-run         # Preview seulement
+/file-wizard ~/Data --auto                 # Mode automatique
 ```
 
 ## Voir Aussi

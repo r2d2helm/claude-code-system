@@ -1,7 +1,7 @@
-# 🧙 /pve-wizard - Wizards Interactifs
+# /pve-wizard - Wizards Interactifs
 
 ## Description
-Collection de wizards interactifs pour configuration guidée Proxmox VE 9+.
+Collection de wizards interactifs pour configuration guidee Proxmox VE 9+.
 
 ## Syntaxe
 ```
@@ -13,20 +13,20 @@ Collection de wizards interactifs pour configuration guidée Proxmox VE 9+.
 | Wizard | Commande | Description |
 |--------|----------|-------------|
 | Setup Initial | `/pve-wizard setup` | Configuration post-installation |
-| VM Creation | `/pve-wizard vm` | Création VM optimisée |
-| CT Creation | `/pve-wizard ct` | Création conteneur |
-| Template | `/pve-wizard template` | Création template Cloud-Init |
+| VM Creation | `/pve-wizard vm` | Creation VM optimisee |
+| CT Creation | `/pve-wizard ct` | Creation conteneur |
+| Template | `/pve-wizard template` | Creation template Cloud-Init |
 | Cluster | `/pve-wizard cluster` | Setup cluster multi-nodes |
-| Ceph | `/pve-wizard ceph` | Déploiement Ceph |
+| Ceph | `/pve-wizard ceph` | Deploiement Ceph |
 | HA | `/pve-wizard ha` | Configuration haute dispo |
-| Backup | `/pve-wizard backup` | Stratégie backup 3-2-1 |
+| Backup | `/pve-wizard backup` | Strategie backup 3-2-1 |
 | Security | `/pve-wizard security` | Hardening production |
 | SDN | `/pve-wizard sdn` | Configuration SDN/VLAN |
 | Migration | `/pve-wizard migrate` | Migration depuis autre hyperviseur |
 
 ---
 
-## 📋 Wizard: Setup Initial
+## Wizard: Setup Initial
 
 ### Questions Interactives
 
@@ -140,7 +140,7 @@ Collection de wizards interactifs pour configuration guidée Proxmox VE 9+.
 
 ---
 
-## 🖥️ Wizard: VM Creation
+## Wizard: VM Creation
 
 ### Questions Interactives
 
@@ -261,145 +261,4 @@ Collection de wizards interactifs pour configuration guidée Proxmox VE 9+.
 └─────────────────────────────────────────────────────┘
 ```
 
----
-
-## 📦 Wizard: CT Creation
-
-Voir fichier séparé: `/wizards/ct-create.md`
-
----
-
-## 🔒 Wizard: Security Hardening
-
-### Questions Interactives
-
-```
-🧙 WIZARD: Hardening Sécurité Production
-========================================
-
-📍 AUDIT INITIAL
-┌─────────────────────────────────────────────────────┐
-│ Analyse de sécurité en cours...                     │
-│                                                     │
-│ [!] SSH: Password authentication enabled            │
-│ [!] 2FA: Not configured                             │
-│ [!] Fail2ban: Not installed                         │
-│ [✓] Firewall: Enabled                               │
-│ [!] Updates: 12 packages need updating              │
-│ [✓] SSL: Valid certificate                          │
-│                                                     │
-│ Score sécurité: 45/100 ⚠️                           │
-└─────────────────────────────────────────────────────┘
-
-📍 ÉTAPE 1/5: SSH Hardening
-┌─────────────────────────────────────────────────────┐
-│ Q: Appliquer hardening SSH?                         │
-│                                                     │
-│ Modifications:                                      │
-│   • Désactiver password authentication              │
-│   • Activer only pubkey authentication              │
-│   • Limiter MaxAuthTries à 3                        │
-│   • Configurer AllowUsers                           │
-│                                                     │
-│    [1] Oui, appliquer (⚠️ avoir clé SSH prête!)    │
-│    [2] Non, passer                                  │
-│                                                     │
-│ Votre choix: _                                      │
-└─────────────────────────────────────────────────────┘
-
-📍 ÉTAPE 2/5: Fail2ban
-┌─────────────────────────────────────────────────────┐
-│ Q: Installer et configurer Fail2ban?                │
-│                                                     │
-│ Configuration:                                      │
-│   • Jail SSH (bantime: 1h, maxretry: 3)            │
-│   • Jail Proxmox WebUI                              │
-│   • Whitelist: 10.0.0.0/24                          │
-│                                                     │
-│    [1] Oui, installer                               │
-│    [2] Non, passer                                  │
-│                                                     │
-│ Votre choix: _                                      │
-│                                                     │
-│ Réseau à whitelist (CIDR): _                        │
-└─────────────────────────────────────────────────────┘
-
-📍 ÉTAPE 3/5: 2FA/TOTP
-┌─────────────────────────────────────────────────────┐
-│ Q: Configurer 2FA pour root@pam?                    │
-│                                                     │
-│    [1] Oui, configurer TOTP                         │
-│    [2] Non, passer                                  │
-│                                                     │
-│ Votre choix: _                                      │
-│                                                     │
-│ [QR Code s'affichera ici]                           │
-│ Scanner avec Google Authenticator / Authy           │
-└─────────────────────────────────────────────────────┘
-
-📍 ÉTAPE 4/5: API Tokens
-┌─────────────────────────────────────────────────────┐
-│ Q: Créer API tokens pour automation?                │
-│                                                     │
-│    [1] Token Terraform (PVEAdmin)                   │
-│    [2] Token Monitoring (PVEAuditor)                │
-│    [3] Les deux                                     │
-│    [4] Passer                                       │
-│                                                     │
-│ Votre choix: _                                      │
-└─────────────────────────────────────────────────────┘
-
-📍 ÉTAPE 5/5: Updates automatiques
-┌─────────────────────────────────────────────────────┐
-│ Q: Configurer unattended-upgrades?                  │
-│                                                     │
-│ Configuration:                                      │
-│   • Security updates automatiques                   │
-│   • Email notification                              │
-│   • Pas de reboot automatique                       │
-│                                                     │
-│    [1] Oui, configurer                              │
-│    [2] Non, passer                                  │
-│                                                     │
-│ Votre choix: _                                      │
-│                                                     │
-│ Email pour notifications: _                         │
-└─────────────────────────────────────────────────────┘
-
-📍 RÉSUMÉ
-┌─────────────────────────────────────────────────────┐
-│ Actions à effectuer:                                │
-│                                                     │
-│   ✓ SSH Hardening                                   │
-│   ✓ Fail2ban (whitelist: 10.0.0.0/24)              │
-│   ✓ 2FA pour root@pam                              │
-│   ✓ API Token: terraform@pve!terraform-token       │
-│   ✓ API Token: monitoring@pve!prometheus-token     │
-│   ✓ Unattended-upgrades                            │
-│                                                     │
-│ Nouveau score estimé: 92/100 ✅                     │
-│                                                     │
-│ [1] Appliquer tout                                  │
-│ [2] Modifier                                        │
-│ [3] Annuler                                         │
-│                                                     │
-│ Votre choix: _                                      │
-└─────────────────────────────────────────────────────┘
-```
-
----
-
-## 📁 Fichiers Wizards Détaillés
-
-Voir dossier `/wizards/` pour les wizards complets :
-- `setup.md` - Configuration initiale
-- `vm-create.md` - Création VM
-- `ct-create.md` - Création CT
-- `template.md` - Templates Cloud-Init
-- `cluster.md` - Setup cluster
-- `ceph.md` - Déploiement Ceph
-- `ha.md` - Haute disponibilité
-- `backup.md` - Stratégie backup
-- `security.md` - Hardening
-- `sdn.md` - SDN/VLAN
-- `migrate.md` - Migration
+> Voir aussi : [[wizard-advanced]]

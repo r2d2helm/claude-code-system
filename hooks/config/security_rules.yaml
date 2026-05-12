@@ -181,6 +181,18 @@ read_protected:
     reason: "Certificat ou cle privee"
   - pattern: "\\.kube[\\\\/]config$"
     reason: "Configuration Kubernetes"
+  - pattern: "credentials-skill[\\/]data[\\/]registry[\\/]"
+    reason: "Registre credentials (donnees sensibles)"
+  - pattern: "hooks[\\/]logs[\\/].*\.jsonl$"
+    reason: "Logs audit systeme (contiennent IPs, commandes SSH)"
+  - pattern: "hooks[\\/]data[\\/]memory\.db"
+    reason: "Base memoire (historique conversations)"
+  - pattern: "vm100-credentials\.md$"
+    reason: "Credentials infrastructure completes"
+  - pattern: "R2D2-Memory[\\/](garde-fous|identity)[\\/]"
+    reason: "Memoire souveraine protegee (n-1)"
+  - pattern: "client_secret\.json$"
+    reason: "OAuth client secret Google"
 
 # Write/Edit confirm: protected paths that require user confirmation
 write_protected:
@@ -205,3 +217,7 @@ system_paths:
     reason: "Hooks systeme"
   - pattern: "\\.claude[\\\\/]CLAUDE\\.md$"
     reason: "Instructions systeme globales"
+
+# === ADDED 2026-04-03 - Audit remediation ===
+# Additional read_protected rules (append to existing)
+# Note: These are added at end of file but path_guard reads read_protected section

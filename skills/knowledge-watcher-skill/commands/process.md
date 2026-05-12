@@ -17,16 +17,16 @@ Lance le traitement du pipeline pour transformer les éléments capturés en not
 
 ## Exécution
 
-**IMPORTANT**: Exécute ce script PowerShell:
+**IMPORTANT**: Exécute ce script bash:
 
-```powershell
-$SkillPath = "$env:USERPROFILE\.claude\skills\knowledge-watcher-skill"
-& "$SkillPath\scripts\Invoke-QueueProcessor.ps1"
+```bash
+SKILL_PATH="$HOME/.claude/skills/knowledge-watcher-skill"
+bash "$SKILL_PATH/scripts/invoke-queue-processor.sh"
 ```
 
 Avec options:
-```powershell
-& "$SkillPath\scripts\Invoke-QueueProcessor.ps1" -BatchSize 5
+```bash
+bash "$SKILL_PATH/scripts/invoke-queue-processor.sh" --batch-size 5
 ```
 
 ## Options
@@ -52,7 +52,7 @@ Avec options:
 
   📄 Script de backup automatique
      → Classifying...
-       Type: code, Folder: Code/PowerShell
+       Type: code, Folder: Code/Bash
      → Summarizing...
        Source: claude
      → Formatting...

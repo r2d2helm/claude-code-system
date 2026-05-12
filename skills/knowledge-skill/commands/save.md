@@ -30,129 +30,113 @@ Analyse et sauvegarde automatique de la conversation :
 ║                                                              ║
 ║  📝 RÉSUMÉ GÉNÉRÉ:                                           ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
-║  │ Titre: Configuration Super Agent Windows                │ ║
+║  │ Titre: Configuration Super Agent Linux                  │ ║
 ║  │                                                         │ ║
-║  │ Discussion sur la création d'un agent Windows pour      │ ║
-║  │ Claude Code avec 36 commandes PowerShell et 10 wizards. │ ║
+║  │ Discussion sur la création d'un agent Linux pour        │ ║
+║  │ Claude Code avec 36 commandes bash et 10 wizards.       │ ║
 ║  │ Installation et test du système de routing automatique. │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
 ║                                                              ║
 ║  🏷️ TAGS SUGGÉRÉS:                                           ║
-║  #dev/claude-code #infra/windows #projet/multipass          ║
-║  #skill #powershell #automation                              ║
+║  #dev/claude-code #infra/linux #projet/multipass            ║
+║  #skill #bash #automation                                    ║
 ║                                                              ║
 ║  [1] Sauvegarder  [2] Modifier  [3] Ajouter tags             ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
 
-**Script PowerShell:**
-```powershell
-param(
-    [string]$KnowledgePath = "$env:USERPROFILE\Documents\Knowledge",
-    [string]$Title,
-    [string[]]$Tags,
-    [switch]$AutoExtract
-)
-
-$Date = Get-Date -Format "yyyy-MM-dd"
-$Time = Get-Date -Format "HHmmss"
-$ID = "$Date-$Time"
+**Script bash:**
+```bash
+#!/usr/bin/env bash
+KNOWLEDGE_PATH="${KNOWLEDGE_PATH:-$HOME/Documents/Knowledge}"
+TITLE="${1:-}"
+DATE=$(date +%Y-%m-%d)
+TIME=$(date +%H%M%S)
+ID="${DATE}-${TIME}"
 
 # Créer structure si nécessaire
-$Folders = @(
-    "Conversations",
-    "Concepts", 
-    "Code",
-    "_Index",
-    "_Daily",
-    "_Inbox"
-)
-foreach ($Folder in $Folders) {
-    $Path = Join-Path $KnowledgePath $Folder
-    if (!(Test-Path $Path)) {
-        New-Item -ItemType Directory -Path $Path -Force | Out-Null
-    }
-}
+for FOLDER in Conversations Concepts Code _Index _Daily _Inbox; do
+    mkdir -p "$KNOWLEDGE_PATH/$FOLDER"
+done
 
 # Générer fichier de conversation
-$FileName = "{0}_Conv_{1}.md" -f $Date, ($Title -replace '\s+', '-' -replace '[^\w\-]', '')
-$FilePath = Join-Path $KnowledgePath "Conversations\$FileName"
+SAFE_TITLE=$(echo "$TITLE" | tr ' ' '-' | tr -cd '[:alnum:]-')
+FILE_NAME="${DATE}_Conv_${SAFE_TITLE}.md"
+FILE_PATH="$KNOWLEDGE_PATH/Conversations/$FILE_NAME"
 
-$TagsYaml = ($Tags | ForEach-Object { "`"$_`"" }) -join ", "
+TAGS_YAML=""
 
-$Content = @"
+cat > "$FILE_PATH" << EOF
 ---
 id: $ID
-title: $Title
-date: $Date
+title: $TITLE
+date: $DATE
 type: conversation
-tags: [$TagsYaml]
+tags: [$TAGS_YAML]
 source: Claude
 status: captured
 related: []
 ---
 
-# $Title
+# $TITLE
 
 ## Résumé
 {À compléter - résumé de la conversation}
 
 ## Points Clés
-- 
-- 
-- 
+-
+-
+-
 
 ## Décisions Prises
-- [ ] 
+- [ ]
 
 ## Code/Commandes Extraits
-``````powershell
+\`\`\`bash
 # Code extrait de la conversation
-``````
+\`\`\`
 
 ## Concepts Liés
 - [[]]
 
 ## Actions Suivantes
-- [ ] 
+- [ ]
 
 ## Notes Additionnelles
 
 
 ---
-*Capturé le $Date depuis conversation Claude*
-"@
+*Capturé le $DATE depuis conversation Claude*
+EOF
 
-$Content | Out-File -FilePath $FilePath -Encoding UTF8
-Write-Host "✅ Conversation sauvegardée: $FilePath"
+echo "✅ Conversation sauvegardée: $FILE_PATH"
 
 # Mettre à jour Daily Note
-$DailyPath = Join-Path $KnowledgePath "_Daily\$Date.md"
-if (!(Test-Path $DailyPath)) {
-    $DailyContent = @"
+DAILY_PATH="$KNOWLEDGE_PATH/_Daily/$DATE.md"
+if [ ! -f "$DAILY_PATH" ]; then
+    cat > "$DAILY_PATH" << EOF
 ---
-date: $Date
+date: $DATE
 type: daily
 tags: [daily]
 ---
 
-# 📅 $Date
+# 📅 $DATE
 
 ## Conversations du Jour
-"@
-    $DailyContent | Out-File -FilePath $DailyPath -Encoding UTF8
-}
+EOF
+fi
 
 # Ajouter lien dans Daily
-Add-Content -Path $DailyPath -Value "- [[$FileName]]"
+echo "- [[$FILE_NAME]]" >> "$DAILY_PATH"
 ```
 
 ### /know-save --quick "titre"
 
 Sauvegarde rapide avec titre :
 
-```powershell
+```bash
 /know-save --quick "Configuration Proxmox HA"
 ```
 
@@ -173,16 +157,16 @@ Sauvegarde complète avec extraction automatique :
 ║                                                              ║
 ║  📁 FICHIERS CRÉÉS:                                          ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
-║  │ ✓ Conversations\2026-02-04_Conv_Windows-Agent.md        │ ║
-║  │ ✓ Code\PowerShell\2026-02-04_Install-Skills.ps1         │ ║
-║  │ ✓ Code\PowerShell\2026-02-04_Organize-Files.ps1         │ ║
-║  │ ✓ Concepts\C_Meta-Router-Pattern.md                     │ ║
-║  │ ✓ Concepts\C_Skill-Structure.md                         │ ║
-║  │ ✓ _Daily\2026-02-04.md (mis à jour)                     │ ║
+║  │ ✓ Conversations/2026-02-04_Conv_Linux-Agent.md          │ ║
+║  │ ✓ Code/Bash/2026-02-04_Install-Skills.sh                │ ║
+║  │ ✓ Code/Bash/2026-02-04_Organize-Files.sh                │ ║
+║  │ ✓ Concepts/C_Meta-Router-Pattern.md                     │ ║
+║  │ ✓ Concepts/C_Skill-Structure.md                         │ ║
+║  │ ✓ _Daily/2026-02-04.md (mis à jour)                     │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
 ║                                                              ║
 ║  📊 EXTRACTION:                                              ║
-║  • 5 blocs de code → Code/PowerShell/                        ║
+║  • 5 blocs de code → Code/Bash/                              ║
 ║  • 2 concepts identifiés → Concepts/                         ║
 ║  • 3 décisions → Section Décisions                           ║
 ║  • 12 tags appliqués                                         ║
@@ -194,7 +178,7 @@ Sauvegarde complète avec extraction automatique :
 
 Utiliser un template spécifique :
 
-```powershell
+```bash
 /know-save --template meeting     # Pour réunion
 /know-save --template debug       # Pour session debug
 /know-save --template learning    # Pour apprentissage
@@ -207,7 +191,7 @@ Utiliser un template spécifique :
 
 | Élément | Pattern | Action |
 |---------|---------|--------|
-| Code PowerShell | ` ```powershell ` | Extrait vers `Code/PowerShell/` |
+| Code Bash | ` ```bash ` | Extrait vers `Code/Bash/` |
 | Code Python | ` ```python ` | Extrait vers `Code/Python/` |
 | Commandes | `/command` | Liste dans section Commandes |
 | URLs | `http(s)://` | Liste dans Références |
@@ -216,49 +200,21 @@ Utiliser un template spécifique :
 
 ### Script d'Extraction
 
-```powershell
-function Extract-ConversationElements {
-    param([string]$Content)
-    
-    $Elements = @{
-        Code = @()
-        URLs = @()
-        Decisions = @()
-        Actions = @()
-        Concepts = @()
-    }
-    
+```bash
+extract_conversation_elements() {
+    local content="$1"
+
     # Extraire blocs de code
-    $CodePattern = '```(\w+)\r?\n([\s\S]*?)```'
-    $Matches = [regex]::Matches($Content, $CodePattern)
-    foreach ($Match in $Matches) {
-        $Elements.Code += @{
-            Language = $Match.Groups[1].Value
-            Content = $Match.Groups[2].Value
-        }
-    }
-    
+    echo "$content" | grep -oP '```\w+\n[\s\S]*?```'
+
     # Extraire URLs
-    $URLPattern = 'https?://[^\s\)\]>]+'
-    $Elements.URLs = [regex]::Matches($Content, $URLPattern) | 
-        ForEach-Object { $_.Value } | 
-        Select-Object -Unique
-    
+    echo "$content" | grep -oE 'https?://[^[:space:])\]>]+'  | sort -u
+
     # Détecter décisions
-    $DecisionPatterns = @("décidé", "choisi", "opté pour", "on va utiliser")
-    foreach ($Pattern in $DecisionPatterns) {
-        $Lines = $Content -split "`n" | Where-Object { $_ -match $Pattern }
-        $Elements.Decisions += $Lines
-    }
-    
+    echo "$content" | grep -iE 'décidé|choisi|opté pour|on va utiliser'
+
     # Détecter actions
-    $ActionPatterns = @("à faire", "todo", "prochaine étape", "il faut")
-    foreach ($Pattern in $ActionPatterns) {
-        $Lines = $Content -split "`n" | Where-Object { $_ -match $Pattern }
-        $Elements.Actions += $Lines
-    }
-    
-    return $Elements
+    echo "$content" | grep -iE 'à faire|todo|prochaine étape|il faut'
 }
 ```
 
@@ -276,7 +232,7 @@ function Extract-ConversationElements {
 
 ## Exemples
 
-```powershell
+```bash
 # Sauvegarde rapide
 /know-save --quick "Debug API Proxmox"
 

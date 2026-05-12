@@ -12,37 +12,45 @@ Normaliser les noms de fichiers (espaces, accents, caracteres speciaux).
 
 ### Normaliser les noms
 
-```powershell
-$Path = $args[0]
-$Files = Get-ChildItem -Path $Path -File
-$Modified = 0
+```bash
+#!/usr/bin/env bash
+path="${1}"
+dry_run="${2:-}"
+modified=0
 
-foreach ($File in $Files) {
-    $NewName = $File.BaseName
-    # Remplacer espaces par tirets
-    $NewName = $NewName -replace '\s+', '-'
-    # Remplacer accents courants
-    $NewName = $NewName -creplace '[àâä]', 'a'
-    $NewName = $NewName -creplace '[éèêë]', 'e'
-    $NewName = $NewName -creplace '[îï]', 'i'
-    $NewName = $NewName -creplace '[ôö]', 'o'
-    $NewName = $NewName -creplace '[ùûü]', 'u'
-    $NewName = $NewName -creplace '[ç]', 'c'
-    # Supprimer caracteres speciaux
-    $NewName = $NewName -replace '[^\w\-.]', ''
-    # Supprimer tirets multiples
-    $NewName = $NewName -replace '-{2,}', '-'
-    $NewName = $NewName.Trim('-')
+while IFS= read -r -d '' file; do
+  dir=$(dirname "$file")
+  name=$(basename "$file")
+  ext="${name##*.}"
+  base="${name%.*}"
 
-    $FullNewName = "$NewName$($File.Extension)"
-    if ($FullNewName -ne $File.Name) {
-        Rename-Item -Path $File.FullName -NewName $FullNewName
-        Write-Output "  $($File.Name) -> $FullNewName"
-        $Modified++
-    }
-}
+  new_name="$base"
+  # Remplacer espaces par tirets
+  new_name=$(echo "$new_name" | tr ' ' '-')
+  # Remplacer accents courants
+  new_name=$(echo "$new_name" | sed \
+    -e 's/[àâä]/a/g' -e 's/[éèêë]/e/g' \
+    -e 's/[îï]/i/g' -e 's/[ôö]/o/g' \
+    -e 's/[ùûü]/u/g' -e 's/ç/c/g' \
+    -e 's/[ÀÂÄÉÈÊËÎÏÔÖÙÛÜÇ]/\L&/g')
+  # Supprimer caracteres speciaux
+  new_name=$(echo "$new_name" | tr -cd '[:alnum:]_.-')
+  # Supprimer tirets multiples
+  new_name=$(echo "$new_name" | sed 's/-\{2,\}/-/g' | sed 's/^-//' | sed 's/-$//')
 
-Write-Output "$Modified fichiers normalises"
+  new_file="${dir}/${new_name}.${ext}"
+  if [ "$new_file" != "$file" ]; then
+    if [ "${dry_run}" = "--dry-run" ]; then
+      echo "  $(basename "$file") -> ${new_name}.${ext}"
+    else
+      mv "$file" "$new_file"
+      echo "  $(basename "$file") -> ${new_name}.${ext}"
+    fi
+    modified=$(( modified + 1 ))
+  fi
+done < <(find "$path" -maxdepth 1 -type f -print0)
+
+echo "$modified fichiers normalises"
 ```
 
 ### Regles de normalisation
@@ -50,7 +58,7 @@ Write-Output "$Modified fichiers normalises"
 | Avant | Apres | Regle |
 |-------|-------|-------|
 | `Mon Fichier.pdf` | `Mon-Fichier.pdf` | Espaces -> tirets |
-| `Résumé été.doc` | `Resume-ete.doc` | Accents supprimes |
+| `Resume ete.doc` | `Resume-ete.doc` | Accents supprimes |
 | `file@#$.txt` | `file.txt` | Caracteres speciaux supprimes |
 | `a--b--c.md` | `a-b-c.md` | Tirets multiples reduits |
 
@@ -64,10 +72,10 @@ Write-Output "$Modified fichiers normalises"
 
 ## Exemples
 
-```powershell
-/file-normalize C:\Users\r2d2\Downloads           # Normaliser
-/file-normalize C:\Users\r2d2\Documents --dry-run  # Preview
-/file-normalize . --recursive                      # Recursif
+```bash
+/file-normalize ~/Downloads            # Normaliser
+/file-normalize ~/Documents --dry-run  # Preview
+/file-normalize . --recursive          # Recursif
 ```
 
 ## Voir Aussi

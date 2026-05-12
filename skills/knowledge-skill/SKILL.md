@@ -27,8 +27,8 @@ Cet agent transforme les conversations éphémères en base de connaissances per
 
 | Composant | Support |
 |-----------|---------|
-| Windows | 11/Server 2025 |
-| PowerShell | 7.4+ |
+| Ubuntu Linux | 24.04+ |
+| Bash | 5+ |
 | Format | Markdown (.md) |
 | Outils PKM | Obsidian, Notion, Logseq, Roam |
 
@@ -222,7 +222,7 @@ tags: [daily, {YYYY}, {MM}]
 #domaine/sous-domaine/spécifique
 
 Exemples:
-#dev/powershell/automation
+#dev/bash/automation
 #infra/proxmox/vm
 #infra/windows/security
 #projet/multipass/website
@@ -245,7 +245,7 @@ Exemples:
 | Élément | Détection | Stockage |
 |---------|-----------|----------|
 | Code | Blocs ``` | `Code/{Langage}/` |
-| Commandes | PowerShell, bash | `Code/Commands/` |
+| Commandes | bash, python | `Code/Commands/` |
 | Décisions | "décidé", "choisi" | Section Décisions |
 | URLs | http(s):// | Section Références |
 | Configs | JSON, YAML | `Code/Configs/` |
@@ -260,6 +260,20 @@ Actions:      "à faire", "todo", "prochaine étape"
 Références:   URLs, noms de documentation
 Questions:    "?", "comment", "pourquoi"
 ```
+
+## Templates de Notes
+
+Le fichier `templates/templates.md` contient les templates utilises par `/know-save` pour generer des notes structurees. Templates disponibles :
+
+- **Conversation** : resume de session Claude (frontmatter + points cles + actions)
+- **Concept** : note atomique Zettelkasten (idee + liens + sources)
+- **Daily** : note quotidienne (focus + conversations + accomplissements)
+- **Troubleshooting** : resolution de probleme (symptomes + cause + solution)
+- **Code** : snippet avec description, parametres et exemples d'utilisation
+- **Projet** : suivi de projet (objectifs + decisions + notes de travail)
+- **Reference** : source externe (resume + citations + idees extraites)
+
+Usage : `/know-save --template=conversation`, `/know-save --template=concept`, etc.
 
 ## Liens et Connexions
 
@@ -293,7 +307,7 @@ Chaque note liste automatiquement les notes qui la référencent.
 ### Export Obsidian
 
 ```
-/know-export obsidian --path="C:\Obsidian\Vault"
+/know-export obsidian --path="~/Documents/Knowledge"
 ```
 
 Crée:

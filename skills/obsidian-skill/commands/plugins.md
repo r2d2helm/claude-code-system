@@ -12,46 +12,57 @@ Gerer les plugins community Obsidian.
 
 ### Lister les plugins installes
 
-```powershell
-$VaultPath = "$env:USERPROFILE\Documents\Knowledge"
-$PluginsPath = Join-Path $VaultPath ".obsidian\plugins"
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+plugins_path="${VAULT}/.obsidian/plugins"
 
-$Plugins = Get-ChildItem -Path $PluginsPath -Directory | ForEach-Object {
-    $Manifest = Join-Path $_.FullName "manifest.json"
-    if (Test-Path $Manifest) {
-        $Info = Get-Content $Manifest -Raw | ConvertFrom-Json
-        [PSCustomObject]@{
-            Nom = $Info.name
-            Version = $Info.version
-            ID = $Info.id
-            Auteur = $Info.author
-        }
-    }
-} | Sort-Object Nom
-
-Write-Output "Plugins installes: $($Plugins.Count)"
-$Plugins | Format-Table -AutoSize
+echo "Plugins installes:"
+find "$plugins_path" -maxdepth 1 -type d | tail -n +2 | while IFS= read -r plugin_dir; do
+    manifest="${plugin_dir}/manifest.json"
+    if [ -f "$manifest" ]; then
+        name=$(python3 -c "import json; d=json.load(open('$manifest')); print(d.get('name',''))" 2>/dev/null)
+        version=$(python3 -c "import json; d=json.load(open('$manifest')); print(d.get('version',''))" 2>/dev/null)
+        id=$(python3 -c "import json; d=json.load(open('$manifest')); print(d.get('id',''))" 2>/dev/null)
+        author=$(python3 -c "import json; d=json.load(open('$manifest')); print(d.get('author',''))" 2>/dev/null)
+        printf "%-35s %-10s %-30s %s\n" "$name" "$version" "$id" "$author"
+    fi
+done | sort | column -t
 ```
 
 ### Verifier les plugins actifs
 
-```powershell
-$CommunityPlugins = Get-Content "$VaultPath\.obsidian\community-plugins.json" -Raw | ConvertFrom-Json
-Write-Output "Plugins actifs: $($CommunityPlugins.Count)"
-$CommunityPlugins | ForEach-Object { "  - $_" }
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+community_file="${VAULT}/.obsidian/community-plugins.json"
+
+count=$(python3 -c "import json; d=json.load(open('$community_file')); print(len(d))" 2>/dev/null)
+echo "Plugins actifs: $count"
+python3 -c "
+import json
+with open('$community_file') as f:
+    for p in json.load(f):
+        print(f'  - {p}')
+" 2>/dev/null
 ```
 
 ### Informations sur un plugin
 
-```powershell
-$PluginId = $args[0]
-$Manifest = Get-Content "$PluginsPath\$PluginId\manifest.json" -Raw | ConvertFrom-Json
-$DataFile = Join-Path "$PluginsPath\$PluginId" "data.json"
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+plugins_path="${VAULT}/.obsidian/plugins"
+plugin_id="$1"
 
-Write-Output "Plugin: $($Manifest.name) v$($Manifest.version)"
-Write-Output "Auteur: $($Manifest.author)"
-Write-Output "Description: $($Manifest.description)"
-Write-Output "Config: $(if (Test-Path $DataFile) { 'Oui' } else { 'Non' })"
+manifest="${plugins_path}/${plugin_id}/manifest.json"
+data_file="${plugins_path}/${plugin_id}/data.json"
+
+python3 -c "
+import json, os
+d = json.load(open('$manifest'))
+print(f'Plugin: {d[\"name\"]} v{d[\"version\"]}')
+print(f'Auteur: {d[\"author\"]}')
+print(f'Description: {d.get(\"description\", \"\")}')
+print(f'Config: {\"Oui\" if os.path.exists(\"$data_file\") else \"Non\"}')
+"
 ```
 
 ## Options
@@ -66,7 +77,7 @@ Write-Output "Config: $(if (Test-Path $DataFile) { 'Oui' } else { 'Non' })"
 
 ## Exemples
 
-```powershell
+```bash
 /obs-plugins list                 # Tous les plugins
 /obs-plugins active               # Plugins actifs
 /obs-plugins info dataview        # Info sur Dataview

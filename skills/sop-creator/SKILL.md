@@ -1,6 +1,7 @@
 ---
 name: sop-creator
 description: "Create runbooks, playbooks, SOPs and technical documentation. Use when the user wants to document a process, create a runbook, build operational docs, or formalize any repeatable technical procedure. Triggers on requests like 'create a runbook for...', 'document this process', 'write a playbook', 'SOP for...', or any technical documentation request."
+prefix: /sop-*
 ---
 
 # SOP & Runbook Creator
@@ -161,11 +162,11 @@ When creating SOPs for the r2d2 system, store them in the Obsidian vault:
 - **Naming:** `SOP_{Domain}_{Title}.md` (ex: `SOP_Proxmox_VM-Backup.md`)
 - **Frontmatter:** Required YAML with type: `reference`, tags: `sop/{domain}`
 
-## Templates
+## Reference Templates
 
-Each template is in `references/`:
+The 6 templates in `references/` are **reference models**, not interactive wizards. They define the expected structure and sections for each document type. When creating a SOP, read the appropriate reference template and use it as the structural basis for your output.
 
-| Template | Use For |
+| Reference Template | Use For |
 |----------|---------|
 | [runbook.md](references/runbook.md) | Incidents, emergencies, on-call |
 | [standard-sop.md](references/standard-sop.md) | Any repeatable process |

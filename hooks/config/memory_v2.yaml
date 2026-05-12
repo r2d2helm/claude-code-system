@@ -1,61 +1,44 @@
-# Configuration Memory v2 - Systeme de memoire auto-apprenant
-# Toutes les valeurs sont ajustables sans modifier le code
-
-# --- Extraction heuristique ---
 extraction:
-  # Nombre max de memoires par type par session
   max_per_type: 5
-  # Longueur minimale de contenu pour etre considere
   min_content_length: 30
-  # Nombre max de lignes de transcript a analyser
   max_transcript_lines: 500
-  # Importance par defaut selon le type de memoire
   importance_defaults:
     tool_sequence: 7.0
     problem_solution: 7.5
     decision: 6.5
     insight: 6.0
     pattern: 6.0
-
-# --- Retrieval ---
 retrieval:
-  # SessionStart: memoires injectees au demarrage
   startup:
-    max_chars: 500
-    max_facts: 5
-    max_memories: 5
+    max_chars: 1500
+    max_facts: 8
+    max_memories: 8
     facts_min_confidence: 0.7
-    memories_min_importance: 6.0
-    memories_days_back: 7
-
-  # UserPromptSubmit: memoires injectees par prompt
+    memories_min_importance: 5.5
+    memories_days_back: 14
   per_prompt:
-    max_chars: 300
-    max_results: 3
-    min_message_length: 20
+    max_chars: 800
+    max_results: 5
+    min_message_length: 15
     skip_commands: true
-
-  # Scoring de pertinence
   scoring:
     recency_boost_7d: 0.5
     recency_boost_14d: 0.3
     decay_rate_per_week: 0.9
-
-# --- Consolidation ---
+  deep:
+    max_chars: 5000
+    max_facts: 15
+    max_memories: 15
+    memories_min_importance: 4.0
+    memories_days_back: 30
 consolidation:
-  # Decay: applique si non accede depuis N jours
   decay_threshold_days: 7
   decay_factor: 0.9
-  # Prune: supprime si score effectif < seuil ET age > N jours
   prune_min_score: 0.5
   prune_min_age_days: 30
-  # Promotion: booste si acces >= N fois
   promote_min_access: 3
   promote_boost: 1.0
-  # Merge: similarite minimale (proportion de mots communs)
   merge_similarity_threshold: 0.6
-
-# --- Signals (repris de memory_rules.yaml) ---
 signals:
   complexity:
     low: 5
@@ -66,205 +49,208 @@ signals:
     medium: 1800
     long: 86400
   error_threshold: 3
-
-# --- Heartbeat (Phase 2 - monitoring proactif) ---
 heartbeat:
-  # Intervalle entre les checks (en secondes, pour reference cron)
   interval_seconds: 1800
-  # Disque: seuil d'alerte en pourcentage d'utilisation
   disk_warning_percent: 80
   disk_critical_percent: 95
-  # Points de montage a surveiller (vide = auto-detect)
   disk_mountpoints: []
-  # Docker: seuil de restarts suspects
   docker_restart_threshold: 5
-  # Services systemd critiques a surveiller
   critical_services:
-    - ssh
-    - docker
-    - ufw
-  # Securite: activer la verification des mises a jour apt
+  - ssh
+  - docker
+  - ufw
   check_apt_updates: true
-  # Logs: nombre de lignes recentes a analyser
   log_lines_to_check: 100
-  # Logs: patterns d'erreur a detecter
   log_error_patterns:
-    - "error"
-    - "failed"
-    - "critical"
-    - "out of memory"
-    - "segfault"
-  # Importance des memoires heartbeat dans Memory v2
+  - error
+  - failed
+  - critical
+  - out of memory
+  - segfault
   memory_importance: 5.0
-  # Importance elevee pour les alertes critiques
   memory_importance_critical: 8.0
-  # Hosts a surveiller (ping check)
   monitoring_hosts:
-    vm100: "192.168.1.162"
-    proxmox: "192.168.1.215"
-
-# --- Infrastructure (centralise les IPs/ports eparpilles) ---
+    vm100: 192.168.1.162
+    proxmox: 192.168.1.215
 infrastructure:
   vm100:
-    host: "192.168.1.162"
+    host: 192.168.1.162
     ports:
       taskyn_mcp: 8020
       taskyn_web: 3020
       knowledge_assistant_http: 8030
   proxmox:
-    host: "192.168.1.215"
+    host: 192.168.1.215
     port: 8006
-
-# --- Context Cache ---
 context_cache:
   ttl_seconds: 300
-
-# --- Stopwords pour extraction de topics ---
 stopwords:
   fr:
-    - le
-    - la
-    - les
-    - de
-    - du
-    - des
-    - un
-    - une
-    - et
-    - en
-    - est
-    - que
-    - qui
-    - dans
-    - pour
-    - pas
-    - sur
-    - avec
-    - ce
-    - cette
-    - il
-    - elle
-    - je
-    - nous
-    - vous
-    - sont
-    - mais
-    - ou
-    - donc
-    - ni
-    - car
-    - par
-    - plus
-    - tout
-    - fait
-    - etre
-    - avoir
-    - faire
-    - comme
-    - aussi
+  - le
+  - la
+  - les
+  - de
+  - du
+  - des
+  - un
+  - une
+  - et
+  - en
+  - est
+  - que
+  - qui
+  - dans
+  - pour
+  - pas
+  - sur
+  - avec
+  - ce
+  - cette
+  - il
+  - elle
+  - je
+  - nous
+  - vous
+  - sont
+  - mais
+  - ou
+  - donc
+  - ni
+  - car
+  - par
+  - plus
+  - tout
+  - fait
+  - etre
+  - avoir
+  - faire
+  - comme
+  - aussi
   en:
-    - the
-    - a
-    - an
-    - is
-    - are
-    - was
-    - were
-    - be
-    - been
-    - being
-    - have
-    - has
-    - had
-    - do
-    - does
-    - did
-    - will
-    - would
-    - could
-    - should
-    - may
-    - might
-    - shall
-    - can
-    - to
-    - of
-    - in
-    - for
-    - on
-    - with
-    - at
-    - by
-    - from
-    - as
-    - into
-    - through
-    - during
-    - before
-    - after
-    - above
-    - below
-    - and
-    - but
-    - or
-    - not
-    - no
-    - if
-    - then
-    - so
-    - than
-    - too
-    - very
-    - just
-    - about
-    - this
-    - that
-    - these
-    - those
-    - it
-    - its
-    - i
-    - me
-    - my
-    - we
-    - our
-    - you
-    - your
-    - he
-    - she
-    - they
-    - them
-    - their
-    - what
-    - which
-    - who
-    - when
-    - where
-    - how
-    - all
-    - each
-    - every
-    - both
-    - few
-    - more
-    - most
-    - other
-    - some
-    - such
-    - only
-    - own
-    - same
-    - here
-    - there
-    - file
-    - use
-    - using
-    - used
-    - need
-    - want
-    - let
-    - now
-    - get
-    - got
-    - make
-    - made
+  - the
+  - a
+  - an
+  - is
+  - are
+  - was
+  - were
+  - be
+  - been
+  - being
+  - have
+  - has
+  - had
+  - do
+  - does
+  - did
+  - will
+  - would
+  - could
+  - should
+  - may
+  - might
+  - shall
+  - can
+  - to
+  - of
+  - in
+  - for
+  - true
+  - with
+  - at
+  - by
+  - from
+  - as
+  - into
+  - through
+  - during
+  - before
+  - after
+  - above
+  - below
+  - and
+  - but
+  - or
+  - not
+  - false
+  - if
+  - then
+  - so
+  - than
+  - too
+  - very
+  - just
+  - about
+  - this
+  - that
+  - these
+  - those
+  - it
+  - its
+  - i
+  - me
+  - my
+  - we
+  - our
+  - you
+  - your
+  - he
+  - she
+  - they
+  - them
+  - their
+  - what
+  - which
+  - who
+  - when
+  - where
+  - how
+  - all
+  - each
+  - every
+  - both
+  - few
+  - more
+  - most
+  - other
+  - some
+  - such
+  - only
+  - own
+  - same
+  - here
+  - there
+  - file
+  - use
+  - using
+  - used
+  - need
+  - want
+  - let
+  - now
+  - get
+  - got
+  - make
+  - made
+convergence:
+  enabled: true
+  track_first_shot_ratio: true
+  track_correction_count: true
+  decay_window_days: 30
+  dashboard_path: _Index/Convergence-Dashboard.md
+degradation:
+  enabled: true
+  repeat_error_threshold: 3
+  skill_atrophy_days: 30
+  memory_staleness_days: 60
+  convergence_drop_alert: 0.15
+  report_frequency: weekly
+feedback_loop:
+  enabled: true
+  auto_generate: true
+  inject_previous_session: true
+  max_feedback_chars: 500
+  types:
+  - success
+  - correction
+  - emergence

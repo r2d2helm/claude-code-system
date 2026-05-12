@@ -14,60 +14,47 @@ Trouver et supprimer les dossiers vides.
 
 Lister les dossiers vides :
 
-```powershell
-param(
-    [string]$Path = ".",
-    [switch]$Delete,
-    [switch]$DryRun
-)
+```bash
+#!/usr/bin/env bash
+path="${1:-.}"
+delete="${2:-}"
+dry_run="${3:-}"
 
-$AllFolders = Get-ChildItem -Path $Path -Directory -Recurse -ErrorAction SilentlyContinue
-$EmptyFolders = @()
+echo ""
+echo "╔══════════════════════════════════════════════╗"
+echo "║     DOSSIERS VIDES                            ║"
+echo "╠══════════════════════════════════════════════╣"
+echo "║                                              ║"
 
-# Trouver les dossiers vides (y compris ceux avec seulement des sous-dossiers vides)
-# Parcourir de la profondeur la plus grande vers la racine
-$sorted = $AllFolders | Sort-Object { $_.FullName.Length } -Descending
+# Trouver les dossiers vides (recursivement, du plus profond)
+# find -empty detecte les dossiers sans contenu
+mapfile -t empty_folders < <(find "$path" -type d -empty 2>/dev/null | sort -r)
 
-foreach ($folder in $sorted) {
-    $items = Get-ChildItem $folder.FullName -Force -ErrorAction SilentlyContinue
-    $hasFiles = $items | Where-Object { -not $_.PSIsContainer }
-    $hasNonEmptyDirs = $items | Where-Object { $_.PSIsContainer -and $_.FullName -notin ($EmptyFolders | ForEach-Object { $_.FullName }) }
+echo "║  Trouves: ${#empty_folders[@]} dossiers vides"
+echo "║                                              ║"
 
-    if (-not $hasFiles -and -not $hasNonEmptyDirs) {
-        $EmptyFolders += $folder
-    }
-}
+count=0
+for folder in "${empty_folders[@]}"; do
+  [ $count -ge 20 ] && break
+  rel="${folder#"$path"/}"
+  if [ "${delete}" = "delete" ] && [ "${dry_run}" != "--dry-run" ]; then
+    rmdir "$folder" 2>/dev/null && echo "║  Supprime: $rel"
+  elif [ "${dry_run}" = "--dry-run" ]; then
+    echo "║  [DRY RUN] $rel"
+  else
+    echo "║  $rel"
+  fi
+  count=$(( count + 1 ))
+done
 
-Write-Host ""
-Write-Host "╔══════════════════════════════════════════════╗"
-Write-Host "║     📂 DOSSIERS VIDES                         ║"
-Write-Host "╠══════════════════════════════════════════════╣"
-Write-Host "║                                              ║"
-Write-Host "║  Trouvés: $($EmptyFolders.Count) dossiers vides"
-Write-Host "║                                              ║"
+remaining=$(( ${#empty_folders[@]} - count ))
+[ "$remaining" -gt 0 ] && echo "║  ... et $remaining de plus"
 
-if ($EmptyFolders.Count -gt 0) {
-    foreach ($ef in $EmptyFolders | Select-Object -First 20) {
-        $rel = $ef.FullName.Replace((Resolve-Path $Path).Path, "").TrimStart("\")
-        if ($Delete -and -not $DryRun) {
-            Remove-Item $ef.FullName -Force -Recurse
-            Write-Host "║  🗑️ Supprimé: $rel"
-        } elseif ($DryRun) {
-            Write-Host "║  [DRY RUN] $rel"
-        } else {
-            Write-Host "║  📂 $rel"
-        }
-    }
-    if ($EmptyFolders.Count -gt 20) {
-        Write-Host "║  ... et $($EmptyFolders.Count - 20) de plus"
-    }
-}
-
-Write-Host "║                                              ║"
-if (-not $Delete) {
-    Write-Host "║  → Utiliser /file-empty delete pour supprimer║"
-}
-Write-Host "╚══════════════════════════════════════════════╝"
+echo "║                                              ║"
+if [ "${delete}" != "delete" ]; then
+  echo "║  -> Utiliser /file-empty delete pour supprimer"
+fi
+echo "╚══════════════════════════════════════════════╝"
 ```
 
 ## Options
@@ -76,11 +63,11 @@ Write-Host "╚═════════════════════�
 |--------|-------------|
 | `delete` | Supprimer les dossiers vides |
 | `--dry-run` | Simuler la suppression |
-| `--include-hidden` | Inclure dossiers cachés |
+| `--include-hidden` | Inclure dossiers caches |
 
 ## Exemples
 
-```powershell
+```bash
 # Lister les dossiers vides
 /file-empty Documents
 

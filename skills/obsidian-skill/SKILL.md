@@ -18,8 +18,8 @@ Cet agent automatise la maintenance, détecte les problèmes et optimise l'organ
 
 | Composant | Support |
 |-----------|---------|
-| Windows | 11/Server 2025 |
-| PowerShell | 7.4+ |
+| Ubuntu Linux | 24.04+ |
+| Bash | 5+ |
 | Obsidian | 1.4+ |
 | Format | Markdown (.md) |
 
@@ -141,7 +141,7 @@ Cet agent automatise la maintenance, détecte les problèmes et optimise l'organ
 
 ### Liens Cassés
 
-```powershell
+```bash
 # Détecte les [[liens]] qui pointent vers des notes inexistantes
 /obs-links broken
 
@@ -164,7 +164,7 @@ Cet agent automatise la maintenance, détecte les problèmes et optimise l'organ
 
 ### Notes Orphelines
 
-```powershell
+```bash
 # Notes sans liens entrants ni sortants
 /obs-orphans
 
@@ -189,7 +189,7 @@ Cet agent automatise la maintenance, détecte les problèmes et optimise l'organ
 
 ### Tags Problématiques
 
-```powershell
+```bash
 /obs-tags list
 
 # Détecte:
@@ -202,7 +202,7 @@ Cet agent automatise la maintenance, détecte les problèmes et optimise l'organ
 
 ### Nettoyage Complet
 
-```powershell
+```bash
 /obs-clean --all
 
 # Actions:
@@ -215,7 +215,7 @@ Cet agent automatise la maintenance, détecte les problèmes et optimise l'organ
 
 ### Gestion des Attachments
 
-```powershell
+```bash
 /obs-attachments
 
 ╔═══════════════════════════════════════════════════════════╗
@@ -258,7 +258,7 @@ modified: 2026-02-04T15:45:00
 
 ### Commandes Frontmatter
 
-```powershell
+```bash
 # Ajouter frontmatter manquant
 /obs-frontmatter add --template=default
 
@@ -276,15 +276,15 @@ modified: 2026-02-04T15:45:00
 
 ### Backup Automatique
 
-```powershell
+```bash
 /obs-backup
 
 ╔═══════════════════════════════════════════════════════════╗
 ║  💾 BACKUP DU VAULT                                       ║
 ╠═══════════════════════════════════════════════════════════╣
 ║                                                           ║
-║  Source: C:\Users\r2d2\Documents\Knowledge                ║
-║  Destination: D:\Backups\Knowledge                        ║
+║  Source: ~/Documents/Knowledge                            ║
+║  Destination: ~/Backups/Knowledge                         ║
 ║                                                           ║
 ║  📊 CONTENU:                                              ║
 ║  • 456 notes Markdown                                     ║
@@ -301,106 +301,83 @@ modified: 2026-02-04T15:45:00
 
 ### Options de Backup
 
-```powershell
-/obs-backup --dest="D:\Backups"           # Destination personnalisée
+```bash
+/obs-backup --dest="~/Backups"            # Destination personnalisée
 /obs-backup --exclude=".obsidian"         # Exclure config
 /obs-backup --incremental                 # Backup incrémental
 /obs-backup --git                         # Commit Git
 ```
 
-## Scripts PowerShell
+## Scripts Bash
 
 ### Chemin du Vault
 
-```powershell
-$VaultPath = "$env:USERPROFILE\Documents\Knowledge"
+```bash
+VAULT_PATH="$HOME/Documents/Knowledge"
 ```
 
 ### Trouver Liens Cassés
 
-```powershell
-function Find-BrokenLinks {
-    param([string]$VaultPath)
-    
-    $Notes = Get-ChildItem -Path $VaultPath -Recurse -Filter "*.md"
-    $NoteNames = $Notes | ForEach-Object { $_.BaseName }
-    $BrokenLinks = @()
-    
-    foreach ($Note in $Notes) {
-        $Content = Get-Content $Note.FullName -Raw
-        $Links = [regex]::Matches($Content, '\[\[([^\]|]+)(?:\|[^\]]+)?\]\]')
-        
-        foreach ($Link in $Links) {
-            $Target = $Link.Groups[1].Value
-            if ($Target -notin $NoteNames) {
-                $BrokenLinks += [PSCustomObject]@{
-                    Source = $Note.FullName
-                    Target = $Target
-                }
-            }
-        }
-    }
-    
-    return $BrokenLinks
+```bash
+find_broken_links() {
+    local vault_path="${1:-$HOME/Documents/Knowledge}"
+
+    # Collecter les noms de toutes les notes (sans extension)
+    mapfile -t note_names < <(find "$vault_path" -name "*.md" -exec basename {} .md \;)
+
+    while IFS= read -r -d '' note; do
+        while IFS= read -r link; do
+            # Vérifier si la cible existe dans la liste des notes
+            local found=0
+            for name in "${note_names[@]}"; do
+                [[ "$name" == "$link" ]] && found=1 && break
+            done
+            if [[ $found -eq 0 ]]; then
+                echo "Source: $note | Lien cassé: $link"
+            fi
+        done < <(grep -oP '(?<=\[\[)[^\]|]+' "$note")
+    done < <(find "$vault_path" -name "*.md" -print0)
 }
 ```
 
 ### Trouver Notes Orphelines
 
-```powershell
-function Find-OrphanNotes {
-    param([string]$VaultPath)
-    
-    $Notes = Get-ChildItem -Path $VaultPath -Recurse -Filter "*.md"
-    $AllLinks = @()
-    
-    # Collecter tous les liens
-    foreach ($Note in $Notes) {
-        $Content = Get-Content $Note.FullName -Raw
-        $Links = [regex]::Matches($Content, '\[\[([^\]|]+)') |
-            ForEach-Object { $_.Groups[1].Value }
-        $AllLinks += $Links
-    }
-    
-    # Trouver notes jamais référencées
-    $Orphans = $Notes | Where-Object {
-        $_.BaseName -notin $AllLinks
-    }
-    
-    return $Orphans
+```bash
+find_orphan_notes() {
+    local vault_path="${1:-$HOME/Documents/Knowledge}"
+
+    # Collecter tous les liens dans le vault
+    mapfile -t all_links < <(grep -rhoP '(?<=\[\[)[^\]|]+' "$vault_path" --include="*.md")
+
+    # Trouver les notes jamais référencées
+    while IFS= read -r -d '' note; do
+        local basename
+        basename=$(basename "$note" .md)
+        local found=0
+        for link in "${all_links[@]}"; do
+            [[ "$link" == "$basename" ]] && found=1 && break
+        done
+        [[ $found -eq 0 ]] && echo "Orpheline: $note"
+    done < <(find "$vault_path" -name "*.md" -print0)
 }
 ```
 
 ### Statistiques du Vault
 
-```powershell
-function Get-VaultStats {
-    param([string]$VaultPath)
-    
-    $Notes = Get-ChildItem -Path $VaultPath -Recurse -Filter "*.md"
-    $Attachments = Get-ChildItem -Path $VaultPath -Recurse -Include "*.png","*.jpg","*.pdf"
-    
-    $TotalWords = 0
-    $TotalLinks = 0
-    $TotalTags = @()
-    
-    foreach ($Note in $Notes) {
-        $Content = Get-Content $Note.FullName -Raw
-        $TotalWords += ($Content -split '\s+').Count
-        $TotalLinks += ([regex]::Matches($Content, '\[\[')).Count
-        $TotalTags += [regex]::Matches($Content, '#[\w/-]+') | 
-            ForEach-Object { $_.Value }
-    }
-    
-    return [PSCustomObject]@{
-        Notes = $Notes.Count
-        Words = $TotalWords
-        Links = $TotalLinks
-        UniqueTags = ($TotalTags | Select-Object -Unique).Count
-        Attachments = $Attachments.Count
-        Size = "{0:N2} MB" -f (($Notes + $Attachments | 
-            Measure-Object -Property Length -Sum).Sum / 1MB)
-    }
+```bash
+get_vault_stats() {
+    local vault_path="${1:-$HOME/Documents/Knowledge}"
+
+    local note_count attachment_count word_count link_count tag_count size_mb
+    note_count=$(find "$vault_path" -name "*.md" | wc -l)
+    attachment_count=$(find "$vault_path" \( -name "*.png" -o -name "*.jpg" -o -name "*.pdf" \) | wc -l)
+    word_count=$(find "$vault_path" -name "*.md" -exec cat {} \; | wc -w)
+    link_count=$(grep -roh '\[\[' "$vault_path" --include="*.md" | wc -l)
+    tag_count=$(grep -rohP '#[\w/-]+' "$vault_path" --include="*.md" | sort -u | wc -l)
+    size_mb=$(du -sm "$vault_path" | cut -f1)
+
+    echo "Notes: $note_count | Mots: $word_count | Liens: $link_count"
+    echo "Tags uniques: $tag_count | Attachments: $attachment_count | Taille: ${size_mb} MB"
 }
 ```
 

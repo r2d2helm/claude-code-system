@@ -12,90 +12,96 @@ Détecter les notes orphelines (sans liens entrants ni sortants).
 
 Analyse toutes les notes du vault et identifie celles qui ne sont liées à aucune autre note (ni via `[[wikilinks]]` entrants, ni sortants). Les notes système (`_Templates/`, `_Index/`, `README`) sont exclues.
 
-## Script PowerShell
+## Script bash
 
-```powershell
-param(
-    [string]$VaultPath = "$env:USERPROFILE\Documents\Knowledge",
-    [switch]$Suggest
-)
+```bash
+#!/usr/bin/env bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
 
-$Notes = Get-ChildItem -Path $VaultPath -Recurse -Filter "*.md" -ErrorAction SilentlyContinue
-$NoteNames = $Notes | ForEach-Object { $_.BaseName }
-$AllBacklinks = @{}
-$AllOutlinks = @{}
+declare -A all_backlinks
+declare -A all_outlinks
 
 # Collecter tous les liens
-foreach ($Note in $Notes) {
-    $Content = Get-Content $Note.FullName -Raw -ErrorAction SilentlyContinue
-    if (-not $Content) { continue }
+while IFS= read -r note; do
+    name=$(basename "$note" .md)
+    links=$(grep -oP '\[\[\K[^\]|]+(?=[\]|])' "$note" 2>/dev/null || true)
+    all_outlinks["$name"]="$links"
+    while IFS= read -r target; do
+        [ -n "$target" ] && all_backlinks["$target"]+=" $name"
+    done <<< "$links"
+done < <(find "$VAULT" -name "*.md" -type f)
 
-    $Links = [regex]::Matches($Content, '\[\[([^\]|]+)(?:\|[^\]]+)?\]\]')
-    $OutTargets = @()
+# Trouver les orphelins
+orphans=()
+no_backlinks=()
 
-    foreach ($Link in $Links) {
-        $Target = $Link.Groups[1].Value
-        $OutTargets += $Target
+while IFS= read -r note; do
+    name=$(basename "$note" .md)
+    rel="${note#$VAULT/}"
 
-        if (-not $AllBacklinks[$Target]) { $AllBacklinks[$Target] = @() }
-        $AllBacklinks[$Target] += $Note.BaseName
-    }
+    # Exclure notes systeme
+    echo "$note" | grep -qE '(_Templates|_Index|_Attachments|\.obsidian)' && continue
+    echo "$name" | grep -qE '^(README|INDEX)' && continue
 
-    $AllOutlinks[$Note.BaseName] = $OutTargets
-}
+    has_backlinks=false
+    [ -n "${all_backlinks[$name]:-}" ] && has_backlinks=true
+    has_outlinks=false
+    [ -n "${all_outlinks[$name]:-}" ] && has_outlinks=true
 
-# Trouver orphelins
-$Orphans = $Notes | Where-Object {
-    $Name = $_.BaseName
-    $HasBacklinks = $AllBacklinks[$Name] -and $AllBacklinks[$Name].Count -gt 0
-    $HasOutlinks = $AllOutlinks[$Name] -and $AllOutlinks[$Name].Count -gt 0
-    $IsSystem = $_.FullName -match '(_Templates|_Index|_Attachments|\.obsidian)' -or $Name -match '^(README|INDEX)'
+    if [ "$has_backlinks" = false ] && [ "$has_outlinks" = false ]; then
+        orphans+=("$rel")
+    elif [ "$has_backlinks" = false ] && [ "$has_outlinks" = true ]; then
+        no_backlinks+=("$rel")
+    fi
+done < <(find "$VAULT" -name "*.md" -type f)
 
-    -not $IsSystem -and -not $HasBacklinks -and -not $HasOutlinks
-}
+echo ""
+echo "╔══════════════════════════════════════════════╗"
+echo "║     NOTES ORPHELINES                         ║"
+echo "╠══════════════════════════════════════════════╣"
+echo "║                                              ║"
+printf "║  Totalement isolees: %4d                  ║\n" "${#orphans[@]}"
+printf "║  Sans backlinks:     %4d                  ║\n" "${#no_backlinks[@]}"
+echo "║                                              ║"
 
-# Notes sans backlinks (mais avec outlinks)
-$NoBacklinks = $Notes | Where-Object {
-    $Name = $_.BaseName
-    $HasBacklinks = $AllBacklinks[$Name] -and $AllBacklinks[$Name].Count -gt 0
-    $HasOutlinks = $AllOutlinks[$Name] -and $AllOutlinks[$Name].Count -gt 0
-    $IsSystem = $_.FullName -match '(_Templates|_Index|_Attachments|\.obsidian)'
+if [ "${#orphans[@]}" -gt 0 ]; then
+    echo "║  ISOLEES (aucun lien):                       ║"
+    count=0
+    for o in "${orphans[@]}"; do
+        [ "$count" -ge 15 ] && break
+        printf "║    - %-38s║\n" "$o"
+        count=$((count + 1))
+    done
+    remaining=$((${#orphans[@]} - 15))
+    [ "$remaining" -gt 0 ] && printf "║    ... et %d de plus                         ║\n" "$remaining"
+fi
 
-    -not $IsSystem -and -not $HasBacklinks -and $HasOutlinks
-}
+echo "║                                              ║"
+echo "║  Actions suggérees:                          ║"
+echo "║  1. Ajouter des [[liens]] vers ces notes     ║"
+echo "║  2. Deplacer vers _Inbox/ pour tri           ║"
+echo "║  3. Supprimer si obsoletes                   ║"
+echo "║                                              ║"
+echo "╚══════════════════════════════════════════════╝"
+```
 
-Write-Host ""
-Write-Host "╔══════════════════════════════════════════════╗"
-Write-Host "║     🏝️ NOTES ORPHELINES                       ║"
-Write-Host "╠══════════════════════════════════════════════╣"
-Write-Host "║                                              ║"
-Write-Host "║  Totalement isolées: $($Orphans.Count.ToString().PadLeft(4))                  ║"
-Write-Host "║  Sans backlinks:     $($NoBacklinks.Count.ToString().PadLeft(4))                  ║"
-Write-Host "║                                              ║"
+## Exemples
 
-if ($Orphans.Count -gt 0) {
-    Write-Host "║  ISOLÉES (aucun lien):                       ║"
-    foreach ($o in $Orphans | Select-Object -First 15) {
-        $rel = $o.FullName.Replace($VaultPath, "").TrimStart("\")
-        Write-Host "║    - $($rel.PadRight(38))║"
-    }
-    if ($Orphans.Count -gt 15) {
-        Write-Host "║    ... et $($Orphans.Count - 15) de plus                      ║"
-    }
-}
+```bash
+# Lister toutes les notes orphelines du vault
+/obs-orphans
 
-Write-Host "║                                              ║"
-Write-Host "║  Actions suggérées:                          ║"
-Write-Host "║  1. Ajouter des [[liens]] vers ces notes     ║"
-Write-Host "║  2. Déplacer vers _Inbox/ pour tri           ║"
-Write-Host "║  3. Supprimer si obsolètes                   ║"
-Write-Host "║                                              ║"
-Write-Host "╚══════════════════════════════════════════════╝"
+# Obtenir des suggestions de liens pour les notes isolees
+/obs-orphans --suggest
 
-return @{
-    Orphans = $Orphans
-    NoBacklinks = $NoBacklinks
-}
+# Deplacer automatiquement les orphelins vers _Inbox/ pour tri
+/obs-orphans --move-inbox
+
+# Exporter la liste des orphelins en JSON pour traitement
+/obs-orphans --json
+
+# Combiner : suggerer des liens et exporter en JSON
+/obs-orphans --suggest --json
 ```
 
 ## Options

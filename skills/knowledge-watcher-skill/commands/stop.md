@@ -14,18 +14,18 @@ Cette commande arrête proprement tous les watchers en cours d'exécution et net
 
 ## Exécution
 
-**IMPORTANT**: Exécute ce script PowerShell:
+**IMPORTANT**: Exécute ce script bash:
 
-```powershell
-$SkillPath = "$env:USERPROFILE\.claude\skills\knowledge-watcher-skill"
-& "$SkillPath\scripts\Stop-KnowledgeWatcher.ps1"
+```bash
+SKILL_PATH="$HOME/.claude/skills/knowledge-watcher-skill"
+bash "$SKILL_PATH/scripts/stop-knowledge-watcher.sh"
 ```
 
 ## Ce qui est arrêté
 
-1. Les FileSystemWatchers actifs
-2. Les jobs PowerShell associés
-3. Les événements enregistrés
+1. Les processus inotifywait actifs
+2. Les jobs bash associés
+3. Les fichiers PID et state
 
 ## Exemple de sortie
 

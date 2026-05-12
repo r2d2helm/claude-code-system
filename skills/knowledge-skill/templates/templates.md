@@ -332,7 +332,7 @@ error_code:
 3. 
 
 ## Code de Résolution
-```powershell
+```bash
 <!-- Commandes utilisées -->
 ```
 
@@ -367,4 +367,4 @@ error_code:
 | `{{time:FORMAT}}` | Heure formatée | `083045` |
 | `{{title}}` | Titre de la note | `Mon Concept` |
 | `{{id}}` | ID unique | `20260204-083045` |
-| `{{language}}` | Langage de code | `powershell` |
+| `{{language}}` | Langage de code | `bash` |

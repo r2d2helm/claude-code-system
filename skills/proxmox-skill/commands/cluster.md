@@ -24,6 +24,8 @@ Gestion complète des clusters Proxmox VE : création, extension, certificats, q
 | `links` | Gérer liens réseau cluster |
 | `--wizard` | Assistant création cluster |
 
+> Voir aussi : [cluster-ha.md](cluster-ha.md) pour les règles de quorum, bonnes pratiques HA, troubleshooting et fencing.
+
 ---
 
 ## Action: status
@@ -84,21 +86,6 @@ pvecm nodes
 | `--ring0_addr` | Adresse ring0 | - |
 | `--ring1_addr` | Adresse ring1 (si dual-link) | - |
 
-### Best Practices Création
-
-#### Réseau
-```
-┌─────────────────────────────────────────────────────────────┐
-│  CONFIGURATION RÉSEAU RECOMMANDÉE                           │
-├─────────────────────────────────────────────────────────────┤
-│  Link0 (Principal):    VLAN Management (10.0.1.0/24)       │
-│  Link1 (Backup):       VLAN Corosync dédié (10.0.2.0/24)   │
-│  MTU:                  Identique sur tous les links        │
-│  Latence:              < 2ms entre nodes                   │
-│  Firewall:             Ports 5405-5412 UDP ouverts         │
-└─────────────────────────────────────────────────────────────┘
-```
-
 ### Commandes
 ```bash
 # Créer cluster simple
@@ -131,7 +118,7 @@ pvecm status
 │  ⚠️  PRÉREQUIS AVANT JOIN                                  │
 ├─────────────────────────────────────────────────────────────┤
 │  1. Hostname unique et résolu sur tous les nodes           │
-│  2. /etc/hosts cohérent (pas 127.0.1.1)                   │
+│  2. /etc/hosts cohérent (pas de 127.0.1.1)                │
 │  3. Même version Proxmox VE (x.y.z identique)             │
 │  4. Pas de VMs/CTs sur le nouveau node                    │
 │  5. Connectivité réseau vérifiée (ping)                   │
@@ -171,22 +158,12 @@ pvecm nodes
 
 ### Troubleshooting Join
 ```bash
-# Si hostname invalide
-hostnamectl set-hostname pve02
-# Editer /etc/hosts - supprimer 127.0.1.1
-
-# Si problème certificat
-pvecm updatecerts
-
-# Si cluster corrompu après join échoué
-# (⚠️ Destructif - nouveau node seulement)
-systemctl stop pve-cluster corosync
-pmxcfs -l
-rm -rf /etc/corosync/*
-rm -rf /etc/pve/corosync.conf
-rm -f /var/lib/corosync/*
-killall pmxcfs
-systemctl start pve-cluster
+# Hostname invalide → hostnamectl set-hostname pve02 + corriger /etc/hosts
+# Problème certificat → pvecm updatecerts
+# Join échoué (DESTRUCTIF, nouveau node seulement) :
+systemctl stop pve-cluster corosync && pmxcfs -l
+rm -rf /etc/corosync/* /etc/pve/corosync.conf /var/lib/corosync/*
+killall pmxcfs && systemctl start pve-cluster
 ```
 
 ---
@@ -234,15 +211,10 @@ pvecm delnode pve04
 # Nettoyer fichiers résiduels
 rm -rf /etc/pve/nodes/pve04
 
-# Si le node était vivant et refusé
-# (Sur le node retiré - le reset complètement)
-systemctl stop pve-cluster corosync
-pmxcfs -l
-rm -rf /etc/corosync/*
-rm -rf /etc/pve/corosync.conf
-rm -f /var/lib/corosync/*
-killall pmxcfs
-systemctl start pve-cluster
+# Si le node était vivant et refusé (DESTRUCTIF - sur le node retiré) :
+systemctl stop pve-cluster corosync && pmxcfs -l
+rm -rf /etc/corosync/* /etc/pve/corosync.conf /var/lib/corosync/*
+killall pmxcfs && systemctl start pve-cluster
 ```
 
 ---
@@ -252,30 +224,10 @@ systemctl start pve-cluster
 ### Description
 QDevice fournit un vote externe pour les clusters à 2 nodes, permettant le quorum même si un node tombe.
 
-### Architecture
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    QDEVICE SETUP                            │
-│                                                             │
-│   ┌─────────┐         ┌─────────┐         ┌─────────┐      │
-│   │  pve01  │◄───────►│ QDevice │◄───────►│  pve02  │      │
-│   │ Vote: 1 │         │ Vote: 1 │         │ Vote: 1 │      │
-│   └─────────┘         └─────────┘         └─────────┘      │
-│                                                             │
-│   Total Votes: 3    Quorum: 2    (Majority voting)         │
-│                                                             │
-│   Si pve01 down → pve02 + QDevice = 2 votes = Quorum ✅   │
-│   Si pve02 down → pve01 + QDevice = 2 votes = Quorum ✅   │
-│   Si QDevice down → pve01 + pve02 = 2 votes = Quorum ✅   │
-└─────────────────────────────────────────────────────────────┘
-```
+Architecture : pve01 (vote:1) + QDevice (vote:1) + pve02 (vote:1) = 3 votes, quorum=2. Chaque node peut tomber sans perdre le quorum.
 
 ### Prérequis QDevice Server
-- VM ou serveur physique dédié (peut être léger: 1 vCPU, 512MB RAM)
-- Debian 12/13 ou Ubuntu 22.04+
-- Connectivité réseau avec tous les nodes
-- Port TCP 5403 ouvert
-- NE PAS exécuter sur un node du cluster
+VM dédiée légère (1 vCPU, 512MB RAM), Debian/Ubuntu, port TCP 5403 ouvert, NE PAS exécuter sur un node du cluster.
 
 ### Setup QDevice Server (externe)
 ```bash
@@ -304,12 +256,8 @@ corosync-quorumtool -s
 
 ### Supprimer QDevice
 ```bash
-# Retirer du cluster
 pvecm qdevice remove
-
-# Sur le serveur QDevice (optionnel)
-systemctl stop corosync-qnetd
-apt remove corosync-qnetd
+# Sur le serveur QDevice : systemctl stop corosync-qnetd && apt remove corosync-qnetd
 ```
 
 ---
@@ -338,22 +286,11 @@ pvecm updatecerts --force
 pvesh get /cluster/config/join --output-format yaml | grep fingerprint
 ```
 
-### Certificats Custom (Let's Encrypt / ACME)
+### Certificats Custom (ACME/Let's Encrypt)
 ```bash
-# Configurer ACME
 pvenode acme account register default mail@example.com
-
-# Ajouter plugin DNS (exemple Cloudflare)
-pvenode acme plugin add dns cloudflare \
-  --api CF_Account_ID=xxx \
-  --api CF_Token=xxx \
-  --data domain=pve.example.com
-
-# Commander certificat
-pvenode acme cert order
-
-# Vérifier
-pvenode acme cert list
+pvenode acme plugin add dns cloudflare --api CF_Token=xxx --data domain=pve.example.com
+pvenode acme cert order && pvenode acme cert list
 ```
 
 ---
@@ -367,56 +304,17 @@ Configuration avancée de Corosync (timeouts, transport, crypto).
 ```bash
 # Voir config actuelle
 cat /etc/pve/corosync.conf
-
-# Structure typique
-logging {
-  debug: off
-  to_syslog: yes
-}
-
-totem {
-  cluster_name: pve-prod
-  config_version: 14
-  interface {
-    linknumber: 0
-  }
-  ip_version: ipv4-6
-  link_mode: passive
-  secauth: on
-  version: 2
-}
-
-nodelist {
-  node {
-    name: pve01
-    nodeid: 1
-    quorum_votes: 1
-    ring0_addr: 10.0.1.11
-  }
-  node {
-    name: pve02
-    nodeid: 2
-    quorum_votes: 1
-    ring0_addr: 10.0.1.12
-  }
-}
-
-quorum {
-  provider: corosync_votequorum
-}
 ```
+
+Sections clés : `logging`, `totem` (cluster_name, secauth, ip_version), `nodelist` (ring0_addr par node), `quorum`.
 
 ### Ajuster Timeouts (réseau lent)
 ```bash
-# Editer via GUI ou directement
-# /etc/pve/corosync.conf dans section totem:
-totem {
-  token: 5000          # Default 1000ms, augmenter si latence
-  token_retransmits_before_loss_const: 10
-  join: 60             # Temps pour rejoindre
-  consensus: 6000      # Doit être > token
-  max_messages: 20
-}
+# Dans /etc/pve/corosync.conf, section totem :
+#   token: 5000          # Default 1000ms
+#   consensus: 6000      # Doit être > token
+#   join: 60
+#   max_messages: 20
 
 # Après modification
 systemctl restart corosync
@@ -464,208 +362,6 @@ ip link set vmbr0 up
 
 ---
 
-## Wizard: Création Cluster Multi-Nodes
-
-### Étape 1: Prérequis
-```
-┌─────────────────────────────────────────────────────────────┐
-│  📋 CHECKLIST PRÉ-CLUSTER                                  │
-├─────────────────────────────────────────────────────────────┤
-│  [ ] Tous les nodes ont la même version PVE               │
-│  [ ] Hostnames uniques et résolus                          │
-│  [ ] /etc/hosts configuré (pas de 127.0.1.1)              │
-│  [ ] NTP synchronisé sur tous les nodes                    │
-│  [ ] Réseau management opérationnel                        │
-│  [ ] Ports firewall ouverts (5405-5412 UDP, 22 TCP)       │
-│  [ ] SSH root fonctionnel entre nodes                      │
-│  [ ] Pas de VMs sur les nouveaux nodes                     │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Étape 2: Configuration Réseau
-```
-Configuration réseau cluster:
-
-[ ] Liens simples (1 réseau)
-    └─ Pour: Homelab, environnements test
-    
-[x] Liens redondants (2 réseaux)
-    └─ Pour: Production, haute disponibilité
-    └─ Link0: VLAN Management
-    └─ Link1: VLAN Corosync dédié
-
-Votre choix: Liens redondants
-```
-
-### Étape 3: Créer sur Premier Node
-```bash
-# Sur pve01 (premier node)
-pvecm create pve-prod \
-  --link0 10.0.1.11 \
-  --link1 10.0.2.11
-```
-
-### Étape 4: Joindre Autres Nodes
-```bash
-# Sur pve02
-pvecm add 10.0.1.11 \
-  --link0 10.0.1.12 \
-  --link1 10.0.2.12
-
-# Sur pve03
-pvecm add 10.0.1.11 \
-  --link0 10.0.1.13 \
-  --link1 10.0.2.13
-```
-
-### Étape 5: Vérification
-```bash
-# État cluster
-pvecm status
-
-# Tous les nodes visibles
-pvecm nodes
-
-# Quorum OK
-corosync-quorumtool -s
-```
-
-### Étape 6: QDevice (Optionnel - 2 nodes)
-```bash
-# Si cluster 2 nodes seulement
-pvecm qdevice setup 10.0.1.100
-```
-
----
-
-## Bonnes Pratiques Cluster
-
-### Architecture Recommandée
-```
-┌─────────────────────────────────────────────────────────────┐
-│  ARCHITECTURE CLUSTER PRODUCTION                            │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  Minimum: 3 nodes (quorum natif)                           │
-│  Optimal: 5 nodes (tolérance 2 pannes)                     │
-│  Maximum: 32 nodes                                          │
-│                                                             │
-│  Réseau:                                                    │
-│  • Management: 1GbE minimum, VLAN dédié                    │
-│  • Corosync: Liens redondants recommandés                  │
-│  • Stockage: 10GbE+ dédié (Ceph, NFS)                     │
-│  • VMs: Selon besoins                                      │
-│                                                             │
-│  Latence: < 2ms entre nodes                                │
-│  NTP: Obligatoire, < 1s de delta                          │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Règles de Quorum
-```
-┌─────────────────────────────────────────────────────────────┐
-│  RÈGLES QUORUM                                              │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  Formule: Quorum = (N / 2) + 1                             │
-│                                                             │
-│  2 nodes: Quorum = 2 → ⚠️ QDevice OBLIGATOIRE             │
-│  3 nodes: Quorum = 2 → Tolère 1 panne                      │
-│  4 nodes: Quorum = 3 → Tolère 1 panne                      │
-│  5 nodes: Quorum = 3 → Tolère 2 pannes                     │
-│                                                             │
-│  Sans quorum: Cluster READ-ONLY (pas de modifications)     │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Maintenance Node
-```bash
-# Avant maintenance d'un node
-# 1. Migrer les VMs
-qm migrate <vmid> <target_node> --online
-
-# 2. Mode maintenance HA
-ha-manager set vm:100 --state disabled
-
-# 3. Si besoin forcer quorum (DANGER - dernier recours)
-pvecm expected 1
-
-# Après maintenance
-# 1. Réactiver HA
-ha-manager set vm:100 --state started
-
-# 2. Vérifier cluster
-pvecm status
-```
-
----
-
-## Troubleshooting Cluster
-
-### Problème: Node ne peut pas join
-```bash
-# Vérifier hostname
-hostname
-cat /etc/hostname
-cat /etc/hosts  # Pas de 127.0.1.1
-
-# Vérifier connectivité
-ping 10.0.1.11
-ssh root@10.0.1.11
-
-# Vérifier ports
-nc -zvu 10.0.1.11 5405
-
-# Vérifier versions
-pveversion -v
-```
-
-### Problème: Perte de quorum
-```bash
-# Voir état
-pvecm status
-corosync-quorumtool -s
-
-# Si nodes down attendus temporairement
-pvecm expected <nombre_nodes_actifs>
-
-# Si split-brain (éviter absolument)
-# Choisir UN côté, sur les autres:
-systemctl stop pve-cluster corosync
-```
-
-### Problème: Corosync ne démarre pas
-```bash
-# Logs
-journalctl -u corosync -f
-
-# Vérifier config
-corosync-cfgtool -c
-
-# Réinitialiser un node problématique (DESTRUCTIF)
-systemctl stop pve-cluster
-pmxcfs -l
-rm /etc/corosync/corosync.conf
-rm /var/lib/corosync/*
-systemctl start pve-cluster
-# Puis re-join le cluster
-```
-
-### Problème: Certificats invalides
-```bash
-# Forcer renouvellement
-pvecm updatecerts --force
-
-# Si certificat root corrompu (DANGER)
-# Backup d'abord!
-cp -a /etc/pve /root/pve-backup
-pvecm updatecerts
-```
-
----
-
 ## Commandes Rapides
 
 ```bash
@@ -699,3 +395,5 @@ corosync-cfgtool -s
 # Quorum status
 corosync-quorumtool -s
 ```
+
+> Pour les bonnes pratiques HA, règles de quorum, maintenance et troubleshooting avancé : voir [cluster-ha.md](cluster-ha.md)

@@ -1,0 +1,43 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-03-25",
+  "high_relevance": [
+    "souverainete",
+    "local-first",
+    "open source",
+    "lock-in",
+    "CLOUD Act",
+    "subsides",
+    "cheque cybersecurite",
+    "PME",
+    "Wallonie",
+    "RGPD",
+    "AI Act",
+    "Proxmox",
+    "migration"
+  ],
+  "medium_relevance": [
+    "Docker",
+    "LLM",
+    "self-hosted",
+    "on-premise",
+    "ESN",
+    "integrateur",
+    "agents IA",
+    "agentique"
+  ],
+  "context_boosters": [
+    "Belgique",
+    "Europe",
+    "Afrique",
+    "digitalisation",
+    "micro-entreprise",
+    "auto-entrepreneur"
+  ],
+  "scoring_rules": {
+    "high_weight": 2,
+    "medium_weight": 1,
+    "booster_weight": 1,
+    "formula": "min(5, ceil(sum / 2))"
+  }
+}

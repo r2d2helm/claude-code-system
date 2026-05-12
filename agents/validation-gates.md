@@ -18,39 +18,33 @@ Tu es le spécialiste de la validation du système r2d2. Tu vérifies que chaque
 | Meta-Router | `~/.claude/skills/SKILL.md` |
 | CLAUDE.md | `~/.claude/CLAUDE.md` |
 | MCP Server | `~/.claude/mcp-servers/knowledge-assistant/` |
-| Vault | `C:\Users\r2d2\Documents\Knowledge\` |
+| Vault | `$KNOWLEDGE_VAULT_PATH` (defaut: `~/Documents/Knowledge`) |
 
 ## Processus de validation à 3 niveaux
 
 ### Niveau 1 : Structure & Syntax
 
 #### Skills
-```powershell
+```bash
 # Chaque skill a un SKILL.md
-Get-ChildItem "$env:USERPROFILE\.claude\skills" -Directory |
-    Where-Object { $_.Name -ne 'commands' } |
-    ForEach-Object {
-        $path = Join-Path $_.FullName "SKILL.md"
-        if (-not (Test-Path $path)) {
-            Write-Warning "MANQUANT: $path"
-        }
-    }
+SKILLS_DIR="${CLAUDE_DIR:-$HOME/.claude}/skills"
+for d in "$SKILLS_DIR"/*/; do
+    name=$(basename "$d")
+    [ "$name" = "commands" ] && continue
+    [ ! -f "$d/SKILL.md" ] && echo "MANQUANT: $d/SKILL.md"
+done
 
 # Chaque skill a un dossier commands/
-Get-ChildItem "$env:USERPROFILE\.claude\skills" -Directory |
-    Where-Object { $_.Name -ne 'commands' } |
-    ForEach-Object {
-        $path = Join-Path $_.FullName "commands"
-        if (-not (Test-Path $path)) {
-            Write-Warning "MANQUANT: $path"
-        }
-    }
+for d in "$SKILLS_DIR"/*/; do
+    name=$(basename "$d")
+    [ "$name" = "commands" ] && continue
+    [ ! -d "$d/commands" ] && echo "MANQUANT: $d/commands/"
+done
 ```
 
 #### Encodage
-- Fichiers .md : vérifier absence de BOM (octets EF BB BF)
-- Fichiers .ps1 : vérifier présence de BOM (requis pour PS 5.1)
-- Fichiers .json : vérifier UTF-8 valide
+- Fichiers .md/.json : verifier UTF-8 sans BOM
+- Fichiers .ps1 : verifier presence de BOM si present (requis pour PS 5.1)
 
 #### Frontmatter (vault uniquement)
 - Chaque note dans Knowledge/ (hors _Templates/) a un frontmatter `---`

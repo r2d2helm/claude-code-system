@@ -62,8 +62,22 @@ docker inspect <name|id> --format '{{range .NetworkSettings.Networks}}{{.IPAddre
 
 ## Exemples
 
+Lister les containers actifs avec ports et status :
 ```bash
-/dk-ps                    # Lister tous les containers
-/dk-ps stop myapp         # Arreter le container myapp
-/dk-ps --filter exited    # Containers arretes
+docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+```
+
+Filtrer les containers par nom :
+```bash
+docker ps -a --filter "name=myapp"
+```
+
+Afficher uniquement les IDs des containers arretes :
+```bash
+docker ps -a --filter "status=exited" -q
+```
+
+Lister tous les containers avec leur taille disque :
+```bash
+docker ps -a --size --format "table {{.Names}}\t{{.Image}}\t{{.Size}}"
 ```

@@ -18,6 +18,10 @@
           {
             "type": "command",
             "command": "python C:/Users/r2d2/.claude/hooks/security_validator.py"
+          },
+          {
+            "type": "command",
+            "command": "python C:/Users/r2d2/.claude/hooks/secret_scanner.py"
           }
         ]
       },
@@ -56,6 +60,18 @@
           {
             "type": "command",
             "command": "python C:/Users/r2d2/.claude/hooks/memory_extractor_v2.py"
+          },
+          {
+            "type": "command",
+            "command": "python C:/Users/r2d2/.claude/hooks/convergence_tracker.py"
+          },
+          {
+            "type": "command",
+            "command": "python C:/Users/r2d2/.claude/hooks/degradation_detector.py"
+          },
+          {
+            "type": "command",
+            "command": "python C:/Users/r2d2/.claude/hooks/feedback_loop.py"
           }
         ]
       }
@@ -78,6 +94,14 @@
           {
             "type": "command",
             "command": "python C:/Users/r2d2/.claude/hooks/prompt_analyzer.py"
+          },
+          {
+            "type": "command",
+            "command": "python C:/Users/r2d2/.claude/hooks/frustration_detector.py"
+          },
+          {
+            "type": "command",
+            "command": "python C:/Users/r2d2/.claude/hooks/sycophancy_guard.py"
           }
         ]
       }
@@ -89,6 +113,10 @@
           {
             "type": "command",
             "command": "python C:/Users/r2d2/.claude/hooks/error_capture.py"
+          },
+          {
+            "type": "command",
+            "command": "python C:/Users/r2d2/.claude/hooks/circuit_breaker.py"
           }
         ]
       },
@@ -144,5 +172,168 @@
       ],
       "type": "stdio"
     }
+  },
+  "permissions": {
+    "allow": [
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Bash(git:*)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Bash(curl:*)",
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(pip:*)",
+      "Bash(docker:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(chmod:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(sed:*)",
+      "Bash(wc:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(du:*)",
+      "Bash(df:*)",
+      "Bash(echo:*)",
+      "Bash(which:*)",
+      "Bash(netstat:*)",
+      "Bash(tasklist:*)",
+      "Bash(reg:*)",
+      "Bash(icacls:*)",
+      "Bash(powershell.exe:*)",
+      "Bash(code:*)",
+      "WebSearch",
+      "WebFetch",
+      "mcp__beszel-assistant__beszel_systems",
+      "mcp__beszel-assistant__beszel_system_detail",
+      "mcp__beszel-assistant__beszel_containers",
+      "mcp__beszel-assistant__beszel_alerts",
+      "mcp__beszel-assistant__beszel_overview",
+      "mcp__netdata-vm100__list_nodes",
+      "mcp__netdata-vm100__list_metrics",
+      "mcp__netdata-vm100__query_metrics",
+      "mcp__netdata-vm100__list_raised_alerts",
+      "mcp__netdata-vm100__find_anomalous_metrics",
+      "mcp__taskyn__pm_list_projects",
+      "mcp__taskyn__pm_list_nodes",
+      "mcp__taskyn__pm_get_project",
+      "mcp__taskyn__pm_get_node",
+      "mcp__taskyn__pm_search",
+      "mcp__taskyn__pm_get_dashboard",
+      "mcp__taskyn__pm_create_node",
+      "mcp__taskyn__pm_update_node",
+      "mcp__taskyn__pm_complete_node",
+      "mcp__taskyn__pm_start_node",
+      "mcp__taskyn__pm_get_methodology_info",
+      "mcp__taskyn__pm_list_companies",
+      "mcp__taskyn__pm_get_company",
+      "mcp__taskyn__pm_get_company_stats",
+      "mcp__taskyn__pm_get_project_stats",
+      "mcp__taskyn__pm_get_recent_activity",
+      "mcp__taskyn__pm_list_edges",
+      "mcp__taskyn__pm_create_edge",
+      "mcp__taskyn__pm_delete_edge",
+      "mcp__taskyn__pm_list_milestones",
+      "mcp__taskyn__pm_get_milestone",
+      "mcp__taskyn__pm_create_milestone",
+      "mcp__taskyn__pm_complete_milestone",
+      "mcp__taskyn__pm_list_tags",
+      "mcp__taskyn__pm_create_tag",
+      "mcp__taskyn__pm_tag_node",
+      "mcp__taskyn__pm_untag_node",
+      "mcp__taskyn__pm_get_tag_usage",
+      "mcp__taskyn__pm_get_rollup",
+      "mcp__taskyn__pm_get_ancestors",
+      "mcp__taskyn__pm_get_descendants",
+      "mcp__taskyn__pm_block_node",
+      "mcp__taskyn__pm_delete_node",
+      "mcp__taskyn__pm_create_project",
+      "mcp__taskyn__pm_update_project",
+      "mcp__taskyn__pm_delete_project",
+      "mcp__taskyn__pm_create_company",
+      "mcp__taskyn__pm_update_company",
+      "mcp__taskyn__pm_delete_company",
+      "mcp__taskyn__pm_update_milestone",
+      "mcp__taskyn__pm_delete_milestone",
+      "mcp__taskyn__pm_delete_tag",
+      "mcp__taskyn__pm_list_time_entries",
+      "mcp__taskyn__pm_get_time_entry",
+      "mcp__taskyn__pm_log_time",
+      "mcp__taskyn__pm_delete_time_entry",
+      "mcp__taskyn__pm_start_timer",
+      "mcp__taskyn__pm_stop_timer",
+      "mcp__taskyn__pm_get_active_timer",
+      "mcp__netdata-vm100__get_nodes_details",
+      "mcp__netdata-vm100__get_metrics_details",
+      "mcp__netdata-vm100__find_correlated_metrics",
+      "mcp__netdata-vm100__find_unstable_metrics",
+      "mcp__netdata-vm100__list_alert_transitions",
+      "mcp__netdata-vm100__list_running_alerts",
+      "mcp__netdata-vm100__list_functions",
+      "mcp__netdata-vm100__execute_function",
+      "mcp__claude_ai_Gmail__gmail_get_profile",
+      "mcp__claude_ai_Gmail__gmail_search_messages",
+      "mcp__claude_ai_Gmail__gmail_read_message",
+      "mcp__claude_ai_Gmail__gmail_read_thread",
+      "mcp__claude_ai_Gmail__gmail_list_labels",
+      "mcp__claude_ai_Gmail__gmail_list_drafts",
+      "mcp__claude_ai_Gmail__gmail_create_draft",
+      "mcp__mempalace__mempalace_status",
+      "mcp__mempalace__mempalace_search",
+      "mcp__mempalace__mempalace_list_wings",
+      "mcp__mempalace__mempalace_list_rooms",
+      "mcp__mempalace__mempalace_add_drawer",
+      "mcp__mempalace__mempalace_delete_drawer",
+      "mcp__mempalace__mempalace_check_duplicate",
+      "mcp__mempalace__mempalace_find_tunnels",
+      "mcp__mempalace__mempalace_traverse",
+      "mcp__mempalace__mempalace_get_taxonomy",
+      "mcp__mempalace__mempalace_get_aaak_spec",
+      "mcp__mempalace__mempalace_graph_stats",
+      "mcp__mempalace__mempalace_kg_add",
+      "mcp__mempalace__mempalace_kg_query",
+      "mcp__mempalace__mempalace_kg_stats",
+      "mcp__mempalace__mempalace_kg_timeline",
+      "mcp__mempalace__mempalace_kg_invalidate",
+      "mcp__mempalace__mempalace_diary_read",
+      "mcp__mempalace__mempalace_diary_write",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_fill_form",
+      "mcp__playwright__browser_select_option",
+      "mcp__playwright__browser_hover",
+      "mcp__playwright__browser_drag",
+      "mcp__playwright__browser_press_key",
+      "mcp__playwright__browser_navigate_back",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_tabs",
+      "mcp__playwright__browser_close",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_file_upload",
+      "mcp__playwright__browser_handle_dialog",
+      "mcp__playwright__browser_evaluate",
+      "mcp__playwright__browser_run_code",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_network_requests",
+      "mcp__playwright__browser_resize"
+    ],
+    "deny": [
+      "Bash(rm -rf /:*)",
+      "Bash(format:*)",
+      "Bash(shutdown:*)",
+      "Bash(del /s /q:*)"
+    ]
   }
 }

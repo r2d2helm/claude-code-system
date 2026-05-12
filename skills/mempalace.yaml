@@ -1,0 +1,20 @@
+wing: wing_skills
+rooms:
+  - name: meta-router
+    description: "Meta-router: skill routing, keyword detection, activation"
+  - name: monitoring
+    description: "Monitoring skills: Beszel, Netdata, Uptime Kuma, Dozzle"
+  - name: infra
+    description: "Infrastructure skills: Proxmox, Docker, Linux, Windows, Network"
+  - name: knowledge
+    description: "Knowledge skills: vault, watcher, guardian, obsidian"
+  - name: devops
+    description: "DevOps skills: CI/CD, backup, security, credentials"
+  - name: ai
+    description: "AI skills: LiteLLM, Langfuse, RAG, intelligence warehouse"
+include:
+  - "*.md"
+exclude:
+  - "node_modules/**"
+  - ".git/**"
+  - "data/**"

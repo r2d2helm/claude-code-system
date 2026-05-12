@@ -1,0 +1,10 @@
+{
+  "username": "mike",
+  "password_hash": "d5a517c80560ff78e5ee950d888c1ddf7ca4ffc62c0fd4e986792b31f847260e",
+  "salt": "92e19c80354460ed924cfdcb5a107263",
+  "secret_key": "10caa756979283b1c2afa0ba4b77d5e6cbc84ba62da1c53f99c603157ec696ad",
+  "port": 8842,
+  "host": "127.0.0.1",
+  "first_run": false,
+  "note": "Change password on first login! Default: trevize2026"
+}

@@ -1,6 +1,7 @@
 ---
 name: skill-creator
 description: "Guide for creating effective Claude Code skills for the r2d2 system. Use when the user wants to create a new skill, update an existing skill, or extend Claude's capabilities with specialized knowledge, workflows, or tool integrations. Triggers on requests like 'create a skill for...', 'new skill', 'build a skill', or any skill development task."
+prefix: /skill-*
 ---
 
 # Skill Creator - r2d2 System
@@ -157,9 +158,9 @@ Or use `/new-skill` command which orchestrates all of this automatically.
 
 ## Design Patterns
 
-For detailed patterns, consult:
-- **Multi-step processes**: See [references/workflows.md](references/workflows.md)
-- **Output formats**: See [references/output-patterns.md](references/output-patterns.md)
+For detailed patterns, consult the bundled references:
+- **Multi-step processes**: See `references/workflows.md` (sequential, conditional, Contract-First, PRP-driven)
+- **Output formats**: See `references/output-patterns.md` (template pattern, examples pattern)
 
 ## What NOT to Include
 

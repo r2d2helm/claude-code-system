@@ -47,7 +47,7 @@ Cet agent fonctionne en mode hybride : surveillance temps réel pour les sources
 |------|------|---------|-----------|
 | 1 | Real-time | Claude history, Projets/, Knowledge/ | FileSystemWatcher |
 | 2 | Batch | Downloads/, Formations/ | Toutes les heures |
-| 3 | Batch | Browser bookmarks, VSCode, Scripts PS | Quotidien 6h |
+| 3 | Batch | Browser bookmarks, VSCode, Scripts | Quotidien 6h |
 | 4 | Batch | Archives/, Resources/ | Hebdo dimanche 3h |
 
 ## Commandes Slash
@@ -102,8 +102,8 @@ Cet agent fonctionne en mode hybride : surveillance temps réel pour les sources
 ```json
 {
   "paths": {
-    "obsidianVault": "C:\\Users\\r2d2\\Documents\\Knowledge",
-    "claudeCli": "C:\\Users\\r2d2\\.local\\bin\\claude.exe"
+    "obsidianVault": "~/Documents/Knowledge",
+    "claudeCli": "~/.local/bin/claude"
   },
   "processing": {
     "claudeTimeout": 30000,
@@ -118,10 +118,10 @@ Cet agent fonctionne en mode hybride : surveillance temps réel pour les sources
 | Type | Patterns | Dossier |
 |------|----------|---------|
 | conversation | history.jsonl, User:, Assistant: | Conversations/ |
-| code | .ps1, .py, function, def | Code/{lang}/ |
+| code | .sh, .py, function, def | Code/{lang}/ |
 | concept | pattern, architecture, principe | Concepts/ |
 | troubleshooting | error, fix, solution | Références/Troubleshooting/ |
-| project | \Projets\ | Projets/{name}/ |
+| project | Projets/ | Projets/{name}/ |
 
 ## Intégration avec Autres Skills
 
@@ -133,31 +133,23 @@ Cet agent fonctionne en mode hybride : surveillance temps réel pour les sources
 
 ## Prérequis
 
-### Windows
-- Windows 11/Server 2025
-- PowerShell 7.4+
-- Claude CLI installé
-- Obsidian vault configuré
-
-### Linux
-- Ubuntu 20.04+ / Debian 11+
+### Linux (Ubuntu 24.04+)
+- Ubuntu 24.04+ / Debian 12+
 - inotify-tools (`sudo apt install inotify-tools`)
 - jq (`sudo apt install jq`)
 - bc (généralement pré-installé)
 - Claude CLI installé
 - Obsidian vault configuré
 
-## Scripts Linux
+## Scripts
 
-Équivalents bash des scripts PowerShell pour Linux :
+| Script | Description |
+|--------|-------------|
+| `start-knowledge-watcher.sh` | Démarre les watchers avec inotifywait |
+| `stop-knowledge-watcher.sh` | Arrête les watchers |
+| `build-notes-index.sh` | Construit l'index des notes |
 
-| Script PowerShell | Script Bash | Description |
-|-------------------|-------------|-------------|
-| `Start-KnowledgeWatcher.ps1` | `start-knowledge-watcher.sh` | Démarre les watchers avec inotifywait |
-| `Stop-KnowledgeWatcher.ps1` | `stop-knowledge-watcher.sh` | Arrête les watchers |
-| `Build-NotesIndex.ps1` | `build-notes-index.sh` | Construit l'index des notes |
-
-### Utilisation Linux
+### Utilisation
 
 ```bash
 # Démarrer le watcher (foreground)
@@ -173,14 +165,14 @@ Cet agent fonctionne en mode hybride : surveillance temps réel pour les sources
 ./scripts/build-notes-index.sh [vault_path] [output_path]
 ```
 
-### Tâches Planifiées Linux (Crontab)
+### Tâches Planifiées (Crontab)
 
-Les tâches planifiées Windows Task Scheduler sont documentées dans `scripts/crontab-linux.md` avec les entrées crontab équivalentes :
+Les entrées crontab sont documentées dans `scripts/crontab-linux.md` :
 
-| Tier | Windows Task Scheduler | Linux Crontab |
-|------|------------------------|---------------|
-| Tier 2 (Hourly) | `KnowledgeWatcher-Tier2-Hourly.ps1` | `0 * * * *` |
-| Tier 3 (Daily 6h) | `KnowledgeWatcher-Tier3-Daily.ps1` | `0 6 * * *` |
-| Tier 4 (Weekly dim 3h) | `KnowledgeWatcher-Tier4-Weekly.ps1` | `0 3 * * 0` |
+| Tier | Crontab | Fréquence |
+|------|---------|-----------|
+| Tier 2 | `0 * * * *` | Toutes les heures |
+| Tier 3 | `0 6 * * *` | Quotidien à 6h |
+| Tier 4 | `0 3 * * 0` | Dimanche à 3h |
 
 Voir `scripts/crontab-linux.md` pour les instructions d'installation complètes.

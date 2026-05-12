@@ -12,28 +12,24 @@ Gerer les raccourcis clavier Obsidian.
 
 ### Lister les raccourcis personnalises
 
-```powershell
-$VaultPath = "$env:USERPROFILE\Documents\Knowledge"
-$HotkeysFile = "$VaultPath\.obsidian\hotkeys.json"
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+hotkeys_file="${VAULT}/.obsidian/hotkeys.json"
 
-if (Test-Path $HotkeysFile) {
-    $Hotkeys = Get-Content $HotkeysFile -Raw | ConvertFrom-Json
-    $Hotkeys.PSObject.Properties | ForEach-Object {
-        [PSCustomObject]@{
-            Commande = $_.Name
-            Raccourci = ($_.Value | ForEach-Object {
-                $Parts = @()
-                if ($_.modifiers -contains 'Ctrl') { $Parts += 'Ctrl' }
-                if ($_.modifiers -contains 'Shift') { $Parts += 'Shift' }
-                if ($_.modifiers -contains 'Alt') { $Parts += 'Alt' }
-                $Parts += $_.key
-                $Parts -join '+'
-            }) -join ', '
-        }
-    } | Format-Table -AutoSize
-} else {
-    Write-Output "Aucun raccourci personnalise"
-}
+if [ -f "$hotkeys_file" ]; then
+    python3 -c "
+import json
+data = json.load(open('${hotkeys_file}'))
+for cmd, bindings in data.items():
+    shortcuts = []
+    for b in bindings:
+        parts = b.get('modifiers', []) + [b.get('key', '')]
+        shortcuts.append('+'.join(parts))
+    print(f'{cmd:50s}  {\" / \".join(shortcuts)}')
+" | column -t
+else
+    echo "Aucun raccourci personnalise"
+fi
 ```
 
 ### Raccourcis par defaut utiles
@@ -50,16 +46,21 @@ if (Test-Path $HotkeysFile) {
 
 ### Detecter les conflits
 
-```powershell
-# Trouver les raccourcis en double
-$Shortcuts = @{}
-$Hotkeys.PSObject.Properties | ForEach-Object {
-    $Key = ($_.Value | ForEach-Object { $_.key }) -join ','
-    if ($Shortcuts.ContainsKey($Key)) {
-        Write-Warning "CONFLIT: $Key -> $($Shortcuts[$Key]) vs $($_.Name)"
-    }
-    $Shortcuts[$Key] = $_.Name
-}
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+hotkeys_file="${VAULT}/.obsidian/hotkeys.json"
+
+python3 -c "
+import json
+data = json.load(open('${hotkeys_file}'))
+seen = {}
+for cmd, bindings in data.items():
+    for b in bindings:
+        key = b.get('key', '')
+        if key in seen:
+            print(f'CONFLIT: {key} -> {seen[key]} vs {cmd}')
+        seen[key] = cmd
+"
 ```
 
 ## Options
@@ -73,7 +74,7 @@ $Hotkeys.PSObject.Properties | ForEach-Object {
 
 ## Exemples
 
-```powershell
+```bash
 /obs-hotkeys list              # Raccourcis personnalises
 /obs-hotkeys defaults          # Raccourcis par defaut
 /obs-hotkeys conflicts         # Conflits de raccourcis

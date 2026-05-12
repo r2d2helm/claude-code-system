@@ -1,34 +1,34 @@
 # Wizard: Organisation Photos
 
-Organisation complète de bibliothèque photos.
+Organisation complete de bibliotheque photos.
 
-## Déclenchement
+## Declenchement
 
 ```
 /file-wizard photos
 ```
 
-## Étapes du Wizard (4)
+## Etapes du Wizard (4)
 
-### Étape 1: Analyse Bibliothèque
+### Etape 1: Analyse Bibliotheque
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
-║           📷 WIZARD ORGANISATION PHOTOS                      ║
-║                Étape 1/4 : Analyse                           ║
+║           WIZARD ORGANISATION PHOTOS                         ║
+║                Etape 1/4 : Analyse                           ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║  🔍 ANALYSE: C:\Users\r2d2\Pictures                          ║
+║  ANALYSE: ~/Pictures                                         ║
 ║                                                              ║
-║  📊 STATISTIQUES:                                            ║
+║  STATISTIQUES:                                               ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
 ║  │ Photos totales     : 12,345                             │ ║
 ║  │ Taille totale      : 89.2 GB                            │ ║
-║  │ Période            : 2018-2026 (8 ans)                  │ ║
+║  │ Periode            : 2018-2026 (8 ans)                  │ ║
 ║  │ Formats            : JPG (85%), PNG (10%), RAW (5%)     │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
 ║                                                              ║
-║  📅 DISTRIBUTION PAR ANNÉE:                                  ║
+║  DISTRIBUTION PAR ANNEE:                                     ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
 ║  │ 2026 : ████░░░░░░░░░░░░░░░░░░░░░░░░░░ 456 (4%)         │ ║
 ║  │ 2025 : ██████████████░░░░░░░░░░░░░░░░ 2,345 (19%)      │ ║
@@ -37,163 +37,161 @@ Organisation complète de bibliothèque photos.
 ║  │ <2023: ████████████████████░░░░░░░░░░ 3,854 (31%)      │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
 ║                                                              ║
-║  ⚠️ PROBLÈMES DÉTECTÉS:                                      ║
-║  • 4,567 photos avec noms génériques (IMG_, DSC_, Photo)     ║
-║  • 234 doublons potentiels (2.1 GB)                          ║
-║  • 89 captures d'écran mélangées                             ║
-║  • Pas de structure par date                                 ║
+║  PROBLEMES DETECTES:                                         ║
+║  * 4,567 photos avec noms generiques (IMG_, DSC_, Photo)     ║
+║  * 234 doublons potentiels (2.1 GB)                          ║
+║  * 89 captures d'ecran melangees                             ║
+║  * Pas de structure par date                                 ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
 
-### Étape 2: Structure Cible
+### Etape 2: Structure Cible
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
-║           📷 WIZARD ORGANISATION PHOTOS                      ║
-║               Étape 2/4 : Structure                          ║
+║           WIZARD ORGANISATION PHOTOS                         ║
+║               Etape 2/4 : Structure                          ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║  📂 STRUCTURE PROPOSÉE:                                      ║
+║  STRUCTURE PROPOSEE:                                         ║
 ║                                                              ║
-║  Pictures\                                                   ║
-║  ├── {YYYY}\                    # Par année                  ║
-║  │   └── {YYYY-MM}\             # Par mois                   ║
-║  │       └── {YYYY-MM-DD}_Description_001.jpg                ║
-║  ├── Albums\                    # Albums thématiques         ║
-║  │   ├── Vacances-2025-Bretagne\                             ║
-║  │   └── Anniversaire-Marie\                                 ║
-║  ├── Screenshots\               # Captures d'écran           ║
-║  ├── Wallpapers\                # Fonds d'écran              ║
-║  └── _Import\                   # Photos à trier             ║
+║  Pictures/                                                   ║
+║  ├── {YYYY}/                    # Par annee                  ║
+║  │   └── {YYYY-MM}/             # Par mois                   ║
+║  │       └── {YYYY-MM-DD}_001.jpg                            ║
+║  ├── Albums/                    # Albums thematiques         ║
+║  │   ├── Vacances-2025-Bretagne/                             ║
+║  │   └── Anniversaire-Marie/                                 ║
+║  ├── Screenshots/               # Captures d'ecran           ║
+║  ├── Wallpapers/                # Fonds d'ecran              ║
+║  └── _Import/                   # Photos a trier             ║
 ║                                                              ║
 ║  Format de nommage:                                          ║
-║  [x] Date ISO en préfixe (YYYY-MM-DD)                        ║
-║  [x] Numéro séquentiel (001, 002...)                         ║
+║  [x] Date ISO en prefixe (YYYY-MM-DD)                        ║
+║  [x] Numero sequentiel (001, 002...)                         ║
 ║  [ ] Conserver nom original                                  ║
-║  [ ] Ajouter événement/lieu                                  ║
+║  [ ] Ajouter evenement/lieu                                  ║
 ║                                                              ║
-║  [1] Appliquer  [2] Modifier  [3] Prévisualiser              ║
+║  [1] Appliquer  [2] Modifier  [3] Previsualiser              ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
 
-### Étape 3: Traitement
+### Etape 3: Traitement
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
-║           📷 WIZARD ORGANISATION PHOTOS                      ║
-║              Étape 3/4 : Traitement                          ║
+║           WIZARD ORGANISATION PHOTOS                         ║
+║              Etape 3/4 : Traitement                          ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║  🔄 ORGANISATION EN COURS...                                 ║
+║  ORGANISATION EN COURS...                                    ║
 ║                                                              ║
 ║  [████████████████████████░░░░░░░░░░░░░░░░] 60%              ║
-║  7,407 / 12,345 photos traitées                              ║
+║  7,407 / 12,345 photos traitees                              ║
 ║                                                              ║
 ║  Actions en cours:                                           ║
-║  ✓ Création structure année/mois                             ║
-║  ✓ Déplacement photos 2018-2023                              ║
-║  ✓ Déplacement photos 2024                                   ║
-║  ⏳ Déplacement photos 2025-2026                              ║
-║  ⏳ Renommage avec date EXIF                                  ║
-║  ⏳ Séparation screenshots                                    ║
-║                                                              ║
-║  Temps estimé restant: 3 minutes                             ║
+║  Creation structure annee/mois                               ║
+║  Deplacement photos 2018-2023                                ║
+║  Deplacement photos 2024                                     ║
+║  En attente: Deplacement photos 2025-2026                    ║
+║  En attente: Renommage avec date                             ║
+║  En attente: Separation screenshots                          ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
 
 **Script organisation photos:**
-```powershell
-param(
-    [string]$SourcePath = "$env:USERPROFILE\Pictures",
-    [switch]$UseExifDate
-)
+```bash
+#!/usr/bin/env bash
+source_path="${1:-$HOME/Pictures}"
 
-# Créer structure
-$Years = 2018..2026
-foreach ($Year in $Years) {
-    1..12 | ForEach-Object {
-        $Month = "{0:D2}" -f $_
-        $Path = Join-Path $SourcePath "$Year\$Year-$Month"
-        if (!(Test-Path $Path)) {
-            New-Item -ItemType Directory -Path $Path -Force | Out-Null
-        }
-    }
-}
+# Creer structure annee/mois
+for year in $(seq 2018 2026); do
+  for month in $(seq -w 1 12); do
+    dir="${source_path}/${year}/${year}-${month}"
+    mkdir -p "$dir"
+  done
+done
 
-# Dossiers spéciaux
-@("Albums", "Screenshots", "Wallpapers", "_Import") | ForEach-Object {
-    $Path = Join-Path $SourcePath $_
-    if (!(Test-Path $Path)) {
-        New-Item -ItemType Directory -Path $Path -Force | Out-Null
-    }
-}
+# Dossiers speciaux
+for special in Albums Screenshots Wallpapers _Import; do
+  mkdir -p "${source_path}/${special}"
+done
 
 # Organiser photos par date
-Get-ChildItem -Path $SourcePath -File -Recurse | 
-    Where-Object { $_.Extension -in @('.jpg','.jpeg','.png','.gif','.webp','.heic') } |
-    ForEach-Object {
-        # Utiliser date EXIF si disponible, sinon LastWriteTime
-        $Date = $_.LastWriteTime
-        
-        # Séparer screenshots
-        if ($_.Name -match 'Screenshot|Screen Shot|Capture') {
-            $Dest = Join-Path $SourcePath "Screenshots"
-        } else {
-            $Year = $Date.ToString("yyyy")
-            $YearMonth = $Date.ToString("yyyy-MM")
-            $Dest = Join-Path $SourcePath "$Year\$YearMonth"
-        }
-        
-        # Nouveau nom avec date ISO
-        $DateStr = $Date.ToString("yyyy-MM-dd")
-        $Counter = 1
-        do {
-            $NewName = "{0}_{1:D3}{2}" -f $DateStr, $Counter, $_.Extension
-            $NewPath = Join-Path $Dest $NewName
-            $Counter++
-        } while (Test-Path $NewPath)
-        
-        if ($_.DirectoryName -ne $Dest) {
-            Move-Item -Path $_.FullName -Destination $NewPath
-        }
-    }
+find "$source_path" -type f \( \
+  -iname "*.jpg" -o -iname "*.jpeg" -o \
+  -iname "*.png" -o -iname "*.gif" -o \
+  -iname "*.webp" -o -iname "*.heic" \) | \
+while IFS= read -r file; do
+  name=$(basename "$file")
+
+  # Separer screenshots
+  if echo "$name" | grep -qiE 'screenshot|screen.shot|capture'; then
+    dest="${source_path}/Screenshots"
+  else
+    mod_time=$(stat -c %Y "$file")
+    year=$(date -d "@$mod_time" +%Y)
+    year_month=$(date -d "@$mod_time" +%Y-%m)
+    dest="${source_path}/${year}/${year_month}"
+  fi
+
+  # Nouveau nom avec date ISO et numero sequentiel
+  mod_time=$(stat -c %Y "$file")
+  date_str=$(date -d "@$mod_time" +%Y-%m-%d)
+  ext="${name##*.}"
+  ext_lower=$(echo "$ext" | tr '[:upper:]' '[:lower:]')
+
+  counter=1
+  while true; do
+    new_name=$(printf "%s_%03d.%s" "$date_str" "$counter" "$ext_lower")
+    new_path="${dest}/${new_name}"
+    [ ! -e "$new_path" ] && break
+    counter=$(( counter + 1 ))
+  done
+
+  if [ "$(dirname "$file")" != "$dest" ]; then
+    mv "$file" "$new_path"
+  fi
+done
+
+echo "Organisation photos terminee"
 ```
 
-### Étape 4: Résumé
+### Etape 4: Resume
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
-║           📷 WIZARD ORGANISATION PHOTOS                      ║
-║                Étape 4/4 : Terminé                           ║
+║           WIZARD ORGANISATION PHOTOS                         ║
+║                Etape 4/4 : Termine                           ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║  🎉 ORGANISATION TERMINÉE!                                   ║
+║  ORGANISATION TERMINEE!                                      ║
 ║                                                              ║
-║  📊 RÉSUMÉ:                                                  ║
+║  RESUME:                                                     ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
-║  │ Photos organisées    : 12,345                           │ ║
-║  │ Photos renommées     : 8,234                            │ ║
-║  │ Screenshots séparés  : 89                               │ ║
-║  │ Dossiers créés       : 96 (8 ans × 12 mois)             │ ║
-║  │ Doublons détectés    : 234 (voir rapport)               │ ║
+║  │ Photos organisees    : 12,345                           │ ║
+║  │ Photos renommees     : 8,234                            │ ║
+║  │ Screenshots separes  : 89                               │ ║
+║  │ Dossiers crees       : 96 (8 ans x 12 mois)             │ ║
+║  │ Doublons detectes    : 234 (voir rapport)               │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
 ║                                                              ║
-║  📁 NOUVELLE STRUCTURE:                                      ║
-║  Pictures\                                                   ║
-║  ├── 2024\ (3,456 photos)                                    ║
-║  ├── 2025\ (2,345 photos)                                    ║
-║  ├── 2026\ (456 photos)                                      ║
-║  ├── Albums\ (vide - à créer manuellement)                   ║
-║  ├── Screenshots\ (89 fichiers)                              ║
-║  └── _Import\ (vide)                                         ║
+║  NOUVELLE STRUCTURE:                                         ║
+║  Pictures/                                                   ║
+║  ├── 2024/ (3,456 photos)                                    ║
+║  ├── 2025/ (2,345 photos)                                    ║
+║  ├── 2026/ (456 photos)                                      ║
+║  ├── Albums/ (vide - a creer manuellement)                   ║
+║  ├── Screenshots/ (89 fichiers)                              ║
+║  └── _Import/ (vide)                                         ║
 ║                                                              ║
-║  💡 SUGGESTIONS:                                             ║
-║  • Créer des albums dans Albums\ pour événements             ║
-║  • Revoir doublons: /file-duplicates "$env:USERPROFILE\Pictures"
-║  • Sauvegarder: /file-backup "$env:USERPROFILE\Pictures"     ║
+║  SUGGESTIONS:                                                ║
+║  * Creer des albums dans Albums/ pour evenements             ║
+║  * Revoir doublons: /file-duplicates ~/Pictures              ║
+║  * Sauvegarder: /file-backup ~/Pictures                      ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 ```

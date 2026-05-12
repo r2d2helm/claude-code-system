@@ -1,6 +1,6 @@
 # Commande: /file-backup
 
-Sauvegarder un dossier avec structure (ZIP, copie, incremental).
+Sauvegarder un dossier avec structure (tar/gz, copie, incremental).
 
 ## Syntaxe
 
@@ -10,54 +10,69 @@ Sauvegarder un dossier avec structure (ZIP, copie, incremental).
 
 ## Actions
 
-### Backup ZIP
+### Backup tar.gz
 
-```powershell
-$Source = $args[0]
-$Timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-$Name = Split-Path $Source -Leaf
-$ZipPath = "$env:USERPROFILE\Documents\Backups\${Name}_$Timestamp.zip"
+```bash
+#!/usr/bin/env bash
+source="${1}"
+timestamp=$(date +%Y%m%d-%H%M%S)
+name=$(basename "$source")
+backup_dir=~/Documents/Backups
+zip_path="${backup_dir}/${name}_${timestamp}.tar.gz"
 
-$BackupDir = Split-Path $ZipPath
-if (-not (Test-Path $BackupDir)) { New-Item -ItemType Directory -Path $BackupDir -Force }
+mkdir -p "$backup_dir"
 
-Compress-Archive -Path "$Source\*" -DestinationPath $ZipPath -CompressionLevel Optimal
-Write-Output "Backup: $ZipPath ($([math]::Round((Get-Item $ZipPath).Length / 1MB, 1)) MB)"
+tar czf "$zip_path" -C "$(dirname "$source")" "$(basename "$source")"
+size=$(du -sh "$zip_path" | cut -f1)
+echo "Backup: $zip_path ($size)"
 ```
 
-### Backup copie (robocopy)
+### Backup copie (rsync)
 
-```powershell
-$Destination = $args[1]
-robocopy $Source $Destination /MIR /XD ".git" "__pycache__" "node_modules" /XF "*.tmp" /NFL /NDL /NJH /NJS /NC /NS /NP
-Write-Output "Copie miroir: $Source -> $Destination"
+```bash
+#!/usr/bin/env bash
+source="${1}"
+destination="${2}"
+
+rsync -av --delete \
+  --exclude='.git' \
+  --exclude='__pycache__' \
+  --exclude='node_modules' \
+  --exclude='*.tmp' \
+  "$source/" "$destination/"
+
+echo "Copie miroir: $source -> $destination"
 ```
 
 ### Rotation des backups
 
-```powershell
-$BackupDir = "$env:USERPROFILE\Documents\Backups"
-$KeepCount = 5
-Get-ChildItem $BackupDir -Filter "${Name}_*.zip" |
-    Sort-Object LastWriteTime -Descending |
-    Select-Object -Skip $KeepCount |
-    Remove-Item -Force
+```bash
+#!/usr/bin/env bash
+backup_dir=~/Documents/Backups
+name="${1}"
+keep_count="${2:-5}"
+
+ls -t "${backup_dir}/${name}_"*.tar.gz 2>/dev/null | \
+  tail -n +$(( keep_count + 1 )) | \
+  xargs -r rm -f
+
+echo "Rotation: garde $keep_count backups"
 ```
 
 ## Options
 
 | Option | Description |
 |--------|-------------|
-| `--zip` | Archive ZIP (defaut) |
-| `--copy` | Copie miroir (robocopy) |
+| `--tar` | Archive tar.gz (defaut) |
+| `--copy` | Copie miroir (rsync) |
 | `--keep N` | Garder N backups (defaut: 5) |
 
 ## Exemples
 
-```powershell
-/file-backup C:\Users\r2d2\Documents                   # Backup ZIP
-/file-backup C:\Projets D:\Backup\Projets --copy        # Copie miroir
-/file-backup C:\Data --keep 10                          # Garder 10 versions
+```bash
+/file-backup ~/Documents                       # Backup tar.gz
+/file-backup ~/Projets /mnt/backup --copy      # Copie miroir
+/file-backup ~/Data --keep 10                  # Garder 10 versions
 ```
 
 ## Voir Aussi

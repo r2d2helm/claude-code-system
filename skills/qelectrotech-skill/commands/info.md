@@ -57,7 +57,7 @@ Cross-refs: N master/slave | Coherence: OK/NOK
 ## Exemple
 
 ```
-/qet-info "C:\Users\r2d2\Desktop\NELU_ELEC_COMPLET.qet"
+/qet-info "~/Desktop/NELU_ELEC_COMPLET.qet"
 /qet-info projet.qet --detailed
 ```
 

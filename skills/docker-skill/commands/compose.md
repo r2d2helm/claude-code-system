@@ -49,9 +49,27 @@ docker compose exec [service] [command]
 
 ## Exemples
 
+Demarrer tous les services en arriere-plan :
 ```bash
-/dk-compose up            # Demarrer le projet
-/dk-compose down          # Arreter tout
-/dk-compose logs api      # Logs du service api
-/dk-compose -f prod.yml up  # Fichier compose custom
+docker compose up -d
+```
+
+Arreter et supprimer les containers, reseaux et volumes orphelins :
+```bash
+docker compose down --remove-orphans
+```
+
+Suivre les logs d'un service en temps reel :
+```bash
+docker compose logs -f api
+```
+
+Rebuild et redemarrer un service apres modification du Dockerfile :
+```bash
+docker compose up -d --build api
+```
+
+Scaler un service a 3 instances :
+```bash
+docker compose up -d --scale worker=3
 ```

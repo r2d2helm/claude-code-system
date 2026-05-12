@@ -10,6 +10,7 @@ shell-snapshots/
 stats-cache.json
 tasks/
 todos/
+telemetry/
 
 # Claude Code session data
 projects/
@@ -24,6 +25,20 @@ settings.local.json
 credentials.json
 vm100-credentials.md
 *.key
+
+# SECRETS — never push to GitHub
+# n1-private/ = coffre-fort n-1 (reste UNIQUEMENT sur ce PC)
+n1-private/
+# credentials-skill/data/ = registre credentials avec mots de passe en clair
+skills/credentials-skill/data/
+# credentials-skill/references/ = exemples de commandes avec credentials
+skills/credentials-skill/references/
+# intelligence-warehouse data/ = warehouse.db (n-1 only) + DSN postgres en clair
+skills/intelligence-warehouse-skill/data/
+.last-cleanup
+mcp-needs-auth-cache.json
+sessions/
+image-cache/
 
 # Temporary files
 *.tmp

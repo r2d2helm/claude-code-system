@@ -20,14 +20,14 @@ Configuration initiale du système de capture de connaissances.
 ║                                                              ║
 ║  Où voulez-vous stocker votre base de connaissances ?        ║
 ║                                                              ║
-║  [1] 📁 Documents\Knowledge (recommandé)                     ║
-║      C:\Users\r2d2\Documents\Knowledge                       ║
+║  [1] 📁 Documents/Knowledge (recommandé)                     ║
+║      ~/Documents/Knowledge                                   ║
 ║                                                              ║
-║  [2] 📁 OneDrive\Knowledge (sync cloud)                      ║
-║      C:\Users\r2d2\OneDrive\Knowledge                        ║
+║  [2] 📁 Nextcloud/Knowledge (sync cloud)                     ║
+║      ~/Nextcloud/Knowledge                                   ║
 ║                                                              ║
-║  [3] 📁 Dropbox\Knowledge                                    ║
-║      C:\Users\r2d2\Dropbox\Knowledge                         ║
+║  [3] 📁 Dropbox/Knowledge                                    ║
+║      ~/Dropbox/Knowledge                                     ║
 ║                                                              ║
 ║  [4] 📁 Obsidian Vault existant                              ║
 ║      Sélectionner un vault Obsidian existant                 ║
@@ -48,16 +48,16 @@ Configuration initiale du système de capture de connaissances.
 ║                                                              ║
 ║  Structure de dossiers à créer :                             ║
 ║                                                              ║
-║  Knowledge\                                                  ║
-║  ├── 📁 _Index\           Index et navigation                ║
-║  ├── 📁 _Daily\           Notes quotidiennes                 ║
-║  ├── 📁 _Inbox\           Notes à traiter                    ║
-║  ├── 📁 _Templates\       Modèles de notes                   ║
-║  ├── 📁 Conversations\    Résumés conversations Claude       ║
-║  ├── 📁 Concepts\         Notes atomiques (Zettelkasten)     ║
-║  ├── 📁 Projets\          Notes par projet                   ║
-║  ├── 📁 Code\             Snippets et scripts                ║
-║  └── 📁 Références\       Sources et documentation           ║
+║  Knowledge/                                                  ║
+║  ├── 📁 _Index/           Index et navigation                ║
+║  ├── 📁 _Daily/           Notes quotidiennes                 ║
+║  ├── 📁 _Inbox/           Notes à traiter                    ║
+║  ├── 📁 _Templates/       Modèles de notes                   ║
+║  ├── 📁 Conversations/    Résumés conversations Claude       ║
+║  ├── 📁 Concepts/         Notes atomiques (Zettelkasten)     ║
+║  ├── 📁 Projets/          Notes par projet                   ║
+║  ├── 📁 Code/             Snippets et scripts                ║
+║  └── 📁 Références/       Sources et documentation           ║
 ║                                                              ║
 ║  [x] Créer toutes les structures                             ║
 ║  [x] Générer templates de base                               ║
@@ -70,40 +70,41 @@ Configuration initiale du système de capture de connaissances.
 ```
 
 **Script création structure:**
-```powershell
-param([string]$BasePath)
+```bash
+#!/usr/bin/env bash
+BASE_PATH="$1"
 
-$Structure = @{
-    "_Index" = @("INDEX.md", "Tags.md")
-    "_Daily" = @()
-    "_Inbox" = @()
-    "_Templates" = @("Template-Conversation.md", "Template-Concept.md", "Template-Code.md")
-    "Conversations" = @()
-    "Concepts" = @()
-    "Projets" = @()
-    "Code" = @("PowerShell", "Python", "Bash", "Configs")
-    "Références" = @("Documentation", "Articles", "Troubleshooting")
-}
+declare -A structure=(
+    ["_Index"]="INDEX.md Tags.md"
+    ["_Daily"]=""
+    ["_Inbox"]=""
+    ["_Templates"]="Template-Conversation.md Template-Concept.md Template-Code.md"
+    ["Conversations"]=""
+    ["Concepts"]=""
+    ["Projets"]=""
+    ["Code/Bash"]=""
+    ["Code/Python"]=""
+    ["Code/Configs"]=""
+    ["Références/Documentation"]=""
+    ["Références/Articles"]=""
+    ["Références/Troubleshooting"]=""
+)
 
-foreach ($Folder in $Structure.Keys) {
-    $FolderPath = Join-Path $BasePath $Folder
-    New-Item -ItemType Directory -Path $FolderPath -Force | Out-Null
-    
-    foreach ($SubItem in $Structure[$Folder]) {
-        $SubPath = Join-Path $FolderPath $SubItem
-        if ($SubItem -match '\.md$') {
-            # C'est un fichier
-            if (!(Test-Path $SubPath)) {
-                "" | Out-File $SubPath -Encoding UTF8
-            }
-        } else {
-            # C'est un sous-dossier
-            New-Item -ItemType Directory -Path $SubPath -Force | Out-Null
-        }
-    }
-}
+for folder in "${!structure[@]}"; do
+    folder_path="$BASE_PATH/$folder"
+    mkdir -p "$folder_path"
 
-Write-Host "✅ Structure créée: $BasePath"
+    for sub_item in ${structure[$folder]}; do
+        sub_path="$folder_path/$sub_item"
+        if [[ "$sub_item" == *.md ]]; then
+            [ ! -f "$sub_path" ] && touch "$sub_path"
+        else
+            mkdir -p "$sub_path"
+        fi
+    done
+done
+
+echo "✅ Structure créée: $BASE_PATH"
 ```
 
 ### Étape 3: Tags Système
@@ -125,8 +126,8 @@ Write-Host "✅ Structure créée: $BasePath"
 ║  [ ] Ajouter domaine personnalisé...                         ║
 ║                                                              ║
 ║  📂 SOUS-DOMAINES (exemples)                                 ║
-║  #dev/python  #dev/powershell  #dev/javascript               ║
-║  #infra/proxmox  #infra/windows  #infra/docker               ║
+║  #dev/python  #dev/bash  #dev/javascript                     ║
+║  #infra/proxmox  #infra/linux  #infra/docker                 ║
 ║  #projet/multipass  #projet/client-x                         ║
 ║                                                              ║
 ║  🏷️ TAGS STATUS                                              ║
@@ -152,67 +153,71 @@ Write-Host "✅ Structure créée: $BasePath"
 ║  [x] Configurer comme vault Obsidian                         ║
 ║      → Crée .obsidian/ avec plugins recommandés              ║
 ║                                                              ║
-║  ⚡ RACCOURCIS POWERSHELL                                    ║
-║  [x] Ajouter alias dans $PROFILE                             ║
+║  ⚡ ALIAS BASH                                               ║
+║  [x] Ajouter alias dans ~/.bashrc                            ║
 ║      know-save, know-search, know-list                       ║
 ║                                                              ║
 ║  📅 AUTOMATISATION                                           ║
-║  [x] Créer tâche planifiée Daily Review                      ║
+║  [x] Créer cron job Daily Review                             ║
 ║      Rappel quotidien 18:00 pour revue notes                 ║
 ║                                                              ║
 ║  ☁️ SYNCHRONISATION                                          ║
-║  [ ] Configurer sync OneDrive                                ║
+║  [ ] Configurer sync Nextcloud                               ║
 ║  [ ] Configurer sync Git                                     ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
 
 **Script configuration Obsidian:**
-```powershell
-param([string]$VaultPath)
+```bash
+#!/usr/bin/env bash
+VAULT_PATH="$1"
 
-$ObsidianPath = Join-Path $VaultPath ".obsidian"
-New-Item -ItemType Directory -Path $ObsidianPath -Force | Out-Null
+OBSIDIAN_PATH="$VAULT_PATH/.obsidian"
+mkdir -p "$OBSIDIAN_PATH"
 
 # Configuration principale
-$AppJson = @{
-    "alwaysUpdateLinks" = $true
-    "newFileLocation" = "folder"
-    "newFileFolderPath" = "_Inbox"
-    "attachmentFolderPath" = "_Attachments"
-    "useMarkdownLinks" = $false
-    "showLineNumber" = $true
-    "foldHeading" = $true
-    "foldIndent" = $true
-} | ConvertTo-Json -Depth 10
-$AppJson | Out-File (Join-Path $ObsidianPath "app.json") -Encoding UTF8
+cat > "$OBSIDIAN_PATH/app.json" << 'EOF'
+{
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "_Inbox",
+  "attachmentFolderPath": "_Attachments",
+  "useMarkdownLinks": false,
+  "showLineNumber": true,
+  "foldHeading": true,
+  "foldIndent": true
+}
+EOF
 
 # Plugins activés
-$CorePlugins = @{
-    "file-explorer" = $true
-    "global-search" = $true
-    "graph" = $true
-    "backlink" = $true
-    "outgoing-link" = $true
-    "tag-pane" = $true
-    "page-preview" = $true
-    "daily-notes" = $true
-    "templates" = $true
-    "command-palette" = $true
-    "starred" = $true
-    "outline" = $true
-} | ConvertTo-Json
-$CorePlugins | Out-File (Join-Path $ObsidianPath "core-plugins.json") -Encoding UTF8
+cat > "$OBSIDIAN_PATH/core-plugins.json" << 'EOF'
+{
+  "file-explorer": true,
+  "global-search": true,
+  "graph": true,
+  "backlink": true,
+  "outgoing-link": true,
+  "tag-pane": true,
+  "page-preview": true,
+  "daily-notes": true,
+  "templates": true,
+  "command-palette": true,
+  "starred": true,
+  "outline": true
+}
+EOF
 
 # Configuration Daily Notes
-$DailyNotes = @{
-    "folder" = "_Daily"
-    "format" = "YYYY-MM-DD"
-    "template" = "_Templates/Template-Daily.md"
-} | ConvertTo-Json
-$DailyNotes | Out-File (Join-Path $ObsidianPath "daily-notes.json") -Encoding UTF8
+cat > "$OBSIDIAN_PATH/daily-notes.json" << 'EOF'
+{
+  "folder": "_Daily",
+  "format": "YYYY-MM-DD",
+  "template": "_Templates/Template-Daily.md"
+}
+EOF
 
-Write-Host "✅ Configuration Obsidian créée"
+echo "✅ Configuration Obsidian créée"
 ```
 
 ### Étape 5: Finalisation
@@ -226,7 +231,7 @@ Write-Host "✅ Configuration Obsidian créée"
 ║  🎉 CONFIGURATION TERMINÉE !                                 ║
 ║                                                              ║
 ║  📁 BASE DE CONNAISSANCES:                                   ║
-║  C:\Users\r2d2\Documents\Knowledge                           ║
+║  ~/Documents/Knowledge                                       ║
 ║                                                              ║
 ║  ✅ CRÉÉ:                                                    ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
@@ -234,7 +239,7 @@ Write-Host "✅ Configuration Obsidian créée"
 ║  │ • 5 templates de notes                                  │ ║
 ║  │ • INDEX.md principal                                    │ ║
 ║  │ • Configuration Obsidian                                │ ║
-║  │ • Alias PowerShell (know-*)                             │ ║
+║  │ • Alias bash (know-*)                                   │ ║
 ║  │ • README documentation                                  │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
 ║                                                              ║
@@ -255,15 +260,18 @@ Write-Host "✅ Configuration Obsidian créée"
 ```
 
 **Script finalisation:**
-```powershell
-param([string]$BasePath)
+```bash
+#!/usr/bin/env bash
+BASE_PATH="$1"
+TODAY=$(date +%Y-%m-%d)
+NOW=$(date +"%Y-%m-%d %H:%M")
 
 # Créer INDEX.md
-$IndexContent = @"
+cat > "$BASE_PATH/_Index/INDEX.md" << EOF
 ---
 title: Index Principal
 type: index
-date: $(Get-Date -Format "yyyy-MM-dd")
+date: $TODAY
 ---
 
 # 🧠 Base de Connaissances
@@ -281,51 +289,47 @@ date: $(Get-Date -Format "yyyy-MM-dd")
 - [[_Index/Tags|Index des Tags]]
 
 ### 📅 Par Date
-- [[_Daily/$(Get-Date -Format "yyyy-MM-dd")|Aujourd'hui]]
+- [[_Daily/$TODAY|Aujourd'hui]]
 - Voir dossier [[_Daily|Daily Notes]]
 
 ## Statistiques
 - Notes totales: {à mettre à jour}
-- Dernière mise à jour: $(Get-Date -Format "yyyy-MM-dd HH:mm")
+- Dernière mise à jour: $NOW
 
 ## À Traiter
 ![[_Inbox]]
 
 ---
-*Base créée le $(Get-Date -Format "yyyy-MM-dd")*
-"@
-
-$IndexContent | Out-File (Join-Path $BasePath "_Index\INDEX.md") -Encoding UTF8
+*Base créée le $TODAY*
+EOF
 
 # Créer README
-$ReadmeContent = @"
+cat > "$BASE_PATH/README.md" << EOF
 # 🧠 Base de Connaissances
 
 ## Structure
-- `_Index/` - Index et navigation
-- `_Daily/` - Notes quotidiennes
-- `_Inbox/` - Notes à traiter
-- `_Templates/` - Modèles
-- `Conversations/` - Résumés conversations Claude
-- `Concepts/` - Notes atomiques (Zettelkasten)
-- `Projets/` - Notes par projet
-- `Code/` - Snippets et scripts
-- `Références/` - Documentation
+- \`_Index/\` - Index et navigation
+- \`_Daily/\` - Notes quotidiennes
+- \`_Inbox/\` - Notes à traiter
+- \`_Templates/\` - Modèles
+- \`Conversations/\` - Résumés conversations Claude
+- \`Concepts/\` - Notes atomiques (Zettelkasten)
+- \`Projets/\` - Notes par projet
+- \`Code/\` - Snippets et scripts
+- \`Références/\` - Documentation
 
 ## Commandes
-- `/know-save` - Sauvegarder conversation
-- `/know-search "terme"` - Rechercher
-- `/know-export obsidian` - Exporter
+- \`/know-save\` - Sauvegarder conversation
+- \`/know-search "terme"\` - Rechercher
+- \`/know-export obsidian\` - Exporter
 
 ## Conventions
-- Noms: `YYYY-MM-DD_Type_Sujet.md`
-- Tags: `#domaine/sous-domaine`
-- Liens: `[[NomNote]]`
+- Noms: \`YYYY-MM-DD_Type_Sujet.md\`
+- Tags: \`#domaine/sous-domaine\`
+- Liens: \`[[NomNote]]\`
 
-Créé le $(Get-Date -Format "yyyy-MM-dd")
-"@
+Créé le $TODAY
+EOF
 
-$ReadmeContent | Out-File (Join-Path $BasePath "README.md") -Encoding UTF8
-
-Write-Host "✅ Base de connaissances initialisée: $BasePath"
+echo "✅ Base de connaissances initialisée: $BASE_PATH"
 ```

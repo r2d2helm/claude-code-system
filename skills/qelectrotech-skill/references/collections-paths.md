@@ -7,7 +7,7 @@
 | Prefixe | Description | Emplacement |
 |---------|-------------|-------------|
 | `common://` | Collection systeme (lecture seule) | `<install>/elements/` |
-| `custom://` | Collection utilisateur | `C:\Users\<user>\Application Data\qet\elements\` |
+| `custom://` | Collection utilisateur | `~/.qelectrotech/elements/` ou `/usr/share/qelectrotech/elements/` |
 | `embed://` | Collection embarquee dans le projet | `<project>/collection/` |
 
 ## Flags CLI

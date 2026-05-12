@@ -1,0 +1,75 @@
+# Inter-skill communication - Evolution B0 #2
+# "La valeur est dans les CONNEXIONS, pas dans les elements" (E3)
+#
+# Chaque skill peut dependre d'autres skills ou fournir des services
+# Le meta-router utilise ces relations pour suggerer des actions complementaires
+
+relations:
+  monitoring-skill:
+    depends_on: [docker-skill, linux-skill, network-skill]
+    provides_to: [backup-skill, security-skill]
+    triggers:
+      alert_high: backup-skill  # alerte critique -> verifier backups
+      container_down: docker-skill  # container down -> diagnostiquer
+
+  backup-skill:
+    depends_on: [linux-skill, docker-skill, proxmox-skill]
+    provides_to: [security-skill]
+    triggers:
+      backup_failed: monitoring-skill  # echec backup -> alerte monitoring
+
+  security-skill:
+    depends_on: [linux-skill, network-skill]
+    provides_to: [monitoring-skill]
+    triggers:
+      vulnerability_found: linux-skill  # vuln trouvee -> patch linux
+
+  network-skill:
+    depends_on: [linux-skill]
+    provides_to: [docker-skill, monitoring-skill, security-skill]
+    triggers:
+      connectivity_lost: monitoring-skill  # perte connectivite -> alerte
+
+  docker-skill:
+    depends_on: [linux-skill, network-skill]
+    provides_to: [monitoring-skill, devops-skill]
+
+  linux-skill:
+    depends_on: []
+    provides_to: [docker-skill, network-skill, security-skill, backup-skill]
+
+  proxmox-skill:
+    depends_on: [linux-skill, network-skill]
+    provides_to: [backup-skill, monitoring-skill]
+
+  devops-skill:
+    depends_on: [docker-skill, linux-skill]
+    provides_to: [monitoring-skill]
+
+  ai-infra-skill:
+    depends_on: [docker-skill, supabase-skill]
+    provides_to: [monitoring-skill]
+
+  supabase-skill:
+    depends_on: [docker-skill, linux-skill]
+    provides_to: [ai-infra-skill]
+
+  knowledge-skill:
+    depends_on: [obsidian-skill]
+    provides_to: [knowledge-watcher-skill, vault-guardian-skill]
+
+  obsidian-skill:
+    depends_on: []
+    provides_to: [knowledge-skill, vault-guardian-skill]
+
+  vault-guardian-skill:
+    depends_on: [obsidian-skill]
+    provides_to: [knowledge-skill]
+
+  knowledge-watcher-skill:
+    depends_on: [knowledge-skill]
+    provides_to: [obsidian-skill]
+
+  credentials-skill:
+    depends_on: [security-skill]
+    provides_to: [linux-skill, docker-skill, proxmox-skill]

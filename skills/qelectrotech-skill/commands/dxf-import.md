@@ -65,21 +65,20 @@ python qet_gen_element.py --from-dxf input.dxf --output element.elmt
 - Les splines sont approximees par des polylignes
 - Les dimensions DXF ne sont pas importees
 
-## Actions PowerShell
+## Actions Bash
 
 ### Conversion basique
 
-```powershell
-$dxfPath = "C:\Users\r2d2\Desktop\symbol.dxf"
-$elmtPath = "C:\Users\r2d2\Desktop\symbol.elmt"
+```bash
+dxf_path="$HOME/Desktop/symbol.dxf"
+elmt_path="$HOME/Desktop/symbol.elmt"
 
 # Si dxf2elmt est installe
-& dxf2elmt $dxfPath -o $elmtPath --name "Mon Symbole" --author "r2d2"
+dxf2elmt "$dxf_path" -o "$elmt_path" --name "Mon Symbole" --author "r2d2"
 
 # Verifier le resultat
-[xml]$elmt = [System.IO.File]::ReadAllText($elmtPath)
-Write-Host "Element: $($elmt.definition.names.name | Where-Object lang -eq 'fr' | ForEach-Object '#text')"
-Write-Host "Primitives: $($elmt.definition.description.ChildNodes.Count)"
+echo "Element: $(xmllint --xpath 'string(//name[@lang="fr"])' "$elmt_path")"
+echo "Primitives: $(xmllint --xpath 'count(//description/*)' "$elmt_path")"
 ```
 
 ## Exemple

@@ -12,34 +12,34 @@ Renommer un tag dans tout le vault (frontmatter et inline).
 
 ### Renommer un tag
 
-```powershell
-$VaultPath = "$env:USERPROFILE\Documents\Knowledge"
-$OldTag = $args[0]
-$NewTag = $args[1]
+```bash
+#!/usr/bin/env bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+old_tag="$1"
+new_tag="$2"
 
-$Notes = Get-ChildItem -Path $VaultPath -Recurse -Filter "*.md"
-$Modified = 0
+modified=0
 
-foreach ($Note in $Notes) {
-    $Content = Get-Content $Note.FullName -Raw -ErrorAction SilentlyContinue
-    if (-not $Content) { continue }
-    $NewContent = $Content
+while IFS= read -r note; do
+    content=$(< "$note" 2>/dev/null) || continue
+    [ -z "$content" ] && continue
+    new_content="$content"
 
     # Remplacer inline tags (#old -> #new)
-    $NewContent = $NewContent -replace "(?<=\s|^)#$([regex]::Escape($OldTag))(?=\s|$)", "#$NewTag"
+    new_content=$(echo "$new_content" | sed -E "s/(^|[[:space:]])#${old_tag}([[:space:]]|$)/\1#${new_tag}\2/g")
 
-    # Remplacer dans frontmatter tags array
-    $NewContent = $NewContent -replace "(?<=^\s*-\s+)$([regex]::Escape($OldTag))(?=\s*$)", $NewTag
+    # Remplacer dans frontmatter tags array (  - old_tag)
+    new_content=$(echo "$new_content" | sed -E "s/^([[:space:]]*-[[:space:]]+)${old_tag}[[:space:]]*$/\1${new_tag}/")
 
-    if ($NewContent -ne $Content) {
-        [System.IO.File]::WriteAllText($Note.FullName, $NewContent,
-            [System.Text.UTF8Encoding]::new($false))
-        $Modified++
-        Write-Output "Modifie: $($Note.Name)"
-    }
-}
+    if [ "$new_content" != "$content" ]; then
+        printf '%s' "$new_content" > "$note"
+        echo "Modifie: $(basename "$note")"
+        modified=$((modified + 1))
+    fi
+done < <(find "$VAULT" -name "*.md" -type f)
 
-Write-Output "`n$Modified notes modifiees: #$OldTag -> #$NewTag"
+echo ""
+echo "$modified notes modifiees: #$old_tag -> #$new_tag"
 ```
 
 ## Options
@@ -52,9 +52,9 @@ Write-Output "`n$Modified notes modifiees: #$OldTag -> #$NewTag"
 
 ## Exemples
 
-```powershell
-/obs-tags rename dev/powershell dev/ps       # Raccourcir un tag
-/obs-tags rename Proxmox infra/proxmox       # Hierarchiser un tag
+```bash
+/obs-tags rename dev/bash dev/shell         # Renommer un tag
+/obs-tags rename Proxmox infra/proxmox      # Hierarchiser un tag
 /obs-tags rename dev/python dev/py --dry-run # Preview
 ```
 

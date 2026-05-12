@@ -12,38 +12,45 @@ Detecter les notes avec contenu similaire ou identique.
 
 ### Detecter les doublons exacts (hash)
 
-```powershell
-$VaultPath = "$env:USERPROFILE\Documents\Knowledge"
-$Notes = Get-ChildItem -Path $VaultPath -Recurse -Filter "*.md" |
-    Where-Object { $_.FullName -notmatch '_Templates|\.obsidian' }
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
 
-$Hashes = @{}
-foreach ($Note in $Notes) {
-    $Hash = (Get-FileHash $Note.FullName -Algorithm MD5).Hash
-    if ($Hashes.ContainsKey($Hash)) {
-        Write-Output "DOUBLON EXACT:"
-        Write-Output "  - $($Hashes[$Hash])"
-        Write-Output "  - $($Note.FullName)"
-    } else {
-        $Hashes[$Hash] = $Note.FullName
-    }
-}
+declare -A hashes
+while IFS= read -r note; do
+    # Exclure templates et .obsidian
+    if echo "$note" | grep -qE '_Templates|\.obsidian'; then continue; fi
+    hash=$(md5sum "$note" | awk '{print $1}')
+    if [ -n "${hashes[$hash]}" ]; then
+        echo "DOUBLON EXACT:"
+        echo "  - ${hashes[$hash]}"
+        echo "  - $note"
+    else
+        hashes[$hash]="$note"
+    fi
+done < <(find "$VAULT" -name "*.md" -type f)
 ```
 
 ### Detecter les titres similaires
 
-```powershell
-$NoteNames = $Notes | ForEach-Object { $_.BaseName }
-$Similar = @()
-for ($i = 0; $i -lt $NoteNames.Count; $i++) {
-    for ($j = $i + 1; $j -lt $NoteNames.Count; $j++) {
-        $Name1 = $NoteNames[$i].ToLower() -replace '[_-]', ' '
-        $Name2 = $NoteNames[$j].ToLower() -replace '[_-]', ' '
-        if ($Name1 -eq $Name2 -or $Name1 -like "*$Name2*" -or $Name2 -like "*$Name1*") {
-            Write-Output "TITRE SIMILAIRE: $($NoteNames[$i]) <-> $($NoteNames[$j])"
-        }
-    }
-}
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+
+# Extraire les noms de base, normaliser et comparer
+find "$VAULT" -name "*.md" -type f | xargs -I{} basename {} .md | sort > /tmp/note_names.txt
+
+# Trouver les noms identiques apres normalisation (minuscules, sans tirets/underscores)
+while IFS= read -r name1; do
+    norm1=$(echo "$name1" | tr '[:upper:]' '[:lower:]' | tr '_-' ' ')
+    while IFS= read -r name2; do
+        [ "$name1" = "$name2" ] && continue
+        norm2=$(echo "$name2" | tr '[:upper:]' '[:lower:]' | tr '_-' ' ')
+        if [ "$norm1" = "$norm2" ] || \
+           echo "$norm1" | grep -qF "$norm2" || \
+           echo "$norm2" | grep -qF "$norm1"; then
+            echo "TITRE SIMILAIRE: $name1 <-> $name2"
+        fi
+    done < /tmp/note_names.txt
+done < /tmp/note_names.txt | sort -u
 ```
 
 ## Options
@@ -57,7 +64,7 @@ for ($i = 0; $i -lt $NoteNames.Count; $i++) {
 
 ## Exemples
 
-```powershell
+```bash
 /obs-duplicates                # Detection complete
 /obs-duplicates --exact        # Hash uniquement
 /obs-duplicates --title        # Titres similaires

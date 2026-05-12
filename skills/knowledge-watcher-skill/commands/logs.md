@@ -16,17 +16,17 @@ Affiche les logs de capture et de traitement du Knowledge Watcher.
 
 **Afficher les 50 dernières lignes:**
 
-```powershell
-$SkillPath = "$env:USERPROFILE\.claude\skills\knowledge-watcher-skill"
-$logDir = "$SkillPath\data\logs"
-$today = Get-Date -Format "yyyy-MM-dd"
-$logFile = "$logDir\kwatch_$today.log"
+```bash
+SKILL_PATH="$HOME/.claude/skills/knowledge-watcher-skill"
+LOG_DIR="$SKILL_PATH/data/logs"
+TODAY=$(date +%Y-%m-%d)
+LOG_FILE="$LOG_DIR/kwatch_$TODAY.log"
 
-if (Test-Path $logFile) {
-    Get-Content $logFile -Tail 50
-} else {
-    Write-Host "No logs for today"
-}
+if [ -f "$LOG_FILE" ]; then
+    tail -n 50 "$LOG_FILE"
+else
+    echo "No logs for today"
+fi
 ```
 
 ## Options
@@ -41,8 +41,8 @@ if (Test-Path $logFile) {
 
 ```
 [2026-02-05 10:30:45] [INFO] Started watcher for: Projets Actifs
-[2026-02-05 10:31:12] [INFO] Added to queue: C:\Users\r2d2\Projets\script.ps1
-[2026-02-05 10:31:15] [INFO] Processed: script.ps1 → 2026-02-05_Script.md
+[2026-02-05 10:31:12] [INFO] Added to queue: ~/Projets/script.sh
+[2026-02-05 10:31:15] [INFO] Processed: script.sh → 2026-02-05_Script.md
 [2026-02-05 10:32:00] [WARN] File too large: bigfile.txt
 [2026-02-05 10:33:00] [ERROR] Claude CLI timeout
 ```
@@ -50,27 +50,27 @@ if (Test-Path $logFile) {
 ## Filtrer par niveau
 
 **Erreurs seulement:**
-```powershell
-Get-Content $logFile | Select-String "\[ERROR\]"
+```bash
+grep '\[ERROR\]' "$LOG_FILE"
 ```
 
 **Warnings et erreurs:**
-```powershell
-Get-Content $logFile | Select-String "\[(WARN|ERROR)\]"
+```bash
+grep -E '\[(WARN|ERROR)\]' "$LOG_FILE"
 ```
 
 ## Logs des jours précédents
 
-```powershell
-$date = "2026-02-04"
-$logFile = "$logDir\kwatch_$date.log"
-Get-Content $logFile -Tail 100
+```bash
+DATE="2026-02-04"
+LOG_FILE="$LOG_DIR/kwatch_$DATE.log"
+tail -n 100 "$LOG_FILE"
 ```
 
 ## Lister les fichiers de log
 
-```powershell
-Get-ChildItem "$logDir\*.log" | Sort-Object LastWriteTime -Descending
+```bash
+ls -lt "$LOG_DIR"/*.log
 ```
 
 ## Rotation des logs
@@ -82,9 +82,9 @@ Les anciens logs ne sont pas automatiquement supprimés - nettoyez manuellement 
 
 ```
 [2026-02-05 08:00:01] [INFO] Knowledge Watcher started with 3 watchers (PID: 12345)
-[2026-02-05 08:15:32] [INFO] Added to queue: C:\Users\r2d2\Projets\api\handler.ps1
-[2026-02-05 08:15:33] [INFO] Captured file (Changed): handler.ps1
-[2026-02-05 08:20:00] [INFO] Processed: handler.ps1 → Code/PowerShell/2026-02-05_handler.md
+[2026-02-05 08:15:32] [INFO] Added to queue: ~/Projets/api/handler.sh
+[2026-02-05 08:15:33] [INFO] Captured file (Changed): handler.sh
+[2026-02-05 08:20:00] [INFO] Processed: handler.sh → Code/Bash/2026-02-05_handler.md
 [2026-02-05 08:20:00] [INFO] Updated Daily Note with: [[2026-02-05_handler]]
 [2026-02-05 09:00:00] [INFO] Scanned Downloads: found 3 files, added 2 to queue
 [2026-02-05 09:00:15] [WARN] Duplicate detected, skipping: readme.md

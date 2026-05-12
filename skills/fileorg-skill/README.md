@@ -1,65 +1,65 @@
-# 📁 Super Agent File Organizer Windows
+# Super Agent File Organizer Linux
 
-Agent intelligent de gestion et organisation des fichiers et dossiers Windows avec automatisation PowerShell et best practices 2025-2026.
+Agent intelligent de gestion et organisation des fichiers et dossiers Linux avec automatisation bash et best practices 2025-2026.
 
-## ✨ Fonctionnalités
+## Fonctionnalites
 
-- 🗂️ **Organisation automatique** par type, date ou projet
-- 📝 **Renommage intelligent** avec conventions ISO 8601
-- 🔍 **Analyse et audit** de la qualité d'organisation
-- 🧹 **Nettoyage** fichiers temporaires et doublons
-- 🔄 **Détection doublons** par hash MD5
-- ⚙️ **Automatisation** via tâches planifiées
-- 🧙 **Wizards interactifs** pour configuration guidée
+- Organisation automatique par type, date ou projet
+- Renommage intelligent avec conventions ISO 8601
+- Analyse et audit de la qualite d'organisation
+- Nettoyage fichiers temporaires et doublons
+- Detection doublons par hash MD5
+- Automatisation via cron et systemd
+- Wizards interactifs pour configuration guidee
 
-## 📦 Installation
+## Installation
 
-```powershell
+```bash
 # Extraire dans le dossier skills
-Expand-Archive -Path "fileorg-skill.zip" -DestinationPath "$env:USERPROFILE\.claude\skills\" -Force
+unzip fileorg-skill.zip -d ~/.claude/skills/
 
-# Vérifier
-Get-ChildItem "$env:USERPROFILE\.claude\skills\fileorg-skill"
+# Verifier
+ls ~/.claude/skills/fileorg-skill
 ```
 
-## 📋 Commandes
+## Commandes
 
 ### Organisation
 | Commande | Description |
 |----------|-------------|
 | `/file-organize` | Organiser fichiers par type/date/projet |
-| `/file-structure` | Créer structure de dossiers |
+| `/file-structure` | Creer structure de dossiers |
 | `/file-sort` | Trier dans sous-dossiers |
 
 ### Nommage
 | Commande | Description |
 |----------|-------------|
-| `/file-rename iso-date` | Ajouter préfixe date ISO |
+| `/file-rename iso-date` | Ajouter prefixe date ISO |
 | `/file-rename normalize` | Normaliser noms (espaces, accents) |
-| `/file-rename version` | Gérer versions (v01, v02) |
+| `/file-rename version` | Gerer versions (v01, v02) |
 | `/file-rename bulk` | Renommage en masse |
 
 ### Analyse
 | Commande | Description |
 |----------|-------------|
 | `/file-analyze` | Statistiques et structure |
-| `/file-analyze audit` | Score qualité organisation |
-| `/file-duplicates` | Détecter doublons |
+| `/file-analyze audit` | Score qualite organisation |
+| `/file-duplicates` | Detecter doublons |
 
 ### Nettoyage
 | Commande | Description |
 |----------|-------------|
 | `/file-clean temp` | Nettoyer fichiers temporaires |
-| `/file-clean downloads` | Nettoyer anciens téléchargements |
+| `/file-clean downloads` | Nettoyer anciens telechargements |
 | `/file-clean empty` | Supprimer dossiers vides |
 
 ### Wizards
 | Commande | Description |
 |----------|-------------|
-| `/file-wizard setup` | Configuration initiale complète |
-| `/file-wizard photos` | Organiser bibliothèque photos |
+| `/file-wizard setup` | Configuration initiale complete |
+| `/file-wizard photos` | Organiser bibliotheque photos |
 
-## 📝 Convention de Nommage
+## Convention de Nommage
 
 ### Format Standard
 ```
@@ -73,60 +73,60 @@ Get-ChildItem "$env:USERPROFILE\.claude\skills\fileorg-skill"
 2026-02-03_Photo_Vacances-Bretagne_001.jpg
 ```
 
-### Règles
-| Élément | Bonne pratique | Éviter |
+### Regles
+| Element | Bonne pratique | Eviter |
 |---------|----------------|--------|
 | Date | `2026-02-03` | `03/02/26` |
-| Séparateurs | `_` et `-` | espaces |
-| Caractères | alphanumériques | `é@#$%` |
+| Separateurs | `_` et `-` | espaces |
+| Caracteres | alphanumeriques | `e@#$%` |
 | Versions | `v01`, `v02` | `final`, `v1` |
 
-## 📂 Structure Recommandée
+## Structure Recommandee
 
 ```
-Documents\
-├── _INBOX\              # Fichiers à trier
-├── _ARCHIVE\            # Par année
-│   └── {YYYY}\
-├── Administratif\
-│   ├── Banque\
-│   ├── Impots\
-│   └── Factures\
-├── Projets\
-│   └── {NomProjet}\
-├── Travail\
-└── Personnel\
+Documents/
+├── _INBOX/              # Fichiers a trier
+├── _ARCHIVE/            # Par annee
+│   └── {YYYY}/
+├── Administratif/
+│   ├── Banque/
+│   ├── Impots/
+│   └── Factures/
+├── Projets/
+│   └── {NomProjet}/
+├── Travail/
+└── Personnel/
 ```
 
-## 💡 Exemples d'Usage
+## Exemples d'Usage
 
-```powershell
+```bash
 # Organiser Downloads par type
 /file-organize downloads
 
 # Ajouter dates ISO aux fichiers
-/file-rename iso-date "$env:USERPROFILE\Documents"
+/file-rename iso-date ~/Documents
 
 # Scanner doublons
-/file-duplicates scan "$env:USERPROFILE"
+/file-duplicates scan ~/
 
 # Audit organisation
-/file-analyze audit "$env:USERPROFILE\Documents"
+/file-analyze audit ~/Documents
 
-# Configuration complète
+# Configuration complete
 /file-wizard setup
 ```
 
-## 🎯 Score d'Organisation
+## Score d'Organisation
 
 | Score | Niveau | Action |
 |-------|--------|--------|
-| 90-100 | 🟢 Excellent | Maintenir |
-| 70-89 | 🟡 Bon | Améliorations mineures |
-| 50-69 | 🟠 Moyen | Réorganisation |
-| < 50 | 🔴 Critique | Wizard urgent |
+| 90-100 | Excellent | Maintenir |
+| 70-89 | Bon | Ameliorations mineures |
+| 50-69 | Moyen | Reorganisation |
+| < 50 | Critique | Wizard urgent |
 
-## 📚 Références
+## References
 
 - [ISO 8601 Date Format](https://www.iso.org/iso-8601-date-and-time-format.html)
 - [File Naming Best Practices - Harvard](https://datamanagement.hms.harvard.edu/plan-design/file-naming-conventions)
@@ -134,6 +134,6 @@ Documents\
 
 ---
 
-**Version**: 1.0.0  
-**Compatibilité**: Windows 11/Server 2025, PowerShell 7.4+  
-**Dernière mise à jour**: Février 2026
+**Version**: 1.0.0
+**Compatibilite**: Ubuntu 22.04+, bash 5+
+**Derniere mise a jour**: Fevrier 2026

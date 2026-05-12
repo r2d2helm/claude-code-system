@@ -25,8 +25,8 @@ Ce wizard permet d'ajouter, modifier ou supprimer des sources de données survei
 ║  │ 5. ❌ Formations           ~/Documents/Formations         ║
 ║                                                              ║
 ║  TIER 3 (Daily):                                             ║
-║  │ 6. ❌ Browser Bookmarks    Chrome/Edge                    ║
-║  │ 7. ✅ PowerShell Scripts   ~/Documents/WindowsPowerShell  ║
+║  │ 6. ❌ Browser Bookmarks    Chrome/Firefox                 ║
+║  │ 7. ✅ Scripts Bash         ~/Documents/Scripts            ║
 ║                                                              ║
 ║  TIER 4 (Weekly):                                            ║
 ║  │ 8. ❌ Archives             ~/Documents/Archives           ║
@@ -43,12 +43,11 @@ Ce wizard permet d'ajouter, modifier ou supprimer des sources de données survei
 
 ## Lister les sources
 
-```powershell
-$SkillPath = "$env:USERPROFILE\.claude\skills\knowledge-watcher-skill"
-Import-Module "$SkillPath\scripts\KnowledgeWatcher.psm1" -Force
+```bash
+SKILL_PATH="$HOME/.claude/skills/knowledge-watcher-skill"
+SOURCES_FILE="$SKILL_PATH/config/sources.json"
 
-$sources = Get-KWSources
-$sources | Format-Table id, name, tier, enabled, path -AutoSize
+jq -r '.sources[] | [.id, .name, .tier, .enabled, .path] | @tsv' "$SOURCES_FILE" | column -t
 ```
 
 ## Ajouter une source
@@ -62,7 +61,7 @@ Pour ajouter une nouvelle source, éditer `sources.json`:
   "tier": 2,
   "type": "directory",
   "enabled": true,
-  "path": "C:\\Users\\r2d2\\MyFolder",
+  "path": "~/MyFolder",
   "patterns": ["*.md", "*.txt"],
   "recursive": true,
   "processor": "GenericFileSource"
@@ -85,19 +84,18 @@ Pour ajouter une nouvelle source, éditer `sources.json`:
 
 ## Activer/Désactiver une source
 
-```powershell
-$SkillPath = "$env:USERPROFILE\.claude\skills\knowledge-watcher-skill"
-$sourcesFile = "$SkillPath\config\sources.json"
+```bash
+SKILL_PATH="$HOME/.claude/skills/knowledge-watcher-skill"
+SOURCES_FILE="$SKILL_PATH/config/sources.json"
+SOURCE_ID="downloads"
 
-$config = Get-Content $sourcesFile | ConvertFrom-Json
+# Toggle une source par id avec jq
+jq --arg id "$SOURCE_ID" \
+  '.sources = [.sources[] | if .id == $id then .enabled = (.enabled | not) else . end]' \
+  "$SOURCES_FILE" > "${SOURCES_FILE}.tmp" && mv "${SOURCES_FILE}.tmp" "$SOURCES_FILE"
 
-# Toggle une source par id
-$sourceId = "downloads"
-$source = $config.sources | Where-Object { $_.id -eq $sourceId }
-$source.enabled = -not $source.enabled
-
-$config | ConvertTo-Json -Depth 10 | Set-Content $sourcesFile
-Write-Host "Source '$sourceId' is now: $(if ($source.enabled) { 'ENABLED' } else { 'DISABLED' })"
+enabled=$(jq -r --arg id "$SOURCE_ID" '.sources[] | select(.id == $id) | .enabled' "$SOURCES_FILE")
+echo "Source '$SOURCE_ID' is now: $([ "$enabled" = "true" ] && echo 'ENABLED' || echo 'DISABLED')"
 ```
 
 ## Types de sources supportés
@@ -106,7 +104,7 @@ Write-Host "Source '$sourceId' is now: $(if ($source.enabled) { 'ENABLED' } else
 ```json
 {
   "type": "directory",
-  "path": "C:\\Path\\To\\Folder",
+  "path": "~/Path/To/Folder",
   "patterns": ["*.md", "*.txt"],
   "recursive": true
 }
@@ -116,7 +114,7 @@ Write-Host "Source '$sourceId' is now: $(if ($source.enabled) { 'ENABLED' } else
 ```json
 {
   "type": "claude-history",
-  "path": "C:\\Users\\r2d2\\.claude\\history.jsonl"
+  "path": "~/.claude/history.jsonl"
 }
 ```
 
@@ -124,7 +122,7 @@ Write-Host "Source '$sourceId' is now: $(if ($source.enabled) { 'ENABLED' } else
 ```json
 {
   "type": "browser-bookmarks",
-  "browsers": ["chrome", "edge", "firefox"]
+  "browsers": ["chrome", "firefox"]
 }
 ```
 
@@ -132,10 +130,10 @@ Write-Host "Source '$sourceId' is now: $(if ($source.enabled) { 'ENABLED' } else
 
 | Tier | Mode | Fréquence | Usage recommandé |
 |------|------|-----------|------------------|
-| 1 | Real-time | Instantané | Sources actives (projets, conversations) |
-| 2 | Batch | Toutes les heures | Sources fréquentes (downloads) |
-| 3 | Batch | Quotidien 6h | Sources moins actives (bookmarks) |
-| 4 | Batch | Hebdo dim 3h | Archives, ressources |
+| 1 | Real-time | Instantané (inotifywait) | Sources actives (projets, conversations) |
+| 2 | Batch | Toutes les heures (cron) | Sources fréquentes (downloads) |
+| 3 | Batch | Quotidien 6h (cron) | Sources moins actives (bookmarks) |
+| 4 | Batch | Hebdo dim 3h (cron) | Archives, ressources |
 
 ## Bonnes pratiques
 

@@ -12,29 +12,29 @@ Trouver et supprimer les notes vides ou quasi-vides.
 
 ### Trouver les notes vides
 
-```powershell
-$VaultPath = "$env:USERPROFILE\Documents\Knowledge"
-$Notes = Get-ChildItem -Path $VaultPath -Recurse -Filter "*.md" |
-    Where-Object { $_.FullName -notmatch '_Templates|\.obsidian' }
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+MIN_CHARS=50
 
-$Empty = foreach ($Note in $Notes) {
-    $Content = Get-Content $Note.FullName -Raw -ErrorAction SilentlyContinue
-    if (-not $Content) {
-        [PSCustomObject]@{ Note = $Note.Name; Type = "Vide"; Taille = 0 }
+find "$VAULT" -name "*.md" -type f | grep -vE '_Templates|\.obsidian' | while IFS= read -r note; do
+    name=$(basename "$note")
+    content=$(< "$note")
+
+    if [ -z "$content" ]; then
+        echo "VIDE          0 chars   $name"
         continue
-    }
-    # Retirer le frontmatter pour mesurer le contenu reel
-    $Body = $Content -replace '(?s)^---\s*\n.*?\n---\s*\n?', ''
-    $Body = $Body.Trim()
-    if ($Body.Length -eq 0) {
-        [PSCustomObject]@{ Note = $Note.Name; Type = "Frontmatter seul"; Taille = $Content.Length }
-    } elseif ($Body.Length -lt 50) {
-        [PSCustomObject]@{ Note = $Note.Name; Type = "Quasi-vide"; Taille = $Body.Length }
-    }
-}
+    fi
 
-Write-Output "Notes vides/quasi-vides: $($Empty.Count)"
-$Empty | Format-Table -AutoSize
+    # Retirer le frontmatter pour mesurer le contenu reel
+    body=$(echo "$content" | sed '/^---$/,/^---$/d' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+    body_len=${#body}
+    if [ "$body_len" -eq 0 ]; then
+        echo "FRONTMATTER   ${#content} chars   $name"
+    elif [ "$body_len" -lt "$MIN_CHARS" ]; then
+        echo "QUASI-VIDE    $body_len chars   $name"
+    fi
+done | column -t
 ```
 
 ## Options
@@ -47,7 +47,7 @@ $Empty | Format-Table -AutoSize
 
 ## Exemples
 
-```powershell
+```bash
 /obs-empty                    # Lister les notes vides
 /obs-empty --min-chars 100    # Seuil plus large
 /obs-empty --delete           # Supprimer apres confirmation

@@ -12,40 +12,72 @@ Ajouter un prefixe date ISO 8601 aux fichiers.
 
 ### Ajouter le prefixe date
 
-```powershell
-$Path = $args[0]
-$Files = Get-ChildItem -Path $Path -File | Where-Object { $_.Name -notmatch '^\d{4}-\d{2}-\d{2}' }
+```bash
+#!/usr/bin/env bash
+path="${1}"
+dry_run="${2:-}"
+count=0
 
-foreach ($File in $Files) {
-    $Date = $File.LastWriteTime.ToString('yyyy-MM-dd')
-    $NewName = "${Date}_$($File.Name)"
-    Rename-Item -Path $File.FullName -NewName $NewName
-    Write-Output "  $($File.Name) -> $NewName"
-}
-Write-Output "$($Files.Count) fichiers prefixes"
+while IFS= read -r -d '' file; do
+  name=$(basename "$file")
+  # Ignorer si deja prefixe avec date ISO
+  if echo "$name" | grep -qE '^\d{4}-\d{2}-\d{2}'; then
+    continue
+  fi
+  dir=$(dirname "$file")
+  mod_time=$(stat -c %Y "$file")
+  date_prefix=$(date -d "@$mod_time" +%Y-%m-%d)
+  new_name="${date_prefix}_${name}"
+
+  if [ "${dry_run}" = "--dry-run" ]; then
+    echo "  $name -> $new_name"
+  else
+    mv "$file" "${dir}/${new_name}"
+    echo "  $name -> $new_name"
+  fi
+  count=$(( count + 1 ))
+done < <(find "$path" -maxdepth 1 -type f -print0)
+
+echo "$count fichiers prefixes"
 ```
 
 ### Retirer le prefixe
 
-```powershell
-$Files = Get-ChildItem -Path $Path -File | Where-Object { $_.Name -match '^\d{4}-\d{2}-\d{2}_' }
+```bash
+#!/usr/bin/env bash
+path="${1}"
 
-foreach ($File in $Files) {
-    $NewName = $File.Name -replace '^\d{4}-\d{2}-\d{2}_', ''
-    Rename-Item -Path $File.FullName -NewName $NewName
-}
+while IFS= read -r -d '' file; do
+  name=$(basename "$file")
+  if echo "$name" | grep -qE '^\d{4}-\d{2}-\d{2}_'; then
+    dir=$(dirname "$file")
+    new_name=$(echo "$name" | sed 's/^\d\{4\}-\d\{2\}-\d\{2\}_//')
+    mv "$file" "${dir}/${new_name}"
+    echo "  $name -> $new_name"
+  fi
+done < <(find "$path" -maxdepth 1 -type f -print0)
 ```
 
 ### Mettre a jour le prefixe
 
-```powershell
+```bash
+#!/usr/bin/env bash
+path="${1}"
+
 # Remplacer le prefixe existant par la date de modification actuelle
-$Files = Get-ChildItem -Path $Path -File | Where-Object { $_.Name -match '^\d{4}-\d{2}-\d{2}_' }
-foreach ($File in $Files) {
-    $Date = $File.LastWriteTime.ToString('yyyy-MM-dd')
-    $NewName = $File.Name -replace '^\d{4}-\d{2}-\d{2}', $Date
-    if ($NewName -ne $File.Name) { Rename-Item -Path $File.FullName -NewName $NewName }
-}
+while IFS= read -r -d '' file; do
+  name=$(basename "$file")
+  if echo "$name" | grep -qE '^\d{4}-\d{2}-\d{2}_'; then
+    dir=$(dirname "$file")
+    mod_time=$(stat -c %Y "$file")
+    new_date=$(date -d "@$mod_time" +%Y-%m-%d)
+    new_name=$(echo "$name" | sed "s/^\d\{4\}-\d\{2\}-\d\{2\}/${new_date}/")
+    if [ "$new_name" != "$name" ]; then
+      mv "$file" "${dir}/${new_name}"
+      echo "  $name -> $new_name"
+    fi
+  fi
+done < <(find "$path" -maxdepth 1 -type f -print0)
 ```
 
 ## Options
@@ -59,10 +91,10 @@ foreach ($File in $Files) {
 
 ## Exemples
 
-```powershell
-/file-prefix C:\Users\r2d2\Documents add       # Ajouter prefixes
-/file-prefix C:\Users\r2d2\Documents remove     # Retirer prefixes
-/file-prefix C:\Users\r2d2\Downloads --dry-run  # Preview
+```bash
+/file-prefix ~/Documents add       # Ajouter prefixes
+/file-prefix ~/Documents remove    # Retirer prefixes
+/file-prefix ~/Downloads --dry-run # Preview
 ```
 
 ## Voir Aussi

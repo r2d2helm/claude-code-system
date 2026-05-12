@@ -18,9 +18,9 @@ Cet agent applique les standards internationaux (ISO 8601) et les meilleures pra
 
 | Composant | Version |
 |-----------|---------|
-| Windows | 11 23H2+, Server 2022/2025 |
-| PowerShell | 7.4+ (recommandé), 5.1 (compatible) |
-| Filesystem | NTFS, ReFS |
+| Ubuntu Linux | 24.04+ |
+| Bash | 5+ |
+| Filesystem | ext4, btrfs |
 
 ## Commandes Slash
 
@@ -83,10 +83,10 @@ Cet agent applique les standards internationaux (ISO 8601) et les meilleures pra
 
 ### Exemples
 
-```powershell
+```bash
 /file-organize downloads          # Organiser Téléchargements
 /file-rename photos --iso-date    # Renommer photos avec date ISO
-/file-duplicates C:\Users         # Trouver doublons
+/file-duplicates ~/               # Trouver doublons
 /file-clean temp                  # Nettoyer fichiers temporaires
 /file-wizard setup                # Assistant configuration initiale
 ```
@@ -140,36 +140,36 @@ Remplacer par : `_` (underscore) ou `-` (tiret)
 ### Structure Personnelle
 
 ```
-C:\Users\{User}\
-├── Documents\
-│   ├── _INBOX\                    # Fichiers à traiter
-│   ├── _ARCHIVE\                  # Anciens fichiers par année
-│   │   ├── 2024\
-│   │   └── 2025\
-│   ├── Administratif\
-│   │   ├── Banque\
-│   │   ├── Impots\
-│   │   ├── Assurances\
-│   │   └── Factures\
-│   ├── Projets\
-│   │   ├── {NomProjet1}\
-│   │   │   ├── 01-Brief\
-│   │   │   ├── 02-Recherche\
-│   │   │   ├── 03-Production\
-│   │   │   ├── 04-Livrables\
-│   │   │   └── 05-Archive\
-│   │   └── {NomProjet2}\
-│   ├── Travail\
-│   │   └── {Entreprise}\
-│   └── Personnel\
-├── Pictures\
-│   ├── {YYYY}\                    # Par année
-│   │   └── {YYYY-MM}\             # Par mois
-│   ├── Albums\
-│   └── Screenshots\
-├── Downloads\
+~/
+├── Documents/
+│   ├── _INBOX/                    # Fichiers à traiter
+│   ├── _ARCHIVE/                  # Anciens fichiers par année
+│   │   ├── 2024/
+│   │   └── 2025/
+│   ├── Administratif/
+│   │   ├── Banque/
+│   │   ├── Impots/
+│   │   ├── Assurances/
+│   │   └── Factures/
+│   ├── Projets/
+│   │   ├── {NomProjet1}/
+│   │   │   ├── 01-Brief/
+│   │   │   ├── 02-Recherche/
+│   │   │   ├── 03-Production/
+│   │   │   ├── 04-Livrables/
+│   │   │   └── 05-Archive/
+│   │   └── {NomProjet2}/
+│   ├── Travail/
+│   │   └── {Entreprise}/
+│   └── Personnel/
+├── Pictures/
+│   ├── {YYYY}/                    # Par année
+│   │   └── {YYYY-MM}/             # Par mois
+│   ├── Albums/
+│   └── Screenshots/
+├── Downloads/
 │   └── (Auto-organisé)
-└── Desktop\
+└── Desktop/
     └── (Minimal - liens seulement)
 ```
 
@@ -189,7 +189,7 @@ Projet\
 |---------|--------|--------|
 | Profondeur | 3-4 niveaux max | Navigation facile |
 | Fichiers par dossier | < 100 | Performance |
-| Longueur chemin | < 260 caractères | Compatibilité Windows |
+| Longueur chemin | < 4096 caractères | Limite PATH_MAX Linux |
 | Dossiers racine | 5-10 catégories | Clarté |
 
 ## Catégories de Fichiers
@@ -234,14 +234,24 @@ Projet\
 
 ### Script Auto-Organisation
 
-```powershell
+```bash
 # Exemple: Organiser Downloads automatiquement
-$Rules = @{
-    "Documents" = @(".pdf",".doc",".docx",".txt",".odt")
-    "Images"    = @(".jpg",".jpeg",".png",".gif",".webp")
-    "Videos"    = @(".mp4",".mkv",".avi",".mov")
-    "Archives"  = @(".zip",".rar",".7z")
-    "Installers"= @(".exe",".msi")
+declare -A RULES=(
+    ["Documents"]="pdf doc docx txt odt"
+    ["Images"]="jpg jpeg png gif webp"
+    ["Videos"]="mp4 mkv avi mov"
+    ["Archives"]="zip rar 7z tar gz"
+    ["Installers"]="deb AppImage sh"
+)
+
+organize_downloads() {
+    local src="${1:-$HOME/Downloads}"
+    for category in "${!RULES[@]}"; do
+        mkdir -p "$src/$category"
+        for ext in ${RULES[$category]}; do
+            find "$src" -maxdepth 1 -name "*.$ext" -exec mv {} "$src/$category/" \;
+        done
+    done
 }
 ```
 

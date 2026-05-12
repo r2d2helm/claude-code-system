@@ -14,25 +14,25 @@ Audit guidé et complet de la santé du vault Obsidian.
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
-║             🔍 AUDIT VAULT OBSIDIAN                          ║
+║             AUDIT VAULT OBSIDIAN                             ║
 ║                Étape 1/6 : Scan Initial                      ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║  📍 Vault: C:\Users\r2d2\Documents\Knowledge                 ║
+║  Vault: ~/Documents/Knowledge                                ║
 ║                                                              ║
 ║  Scan en cours...                                            ║
 ║  [████████████████████████████████████████] 100%             ║
 ║                                                              ║
-║  📊 RÉSULTATS DU SCAN:                                       ║
+║  RESULTATS DU SCAN:                                          ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
 ║  │ Notes totales         : 456                             │ ║
 ║  │ Attachments           : 156 (234 MB)                    │ ║
 ║  │ Dossiers              : 23                              │ ║
 ║  │ Taille totale         : 312 MB                          │ ║
-║  │ Dernière modification : 2026-02-04 14:30                │ ║
+║  │ Derniere modification : 2026-02-04 14:30                │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
 ║                                                              ║
-║  [Continuer →]                                               ║
+║  [Continuer ->]                                              ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
@@ -41,11 +41,11 @@ Audit guidé et complet de la santé du vault Obsidian.
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
-║             🔍 AUDIT VAULT OBSIDIAN                          ║
+║             AUDIT VAULT OBSIDIAN                             ║
 ║               Étape 2/6 : Analyse Liens                      ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║  🔗 STATISTIQUES LIENS:                                      ║
+║  STATISTIQUES LIENS:                                         ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
 ║  │ Liens internes totaux  : 1,234                          │ ║
 ║  │ Liens externes (URLs)  : 89                             │ ║
@@ -53,20 +53,18 @@ Audit guidé et complet de la santé du vault Obsidian.
 ║  │ Notes sans liens       : 45                             │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
 ║                                                              ║
-║  ⚠️ PROBLÈMES DÉTECTÉS:                                      ║
+║  PROBLEMES DETECTES:                                         ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
-║  │ ❌ Liens cassés        : 5                              │ ║
-║  │    → Architecture.md: [[API-Design]]                    │ ║
-║  │    → Architecture.md: [[Database-Schema]]               │ ║
-║  │    → Zettelkasten.md: [[Luhmann-Bio]]                   │ ║
-║  │    → Daily-02-01.md: [[Meeting-Notes]]                  │ ║
-║  │    → Daily-02-01.md: [[Todo-List]]                      │ ║
+║  │ Liens casses        : 5                                 │ ║
+║  │    -> Architecture.md: [[API-Design]]                   │ ║
+║  │    -> Architecture.md: [[Database-Schema]]              │ ║
+║  │    -> Zettelkasten.md: [[Luhmann-Bio]]                  │ ║
 ║  │                                                         │ ║
-║  │ ⚠️ Notes orphelines   : 12                              │ ║
+║  │ Notes orphelines   : 12                                 │ ║
 ║  │    (sans liens entrants ni sortants)                    │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
 ║                                                              ║
-║  [1] Réparer liens maintenant  [2] Continuer →               ║
+║  [1] Reparer liens maintenant  [2] Continuer ->              ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
@@ -75,30 +73,30 @@ Audit guidé et complet de la santé du vault Obsidian.
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
-║             🔍 AUDIT VAULT OBSIDIAN                          ║
+║             AUDIT VAULT OBSIDIAN                             ║
 ║                Étape 3/6 : Analyse Tags                      ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║  🏷️ STATISTIQUES TAGS:                                       ║
+║  STATISTIQUES TAGS:                                          ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
 ║  │ Tags uniques          : 89                              │ ║
 ║  │ Notes avec tags       : 412 / 456 (90%)                 │ ║
 ║  │ Moyenne tags/note     : 2.3                             │ ║
-║  │ Tags hiérarchiques    : 45 (51%)                        │ ║
+║  │ Tags hierarchiques    : 45 (51%)                        │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
 ║                                                              ║
-║  ⚠️ PROBLÈMES DÉTECTÉS:                                      ║
+║  PROBLEMES DETECTES:                                         ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
 ║  │ Tags similaires (possibles doublons):                   │ ║
-║  │ • #proxmox (45) ↔ #Proxmox (3) ↔ #pve (8)               │ ║
-║  │ • #python (38) ↔ #Python (5)                             │ ║
-║  │ • #todo (32) ↔ #TODO (2)                                 │ ║
+║  │ - #proxmox (45) <-> #Proxmox (3) <-> #pve (8)           │ ║
+║  │ - #python (38) <-> #Python (5)                           │ ║
+║  │ - #todo (32) <-> #TODO (2)                               │ ║
 ║  │                                                         │ ║
-║  │ Tags utilisés 1 seule fois: 8                           │ ║
+║  │ Tags utilises 1 seule fois: 8                           │ ║
 ║  │ Notes sans aucun tag: 44                                │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
 ║                                                              ║
-║  [1] Normaliser tags maintenant  [2] Continuer →             ║
+║  [1] Normaliser tags maintenant  [2] Continuer ->            ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
@@ -107,11 +105,11 @@ Audit guidé et complet de la santé du vault Obsidian.
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
-║             🔍 AUDIT VAULT OBSIDIAN                          ║
+║             AUDIT VAULT OBSIDIAN                             ║
 ║              Étape 4/6 : Analyse Contenu                     ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║  📝 STATISTIQUES CONTENU:                                    ║
+║  STATISTIQUES CONTENU:                                       ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
 ║  │ Mots totaux           : 125,430                         │ ║
 ║  │ Moyenne mots/note     : 275                             │ ║
@@ -119,21 +117,10 @@ Audit guidé et complet de la santé du vault Obsidian.
 ║  │ Notes avec frontmatter: 389 / 456 (85%)                 │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
 ║                                                              ║
-║  📊 DISTRIBUTION PAR TYPE:                                   ║
-║  ┌─────────────────────────────────────────────────────────┐ ║
-║  │ Conversations  : 123  ████████████░░░░░░░░  27%         │ ║
-║  │ Concepts       : 89   █████████░░░░░░░░░░░  20%         │ ║
-║  │ Code           : 67   ███████░░░░░░░░░░░░░  15%         │ ║
-║  │ Projets        : 45   █████░░░░░░░░░░░░░░░  10%         │ ║
-║  │ Références     : 34   ████░░░░░░░░░░░░░░░░   7%         │ ║
-║  │ Daily          : 56   ██████░░░░░░░░░░░░░░  12%         │ ║
-║  │ Autres         : 42   █████░░░░░░░░░░░░░░░   9%         │ ║
-║  └─────────────────────────────────────────────────────────┘ ║
+║  Notes vides ou tres courtes: 8                              ║
+║  Notes sans frontmatter: 67                                  ║
 ║                                                              ║
-║  ⚠️ Notes vides ou très courtes: 8                           ║
-║  ⚠️ Notes sans frontmatter: 67                               ║
-║                                                              ║
-║  [Continuer →]                                               ║
+║  [Continuer ->]                                              ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
@@ -142,36 +129,25 @@ Audit guidé et complet de la santé du vault Obsidian.
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
-║             🔍 AUDIT VAULT OBSIDIAN                          ║
+║             AUDIT VAULT OBSIDIAN                             ║
 ║              Étape 5/6 : Analyse Fichiers                    ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║  📁 STRUCTURE:                                               ║
+║  STRUCTURE:                                                  ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
-║  │ Profondeur max        : 4 niveaux ✅                    │ ║
+║  │ Profondeur max        : 4 niveaux OK                    │ ║
 ║  │ Dossiers              : 23                              │ ║
-║  │ Dossiers vides        : 2 ⚠️                            │ ║
-║  │ Convention nommage    : 78% conforme ⚠️                 │ ║
+║  │ Dossiers vides        : 2                               │ ║
+║  │ Convention nommage    : 78% conforme                    │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
 ║                                                              ║
-║  📎 ATTACHMENTS:                                             ║
+║  ATTACHMENTS:                                                ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
 ║  │ Total                 : 156 fichiers (234 MB)           │ ║
-║  │ Images                : 98 (45 MB)                      │ ║
-║  │ PDF                   : 34 (156 MB)                     │ ║
-║  │ Autres                : 24 (33 MB)                      │ ║
-║  │ Orphelins             : 12 (23 MB) ⚠️                   │ ║
-║  │ Fichiers > 10 MB      : 5                               │ ║
+║  │ Orphelins             : 12 (23 MB)                      │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
 ║                                                              ║
-║  🔄 DOUBLONS:                                                ║
-║  ┌─────────────────────────────────────────────────────────┐ ║
-║  │ Notes dupliquées      : 2 groupes                       │ ║
-║  │ Attachments dupliqués : 3 fichiers                      │ ║
-║  │ Espace gaspillé       : 12 MB                           │ ║
-║  └─────────────────────────────────────────────────────────┘ ║
-║                                                              ║
-║  [1] Nettoyer maintenant  [2] Continuer →                    ║
+║  [1] Nettoyer maintenant  [2] Continuer ->                   ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
@@ -180,52 +156,36 @@ Audit guidé et complet de la santé du vault Obsidian.
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
-║             🔍 AUDIT VAULT OBSIDIAN                          ║
+║             AUDIT VAULT OBSIDIAN                             ║
 ║               Étape 6/6 : Rapport Final                      ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║  ═══════════════════════════════════════════════════════════ ║
-║                                                              ║
-║  SCORE DE SANTÉ GLOBAL: 72/100                               ║
+║  SCORE DE SANTE GLOBAL: 72/100                               ║
 ║  ████████████████████████████████░░░░░░░░                    ║
 ║                                                              ║
-║  ═══════════════════════════════════════════════════════════ ║
-║                                                              ║
-║  📊 RÉSUMÉ PAR CATÉGORIE:                                    ║
+║  RESUME PAR CATEGORIE:                                       ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
-║  │ Catégorie          Score    Status                      │ ║
-║  │ ───────────────────────────────────────────────────────│ ║
-║  │ Structure          18/20    ✅ Bon                      │ ║
-║  │ Liens              14/20    ⚠️ À améliorer              │ ║
-║  │ Tags               12/15    ⚠️ À améliorer              │ ║
-║  │ Contenu            13/15    ✅ Bon                      │ ║
-║  │ Fichiers           8/15     ⚠️ À améliorer              │ ║
-║  │ Maintenance        7/15     ❌ Action requise           │ ║
+║  │ Structure          18/20    Bon                         │ ║
+║  │ Liens              14/20    A ameliorer                 │ ║
+║  │ Tags               12/15    A ameliorer                 │ ║
+║  │ Contenu            13/15    Bon                         │ ║
+║  │ Fichiers           8/15     A ameliorer                 │ ║
+║  │ Maintenance        7/15     Action requise              │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
 ║                                                              ║
-║  🔴 ACTIONS URGENTES:                                        ║
+║  ACTIONS URGENTES:                                           ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
-║  │ 1. Réparer 5 liens cassés                               │ ║
+║  │ 1. Reparer 5 liens casses                               │ ║
 ║  │ 2. Supprimer 12 attachments orphelins (23 MB)           │ ║
 ║  │ 3. Traiter 8 notes vides                                │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
 ║                                                              ║
-║  🟡 AMÉLIORATIONS SUGGÉRÉES:                                 ║
-║  ┌─────────────────────────────────────────────────────────┐ ║
-║  │ 1. Normaliser 3 groupes de tags similaires              │ ║
-║  │ 2. Ajouter frontmatter à 67 notes                       │ ║
-║  │ 3. Connecter 12 notes orphelines                        │ ║
-║  │ 4. Fusionner 2 doublons                                 │ ║
-║  └─────────────────────────────────────────────────────────┘ ║
-║                                                              ║
-║  📁 RAPPORT EXPORTÉ:                                         ║
-║  Knowledge\_Index\Audit-2026-02-04.md                        ║
-║                                                              ║
-║  ═══════════════════════════════════════════════════════════ ║
+║  RAPPORT EXPORTE:                                            ║
+║  ~/Documents/Knowledge/_Index/Audit-2026-02-04.md           ║
 ║                                                              ║
 ║  [1] Corriger tout automatiquement                           ║
-║  [2] Corriger étape par étape                                ║
-║  [3] Exporter rapport détaillé                               ║
+║  [2] Corriger etape par etape                                ║
+║  [3] Exporter rapport detaille                               ║
 ║  [4] Terminer                                                ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
@@ -243,7 +203,7 @@ type: audit
 tags: [audit, maintenance]
 ---
 
-# 🔍 Audit du Vault - 2026-02-04
+# Audit du Vault - 2026-02-04
 
 ## Score Global: 72/100
 
@@ -260,28 +220,18 @@ tags: [audit, maintenance]
 
 ## Problèmes Détectés
 
-### 🔴 Urgents
+### Urgents
 
 - [ ] 5 liens cassés
 - [ ] 12 attachments orphelins
 - [ ] 8 notes vides
 
-### 🟡 À Améliorer
+### À Améliorer
 
 - [ ] 3 groupes de tags à normaliser
 - [ ] 67 notes sans frontmatter
 - [ ] 12 notes orphelines
 - [ ] 2 doublons
-
-## Actions Effectuées
-
-*Aucune action automatique effectuée*
-
-## Historique
-
-| Date | Score | Actions |
-|------|-------|---------|
-| 2026-02-04 | 72 | Audit initial |
 
 ---
 *Généré par Obsidian Agent*
@@ -289,69 +239,85 @@ tags: [audit, maintenance]
 
 ## Script Complet du Wizard
 
-```powershell
-function Start-VaultAudit {
-    param(
-        [string]$VaultPath = "$env:USERPROFILE\Documents\Knowledge",
-        [switch]$AutoFix
-    )
-    
-    $Report = @{
-        Date = Get-Date
-        VaultPath = $VaultPath
-        Score = 100
-        Stats = @{}
-        Issues = @()
-        Actions = @()
-    }
-    
-    # === ÉTAPE 1: Scan Initial ===
-    Write-Host "`n═══ ÉTAPE 1/6: Scan Initial ═══" -ForegroundColor Cyan
-    
-    $Notes = Get-ChildItem -Path $VaultPath -Recurse -Filter "*.md"
-    $Attachments = Get-ChildItem -Path $VaultPath -Recurse -Include "*.png","*.jpg","*.pdf"
-    
-    $Report.Stats = @{
-        Notes = $Notes.Count
-        Attachments = $Attachments.Count
-        TotalSize = (($Notes + $Attachments) | Measure-Object -Property Length -Sum).Sum
-    }
-    
-    Write-Host "  Notes: $($Report.Stats.Notes)"
-    Write-Host "  Attachments: $($Report.Stats.Attachments)"
-    
-    # === ÉTAPE 2: Liens ===
-    Write-Host "`n═══ ÉTAPE 2/6: Analyse Liens ═══" -ForegroundColor Cyan
-    
-    $BrokenLinks = Find-BrokenLinks -VaultPath $VaultPath
-    if ($BrokenLinks.Count -gt 0) {
-        $Report.Score -= [Math]::Min($BrokenLinks.Count * 4, 20)
-        $Report.Issues += "Liens cassés: $($BrokenLinks.Count)"
-    }
-    
-    # === ÉTAPE 3: Tags ===
-    Write-Host "`n═══ ÉTAPE 3/6: Analyse Tags ═══" -ForegroundColor Cyan
-    
-    $TagInfo = Get-VaultTags -VaultPath $VaultPath
-    $SimilarTags = Find-SimilarTags -Tags $TagInfo.Stats.Keys
-    if ($SimilarTags.Count -gt 0) {
-        $Report.Score -= [Math]::Min($SimilarTags.Count * 3, 15)
-        $Report.Issues += "Tags similaires: $($SimilarTags.Count) groupes"
-    }
-    
-    # === ÉTAPE 4-5: Contenu et Fichiers ===
-    # ... (analyses supplémentaires)
-    
-    # === ÉTAPE 6: Rapport ===
-    Write-Host "`n═══ ÉTAPE 6/6: Rapport Final ═══" -ForegroundColor Cyan
-    Write-Host "`n  SCORE FINAL: $($Report.Score)/100" -ForegroundColor $(if ($Report.Score -ge 80) { "Green" } elseif ($Report.Score -ge 60) { "Yellow" } else { "Red" })
-    
-    # Générer rapport MD
-    $ReportPath = Join-Path $VaultPath "_Index\Audit-$(Get-Date -Format 'yyyy-MM-dd').md"
-    # ... génération du rapport
-    
-    return $Report
-}
+```bash
+#!/usr/bin/env bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+AUTO_FIX=false
+score=100
+issues=()
+
+echo ""
+echo "=== ETAPE 1/6: Scan Initial ==="
+
+mapfile -t notes < <(find "$VAULT" -name "*.md" -type f 2>/dev/null)
+mapfile -t attachments < <(find "$VAULT" -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.pdf" \) 2>/dev/null)
+
+note_count=${#notes[@]}
+att_count=${#attachments[@]}
+total_size=$(du -sm "$VAULT" | awk '{print $1}')
+
+echo "  Notes: $note_count"
+echo "  Attachments: $att_count"
+echo "  Taille totale: ${total_size} MB"
+
+echo ""
+echo "=== ETAPE 2/6: Analyse Liens ==="
+
+mapfile -t note_names < <(printf '%s\n' "${notes[@]}" | xargs -I{} basename {} .md)
+broken_links=()
+while IFS= read -r note; do
+    while IFS= read -r target; do
+        [ -z "$target" ] && continue
+        echo "$target" | grep -qE '^https?://' && continue
+        found=false
+        for n in "${note_names[@]}"; do [ "$n" = "$target" ] && found=true && break; done
+        [ "$found" = false ] && broken_links+=("$(basename "$note"):$target")
+    done < <(grep -oP '\[\[\K[^\]|#]+' "$note" 2>/dev/null || true)
+done < <(printf '%s\n' "${notes[@]}")
+
+broken_count=${#broken_links[@]}
+if [ "$broken_count" -gt 0 ]; then
+    penalty=$((broken_count * 4 > 20 ? 20 : broken_count * 4))
+    score=$((score - penalty))
+    issues+=("Liens casses: $broken_count")
+fi
+echo "  Liens casses: $broken_count"
+
+echo ""
+echo "=== ETAPE 3/6: Analyse Tags ==="
+
+all_tags=$(find "$VAULT" -name "*.md" -type f | xargs grep -hoP '#[\w/-]+' 2>/dev/null | sort -u)
+similar_count=$(echo "$all_tags" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]//g' | sort | uniq -d | wc -l)
+if [ "$similar_count" -gt 0 ]; then
+    penalty=$((similar_count * 3 > 15 ? 15 : similar_count * 3))
+    score=$((score - penalty))
+    issues+=("Tags similaires: $similar_count groupes")
+fi
+echo "  Tags similaires: $similar_count groupes"
+
+echo ""
+echo "=== ETAPE 6/6: Rapport Final ==="
+echo ""
+echo "  SCORE FINAL: $score/100"
+
+# Generer rapport MD
+report_path="${VAULT}/_Index/Audit-$(date '+%Y-%m-%d').md"
+cat > "$report_path" << EOF
+---
+title: "Audit Vault - $(date '+%Y-%m-%d')"
+date: $(date '+%Y-%m-%d')
+type: audit
+tags: [audit, maintenance]
+---
+
+# Audit du Vault - $(date '+%Y-%m-%d')
+
+## Score Global: $score/100
+
+## Problèmes: ${issues[*]}
+EOF
+
+echo "  Rapport genere: $report_path"
 ```
 
 ## Options
@@ -365,7 +331,7 @@ function Start-VaultAudit {
 
 ## Exemples
 
-```powershell
+```bash
 # Audit interactif
 /obs-wizard audit
 

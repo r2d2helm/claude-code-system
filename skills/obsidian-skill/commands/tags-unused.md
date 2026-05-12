@@ -12,37 +12,33 @@ Lister les tags utilises une seule fois ou non utilises dans le vault.
 
 ### Trouver tags rares
 
-```powershell
-$VaultPath = "$env:USERPROFILE\Documents\Knowledge"
-$Notes = Get-ChildItem -Path $VaultPath -Recurse -Filter "*.md"
-$TagCounts = @{}
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+declare -A tag_counts
 
-foreach ($Note in $Notes) {
-    $Content = Get-Content $Note.FullName -Raw -ErrorAction SilentlyContinue
-    if ($Content) {
-        # Tags inline (#tag)
-        [regex]::Matches($Content, '(?<=\s|^)#([\w/-]+)') | ForEach-Object {
-            $Tag = $_.Groups[1].Value
-            if (-not $TagCounts.ContainsKey($Tag)) { $TagCounts[$Tag] = 0 }
-            $TagCounts[$Tag]++
-        }
-        # Tags frontmatter
-        if ($Content -match '(?s)^---\s*\n(.+?)\n---') {
-            [regex]::Matches($Matches[1], '^\s*-\s+(.+)$', 'Multiline') | ForEach-Object {
-                $Tag = $_.Groups[1].Value.Trim()
-                if ($Tag -match '^[\w/-]+$') {
-                    if (-not $TagCounts.ContainsKey($Tag)) { $TagCounts[$Tag] = 0 }
-                    $TagCounts[$Tag]++
-                }
-            }
-        }
-    }
-}
+while IFS= read -r note; do
+    content=$(< "$note" 2>/dev/null) || continue
+
+    # Tags inline (#tag)
+    while IFS= read -r tag; do
+        [ -n "$tag" ] && tag_counts["$tag"]=$((${tag_counts["$tag"]:-0} + 1))
+    done < <(grep -oP '(?<=\s|^)#\K[\w/-]+' "$note" 2>/dev/null || true)
+
+    # Tags frontmatter (liste YAML)
+    if grep -q '^---' "$note"; then
+        while IFS= read -r tag; do
+            tag=$(echo "$tag" | sed 's/^[[:space:]]*-[[:space:]]*//' | sed 's/[[:space:]]*$//')
+            [[ "$tag" =~ ^[a-zA-Z0-9/_-]+$ ]] && \
+                tag_counts["$tag"]=$((${tag_counts["$tag"]:-0} + 1))
+        done < <(sed -n '/^---$/,/^---$/p' "$note" | grep -E '^[[:space:]]*-[[:space:]]')
+    fi
+done < <(find "$VAULT" -name "*.md" -type f)
 
 # Tags utilises 1 seule fois
-$Rare = $TagCounts.GetEnumerator() | Where-Object { $_.Value -eq 1 } | Sort-Object Key
-Write-Output "Tags utilises 1 seule fois ($($Rare.Count)):"
-$Rare | ForEach-Object { "  #$($_.Key)" }
+echo "Tags utilises 1 seule fois:"
+for tag in $(printf '%s\n' "${!tag_counts[@]}" | sort); do
+    [ "${tag_counts[$tag]}" -eq 1 ] && echo "  #$tag"
+done
 ```
 
 ## Options
@@ -54,7 +50,7 @@ $Rare | ForEach-Object { "  #$($_.Key)" }
 
 ## Exemples
 
-```powershell
+```bash
 /obs-tags unused              # Tags utilises 1 fois
 /obs-tags unused --max 2      # Tags utilises 2 fois ou moins
 ```

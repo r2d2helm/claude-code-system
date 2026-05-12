@@ -12,36 +12,41 @@ Gerer la configuration Obsidian (.obsidian/).
 
 ### Afficher la configuration
 
-```powershell
-$VaultPath = "$env:USERPROFILE\Documents\Knowledge"
-$ConfigPath = Join-Path $VaultPath ".obsidian"
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+config_path="${VAULT}/.obsidian"
 
 # Fichiers de config
-Get-ChildItem -Path $ConfigPath -Filter "*.json" -File | ForEach-Object {
-    [PSCustomObject]@{
-        Fichier = $_.Name
-        Taille = "$([math]::Round($_.Length / 1KB, 1)) KB"
-        Modifie = $_.LastWriteTime.ToString('yyyy-MM-dd')
-    }
-} | Format-Table -AutoSize
+find "$config_path" -name "*.json" -type f | while read -r f; do
+    name=$(basename "$f")
+    size=$(du -k "$f" | awk '{printf "%.1f", $1}')
+    modified=$(date -r "$f" '+%Y-%m-%d')
+    printf "%-30s %6s KB   %s\n" "$name" "$size" "$modified"
+done | column -t
 ```
 
 ### Lire un parametre
 
-```powershell
-$AppConfig = Get-Content "$ConfigPath\app.json" -Raw | ConvertFrom-Json
-Write-Output "Theme: $($AppConfig.theme)"
-Write-Output "Spell check: $($AppConfig.spellcheck)"
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+config_path="${VAULT}/.obsidian"
+
+theme=$(python3 -c "import json,sys; d=json.load(open('${config_path}/app.json')); print(d.get('theme',''))" 2>/dev/null)
+spellcheck=$(python3 -c "import json,sys; d=json.load(open('${config_path}/app.json')); print(d.get('spellcheck',''))" 2>/dev/null)
+echo "Theme: $theme"
+echo "Spell check: $spellcheck"
 ```
 
 ### Backup de la configuration
 
-```powershell
-$BackupPath = "$env:USERPROFILE\Documents\Backups\obsidian-config"
-if (-not (Test-Path $BackupPath)) { New-Item -ItemType Directory -Path $BackupPath -Force }
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+backup_path="${HOME}/Documents/Backups/obsidian-config"
+config_path="${VAULT}/.obsidian"
 
-Copy-Item -Path "$ConfigPath\*.json" -Destination $BackupPath -Force
-Write-Output "Config sauvegardee dans $BackupPath"
+mkdir -p "$backup_path"
+cp "${config_path}/"*.json "$backup_path/"
+echo "Config sauvegardee dans $backup_path"
 ```
 
 ## Options
@@ -55,7 +60,7 @@ Write-Output "Config sauvegardee dans $BackupPath"
 
 ## Exemples
 
-```powershell
+```bash
 /obs-config show              # Liste des fichiers config
 /obs-config backup            # Backup de la config
 /obs-config restore           # Restaurer la config

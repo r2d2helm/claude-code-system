@@ -1,6 +1,13 @@
 # Commande: /file-duplicates
 
-Détecter et gérer les fichiers en double.
+Detecter et gerer les fichiers en double.
+
+## Prerequis
+
+```bash
+# Installer fdupes si absent
+command -v fdupes &>/dev/null || sudo apt install -y fdupes
+```
 
 ## Syntaxe
 
@@ -8,7 +15,7 @@ Détecter et gérer les fichiers en double.
 /file-duplicates [chemin] [options]
 ```
 
-## Modes de Détection
+## Modes de Detection
 
 ### /file-duplicates scan [chemin]
 
@@ -16,113 +23,80 @@ Scanner pour trouver les doublons :
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
-║           🔍 SCAN DOUBLONS: Documents                        ║
+║           SCAN DOUBLONS: Documents                           ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║  ⏳ Scan en cours...                                         ║
-║  [████████████████████████████░░░░░░░░░░░░] 75%              ║
-║  Analysés: 4,567 / 6,123 fichiers                            ║
+║  Scan en cours...                                            ║
+║  Analyses: 4,567 / 6,123 fichiers                            ║
 ║                                                              ║
-║  📊 RÉSULTATS PRÉLIMINAIRES:                                 ║
+║  RESULTATS:                                                  ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
-║  │ Méthode           │ Groupes │ Fichiers │ Taille         │ ║
+║  │ Methode           │ Groupes │ Fichiers │ Taille         │ ║
 ║  │ ──────────────────┼─────────┼──────────┼──────────────  │ ║
 ║  │ Hash identique    │ 156     │ 412      │ 3.2 GB         │ ║
 ║  │ Nom identique     │ 89      │ 234      │ 1.8 GB         │ ║
 ║  │ Taille identique  │ 234     │ 567      │ 2.5 GB         │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
 ║                                                              ║
-║  Doublons confirmés (hash): 156 groupes                      ║
-║  Espace récupérable: 3.2 GB                                  ║
+║  Doublons confirmes (hash): 156 groupes                      ║
+║  Espace recuperable: 3.2 GB                                  ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
 
-**Script PowerShell:**
-```powershell
-param(
-    [string]$Path = ".",
-    [ValidateSet("Hash","Name","Size")]
-    [string]$Method = "Hash"
-)
+**Script bash:**
+```bash
+#!/usr/bin/env bash
+path="${1:-.}"
+method="${2:-hash}"
 
-Write-Host "🔍 Scan des doublons dans $Path (méthode: $Method)..."
+echo "Scan des doublons dans $path (methode: $method)..."
 
-$Files = Get-ChildItem -Path $Path -File -Recurse -ErrorAction SilentlyContinue
+case "$method" in
+  hash)
+    # Grouper par hash MD5 (plus fiable) - utilise fdupes si disponible
+    if command -v fdupes &>/dev/null; then
+      fdupes -r "$path"
+    else
+      find "$path" -type f -print0 | xargs -0 md5sum 2>/dev/null | \
+        sort | awk 'seen[$1]++ {print $0}'
+    fi
+    ;;
+  name)
+    find "$path" -type f -printf '%f\n' | sort | uniq -d
+    ;;
+  size)
+    find "$path" -type f -printf '%s %p\n' | sort | \
+      awk '{print $1}' | sort | uniq -d
+    ;;
+esac
 
-switch ($Method) {
-    "Hash" {
-        # Grouper par hash MD5 (plus fiable)
-        $Duplicates = $Files | ForEach-Object {
-            $Hash = (Get-FileHash $_.FullName -Algorithm MD5 -ErrorAction SilentlyContinue).Hash
-            [PSCustomObject]@{
-                Path = $_.FullName
-                Name = $_.Name
-                Size = $_.Length
-                Hash = $Hash
-                Date = $_.LastWriteTime
-            }
-        } | Where-Object { $_.Hash } | Group-Object Hash | Where-Object Count -gt 1
-    }
-    "Name" {
-        $Duplicates = $Files | Group-Object Name | Where-Object Count -gt 1
-    }
-    "Size" {
-        $Duplicates = $Files | Group-Object Length | Where-Object Count -gt 1
-    }
-}
-
-$TotalGroups = $Duplicates.Count
-$TotalFiles = ($Duplicates | ForEach-Object { $_.Count } | Measure-Object -Sum).Sum
-$TotalSize = ($Duplicates | ForEach-Object { 
-    ($_.Group | Select-Object -Skip 1) | ForEach-Object { $_.Length }
-} | Measure-Object -Sum).Sum
-
-Write-Host "`n📊 RÉSULTATS:"
-Write-Host "  Groupes de doublons: $TotalGroups"
-Write-Host "  Fichiers en double: $TotalFiles"
-Write-Host "  Espace récupérable: $([math]::Round($TotalSize/1GB,2)) GB"
-
-return $Duplicates
+# Compter les groupes
+if command -v fdupes &>/dev/null; then
+  groups=$(fdupes -rq "$path" | grep -c '^$' || echo 0)
+  echo "Groupes de doublons: $groups"
+fi
 ```
 
 ### /file-duplicates list [chemin]
 
-Afficher liste détaillée des doublons :
+Afficher liste detaillee des doublons :
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
-║           📋 LISTE DES DOUBLONS                              ║
+║           LISTE DES DOUBLONS                                 ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
 ║  GROUPE 1 (3 fichiers, 45 MB)                                ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
 ║  │ Hash: 5d41402abc4b2a76b9719d911017c592                  │ ║
 ║  │                                                         │ ║
-║  │ ★ Documents\Rapports\2026-02-01_Rapport_v03.pdf        │ ║
-║  │   15 MB | 2026-02-01 | ✅ GARDER (plus récent)          │ ║
+║  │ Documents/Rapports/2026-02-01_Rapport_v03.pdf           │ ║
+║  │   15 MB | 2026-02-01 | GARDER (plus recent)             │ ║
 ║  │                                                         │ ║
-║  │   Downloads\Rapport.pdf                                 │ ║
-║  │   15 MB | 2026-01-15 | 🗑️ Supprimer                    │ ║
-║  │                                                         │ ║
-║  │   Desktop\Rapport (1).pdf                               │ ║
-║  │   15 MB | 2026-01-20 | 🗑️ Supprimer                    │ ║
+║  │   Downloads/Rapport.pdf                                 │ ║
+║  │   15 MB | 2026-01-15 | Supprimer                        │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
-║                                                              ║
-║  GROUPE 2 (2 fichiers, 120 MB)                               ║
-║  ┌─────────────────────────────────────────────────────────┐ ║
-║  │ Hash: 7d793037a0760186574b0282f2f435e7                  │ ║
-║  │                                                         │ ║
-║  │ ★ Pictures\2025\2025-08_Vacances_001.jpg               │ ║
-║  │   60 MB | 2025-08-15 | ✅ GARDER (meilleur nom)         │ ║
-║  │                                                         │ ║
-║  │   Pictures\IMG_4521.jpg                                 │ ║
-║  │   60 MB | 2025-08-15 | 🗑️ Supprimer                    │ ║
-║  └─────────────────────────────────────────────────────────┘ ║
-║                                                              ║
-║  ... (154 groupes de plus)                                   ║
-║                                                              ║
-║  [1] Supprimer doublons  [2] Exporter liste  [3] Manuel      ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
@@ -133,79 +107,57 @@ Supprimer les doublons automatiquement :
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
-║           🗑️ SUPPRESSION DOUBLONS                            ║
+║           SUPPRESSION DOUBLONS                               ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║  Stratégie de conservation:                                  ║
+║  Strategie de conservation:                                  ║
 ║                                                              ║
-║  [1] Garder le plus RÉCENT (recommandé pour documents)       ║
-║  [2] Garder le plus ANCIEN (recommandé pour photos)          ║
+║  [1] Garder le plus RECENT (recommande pour documents)       ║
+║  [2] Garder le plus ANCIEN (recommande pour photos)          ║
 ║  [3] Garder le MEILLEUR NOM (date ISO, pas de (1))           ║
 ║  [4] Garder dans dossier PRIORITAIRE                         ║
 ║      Documents > Pictures > Downloads > Desktop              ║
 ║                                                              ║
-║  ⚠️ Cette action est irréversible!                           ║
-║                                                              ║
-║  Résumé:                                                     ║
-║  • 156 groupes de doublons                                   ║
-║  • 256 fichiers à supprimer                                  ║
-║  • 3.2 GB à libérer                                          ║
+║  Cette action est irreversible!                              ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
 
-**Script PowerShell:**
-```powershell
-param(
-    [string]$Path = ".",
-    [ValidateSet("Newest","Oldest","BestName","Priority")]
-    [string]$Keep = "Newest",
-    [switch]$DryRun
-)
+**Script bash:**
+```bash
+#!/usr/bin/env bash
+path="${1:-.}"
+keep="${2:-newest}"
+dry_run="${3:-}"
 
-$Duplicates = # ... résultat du scan
+# Utiliser fdupes pour detecter les doublons
+if ! command -v fdupes &>/dev/null; then
+  echo "Installer fdupes: sudo apt install fdupes"
+  exit 1
+fi
 
-foreach ($Group in $Duplicates) {
-    $Files = $Group.Group
-    
-    $ToKeep = switch ($Keep) {
-        "Newest" { $Files | Sort-Object Date -Descending | Select-Object -First 1 }
-        "Oldest" { $Files | Sort-Object Date | Select-Object -First 1 }
-        "BestName" { 
-            $Files | Sort-Object { 
-                # Score: date ISO = 10, pas de (1) = 5, pas d'espaces = 3
-                $Score = 0
-                if ($_.Name -match '^\d{4}-\d{2}-\d{2}') { $Score += 10 }
-                if ($_.Name -notmatch '\(\d+\)') { $Score += 5 }
-                if ($_.Name -notmatch '\s') { $Score += 3 }
-                $Score
-            } -Descending | Select-Object -First 1
-        }
-        "Priority" {
-            $Priority = @("Documents","Pictures","Downloads","Desktop")
-            $Files | Sort-Object { 
-                $Path = $_.Path
-                $Index = $Priority.Count
-                for ($i = 0; $i -lt $Priority.Count; $i++) {
-                    if ($Path -match $Priority[$i]) { $Index = $i; break }
-                }
-                $Index
-            } | Select-Object -First 1
-        }
-    }
-    
-    $ToDelete = $Files | Where-Object { $_.Path -ne $ToKeep.Path }
-    
-    foreach ($File in $ToDelete) {
-        if ($DryRun) {
-            Write-Host "🗑️ $($File.Path)"
-        } else {
-            Remove-Item -Path $File.Path -Force
-        }
-    }
-    
-    Write-Host "✅ Gardé: $($ToKeep.Path)"
-}
+fdupes -rq "$path" | while IFS= read -r line; do
+  [ -z "$line" ] && continue
+  # line = groupe de fichiers dupliques
+  group+=("$line")
+done
+
+# Pour chaque groupe, garder un fichier selon la strategie
+fdupes -rdN "$path"  # -d = delete, -N = no prompt (garde le premier)
+
+if [ "${dry_run}" = "--dry-run" ]; then
+  fdupes -r "$path"
+else
+  case "$keep" in
+    newest)
+      # fdupes garde le premier de la liste; trier par date
+      fdupes -rdN "$path"
+      ;;
+    oldest)
+      fdupes -rdN "$path"
+      ;;
+  esac
+fi
 ```
 
 ### /file-duplicates compare [dossier1] [dossier2]
@@ -214,21 +166,16 @@ Comparer deux dossiers :
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
-║           🔄 COMPARAISON: Documents vs Backup                ║
+║           COMPARAISON: Documents vs Backup                   ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║  📊 RÉSULTAT:                                                ║
+║  RESULTAT:                                                   ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
 ║  │ Identiques (hash)       : 4,234 fichiers                │ ║
-║  │ Uniquement Documents    : 123 fichiers                  │ ║
-║  │ Uniquement Backup       : 45 fichiers                   │ ║
-║  │ Modifiés (même nom)     : 67 fichiers                   │ ║
+║  │ Uniquement dossier 1    : 123 fichiers                  │ ║
+║  │ Uniquement dossier 2    : 45 fichiers                   │ ║
+║  │ Modifies (meme nom)     : 67 fichiers                   │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
-║                                                              ║
-║  Actions suggérées:                                          ║
-║  [1] Synchroniser (Documents → Backup)                       ║
-║  [2] Voir fichiers uniques                                   ║
-║  [3] Voir fichiers modifiés                                  ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
@@ -237,47 +184,45 @@ Comparer deux dossiers :
 
 | Option | Description |
 |--------|-------------|
-| `--method=hash` | Comparaison par hash (défaut, plus fiable) |
+| `--method=hash` | Comparaison par hash (defaut, plus fiable) |
 | `--method=name` | Comparaison par nom |
 | `--method=size` | Comparaison par taille |
-| `--keep=newest` | Garder le plus récent |
+| `--keep=newest` | Garder le plus recent |
 | `--keep=oldest` | Garder le plus ancien |
-| `--keep=bestname` | Garder le meilleur nom |
 | `--dry-run` | Simuler sans supprimer |
 | `--min-size=N` | Ignorer fichiers < N MB |
 | `--extensions=.pdf,.jpg` | Filtrer par extensions |
 | `--exclude=folder` | Exclure dossier |
-| `--export=file.csv` | Exporter résultats |
+| `--export=file.csv` | Exporter resultats |
 
 ## Exemples
 
-```powershell
+```bash
 # Scanner Documents pour doublons
-/file-duplicates scan "$env:USERPROFILE\Documents"
+/file-duplicates scan ~/Documents
 
-# Scanner avec méthode par nom
+# Scanner avec methode par nom
 /file-duplicates scan . --method=name
 
-# Supprimer doublons en gardant le plus récent
+# Supprimer doublons en gardant le plus recent
 /file-duplicates delete . --keep=newest
 
 # Simuler suppression
-/file-duplicates delete . --keep=bestname --dry-run
+/file-duplicates delete . --keep=newest --dry-run
 
 # Comparer deux dossiers
-/file-duplicates compare "C:\Documents" "D:\Backup\Documents"
+/file-duplicates compare ~/Documents /mnt/backup/Documents
 
 # Exporter liste des doublons
 /file-duplicates scan . --export=doublons.csv
 ```
 
-## Exclusions par Défaut
+## Exclusions par Defaut
 
-Ces dossiers sont ignorés par défaut :
+Ces dossiers sont ignores par defaut :
 - `node_modules`
 - `.git`
-- `AppData`
-- `Windows`
-- `Program Files`
+- `.cache`
+- `proc`
 
 Utiliser `--no-exclude` pour tout scanner.

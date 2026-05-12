@@ -49,7 +49,7 @@ Rechercher dans la base de connaissances.
 ║                                                              ║
 ║  💻 CODE (3)                                                 ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
-║  │ 🔧 Code_Proxmox-VM-Create.ps1                           │ ║
+║  │ 🔧 Code_Proxmox-VM-Create.sh                            │ ║
 ║  │ 🔧 Code_Proxmox-Backup-Script.sh                        │ ║
 ║  │ 🔧 Code_Proxmox-API-Call.py                             │ ║
 ║  └─────────────────────────────────────────────────────────┘ ║
@@ -131,111 +131,91 @@ Notes de la dernière semaine.
 ║  🔧 2026-01-15_Backup-PBS-Config.sh                          ║
 ║     Relevance: ████████████████░░░░ 80%                      ║
 ║                                                              ║
-║  🔧 2026-01-10_Backup-Verification.ps1                       ║
+║  🔧 2026-01-10_Backup-Verification.sh                        ║
 ║     Relevance: ██████████████░░░░░░ 70%                      ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
 
-## Script PowerShell
+## Script bash
 
-```powershell
-function Search-Knowledge {
-    param(
-        [string]$Query,
-        [string]$Tag,
-        [ValidateSet("all","conversation","concept","code","reference")]
-        [string]$Type = "all",
-        [string]$DateFilter,
-        [string]$KnowledgePath = "$env:USERPROFILE\Documents\Knowledge"
-    )
-    
+```bash
+#!/usr/bin/env bash
+search_knowledge() {
+    local query="$1"
+    local tag="$2"
+    local type="$3"
+    local date_filter="$4"
+    local knowledge_path="${KNOWLEDGE_PATH:-$HOME/Documents/Knowledge}"
+
     # Construire pattern de recherche
-    $SearchPattern = "*"
-    if ($Type -ne "all") {
-        $TypePrefix = @{
-            "conversation" = "Conv_"
-            "concept" = "C_"
-            "code" = "Code_"
-            "reference" = "R_"
-        }
-        $SearchPattern = "$($TypePrefix[$Type])*"
-    }
-    
+    local search_pattern="*.md"
+    case "$type" in
+        conversation) search_pattern="Conv_*.md" ;;
+        concept)      search_pattern="C_*.md" ;;
+        code)         search_pattern="Code_*.md" ;;
+        reference)    search_pattern="R_*.md" ;;
+    esac
+
     # Rechercher fichiers
-    $Files = Get-ChildItem -Path $KnowledgePath -Recurse -Filter "*.md" |
-        Where-Object { $_.Name -like $SearchPattern }
-    
+    mapfile -t files < <(find "$knowledge_path" -name "$search_pattern" -type f)
+
     # Filtrer par contenu
-    if ($Query) {
-        $Files = $Files | Where-Object {
-            (Get-Content $_.FullName -Raw) -match $Query
-        }
-    }
-    
+    if [ -n "$query" ]; then
+        mapfile -t files < <(printf '%s\n' "${files[@]}" | while read -r f; do
+            grep -ql "$query" "$f" && echo "$f"
+        done)
+    fi
+
     # Filtrer par tag
-    if ($Tag) {
-        $Files = $Files | Where-Object {
-            $Content = Get-Content $_.FullName -Raw
-            $Content -match "tags:.*$Tag"
-        }
-    }
-    
+    if [ -n "$tag" ]; then
+        mapfile -t files < <(printf '%s\n' "${files[@]}" | while read -r f; do
+            grep -ql "tags:.*$tag" "$f" && echo "$f"
+        done)
+    fi
+
     # Filtrer par date
-    if ($DateFilter) {
-        switch -Regex ($DateFilter) {
-            '^\d{4}-\d{2}$' {
-                $Files = $Files | Where-Object { $_.Name -match "^$DateFilter" }
-            }
-            '^last-week$' {
-                $WeekAgo = (Get-Date).AddDays(-7)
-                $Files = $Files | Where-Object { $_.LastWriteTime -gt $WeekAgo }
-            }
-            '^last-month$' {
-                $MonthAgo = (Get-Date).AddMonths(-1)
-                $Files = $Files | Where-Object { $_.LastWriteTime -gt $MonthAgo }
-            }
-        }
-    }
-    
-    # Afficher résultats
-    Write-Host "`n🔍 Résultats: $($Files.Count) notes trouvées`n"
-    
-    foreach ($File in $Files) {
-        $Content = Get-Content $File.FullName -Raw
-        
-        # Extraire titre du frontmatter
-        if ($Content -match 'title:\s*(.+)') {
-            $Title = $Matches[1]
-        } else {
-            $Title = $File.BaseName
-        }
-        
-        # Extraire tags
-        if ($Content -match 'tags:\s*\[([^\]]+)\]') {
-            $Tags = $Matches[1]
-        } else {
-            $Tags = ""
-        }
-        
-        # Extraire extrait avec le terme
-        $Excerpt = ""
-        if ($Query -and $Content -match ".{0,50}$Query.{0,50}") {
-            $Excerpt = "...$($Matches[0])..."
-        }
-        
-        Write-Host "📄 $($File.Name)"
-        Write-Host "   $Title" -ForegroundColor Cyan
-        if ($Excerpt) { Write-Host "   $Excerpt" -ForegroundColor DarkGray }
-        if ($Tags) { Write-Host "   Tags: $Tags" -ForegroundColor DarkYellow }
-        Write-Host ""
-    }
-    
-    return $Files
+    if [ -n "$date_filter" ]; then
+        case "$date_filter" in
+            last-week)
+                mapfile -t files < <(printf '%s\n' "${files[@]}" | while read -r f; do
+                    [ "$(find "$f" -mtime -7)" ] && echo "$f"
+                done)
+                ;;
+            last-month)
+                mapfile -t files < <(printf '%s\n' "${files[@]}" | while read -r f; do
+                    [ "$(find "$f" -mtime -30)" ] && echo "$f"
+                done)
+                ;;
+            *)
+                mapfile -t files < <(printf '%s\n' "${files[@]}" | grep "/$date_filter")
+                ;;
+        esac
+    fi
+
+    echo ""
+    echo "🔍 Résultats: ${#files[@]} notes trouvées"
+    echo ""
+
+    for f in "${files[@]}"; do
+        local title
+        title=$(grep -m1 'title:' "$f" | sed 's/title: *//')
+        local tags
+        tags=$(grep -m1 'tags:' "$f" | sed 's/tags: *//')
+        local excerpt=""
+        if [ -n "$query" ]; then
+            excerpt=$(grep -m1 "$query" "$f" | head -c 100)
+        fi
+        echo "📄 $(basename "$f")"
+        [ -n "$title" ] && echo "   $title"
+        [ -n "$excerpt" ] && echo "   ...$excerpt..."
+        [ -n "$tags" ] && echo "   Tags: $tags"
+        echo ""
+    done
 }
 
 # Alias
-Set-Alias -Name ks -Value Search-Knowledge
+alias ks='search_knowledge'
 ```
 
 ## Options
@@ -253,12 +233,12 @@ Set-Alias -Name ks -Value Search-Knowledge
 
 ## Exemples
 
-```powershell
+```bash
 # Recherche simple
 /know-search "docker"
 
 # Par tag
-/know-search tag:#infra/windows
+/know-search tag:#infra/linux
 
 # Par type
 /know-search type:code "backup"
@@ -270,5 +250,5 @@ Set-Alias -Name ks -Value Search-Knowledge
 /know-search "API" tag:#proxmox type:concept
 
 # Exporter résultats
-/know-search "PowerShell" --export=results.md
+/know-search "bash" --export=results.md
 ```

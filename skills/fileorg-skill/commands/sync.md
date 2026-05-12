@@ -12,37 +12,59 @@ Synchroniser deux dossiers (bidirectionnel).
 
 ### Preview des differences
 
-```powershell
-$Source = $args[0]
-$Dest = $args[1]
+```bash
+#!/usr/bin/env bash
+source="${1}"
+dest="${2}"
 
-$SourceFiles = Get-ChildItem -Path $Source -Recurse -File
-$DestFiles = Get-ChildItem -Path $Dest -Recurse -File
+# Utiliser rsync en mode dry-run pour comparer
+echo "PREVIEW sync: $source -> $dest"
 
-$SourceRel = $SourceFiles | ForEach-Object { $_.FullName.Replace($Source, '') }
-$DestRel = $DestFiles | ForEach-Object { $_.FullName.Replace($Dest, '') }
+rsync -avnc --delete \
+  --exclude='.git' \
+  --exclude='node_modules' \
+  "$source/" "$dest/" 2>/dev/null | grep -E '^(>|<|\*)'
 
-$OnlyInSource = $SourceRel | Where-Object { $_ -notin $DestRel }
-$OnlyInDest = $DestRel | Where-Object { $_ -notin $SourceRel }
+only_in_source=$(rsync -avnc "$source/" "$dest/" 2>/dev/null | grep '^>' | wc -l)
+only_in_dest=$(rsync -avnc "$dest/" "$source/" 2>/dev/null | grep '^>' | wc -l)
 
-Write-Output "Uniquement dans source: $($OnlyInSource.Count)"
-Write-Output "Uniquement dans destination: $($OnlyInDest.Count)"
+echo "Uniquement dans source: $only_in_source"
+echo "Uniquement dans destination: $only_in_dest"
 ```
 
 ### Synchroniser (source -> destination)
 
-```powershell
-robocopy $Source $Dest /E /XO /XD ".git" "node_modules" /NFL /NDL
-Write-Output "Synchronise: $Source -> $Dest"
+```bash
+#!/usr/bin/env bash
+source="${1}"
+dest="${2}"
+
+rsync -av \
+  --exclude='.git' \
+  --exclude='node_modules' \
+  "$source/" "$dest/"
+
+echo "Synchronise: $source -> $dest"
 ```
 
 ### Synchroniser bidirectionnel
 
-```powershell
+```bash
+#!/usr/bin/env bash
+source="${1}"
+dest="${2}"
+
 # Source -> Dest (fichiers nouveaux/modifies)
-robocopy $Source $Dest /E /XO /XD ".git" /NFL /NDL /NJH /NJS
+rsync -av --update \
+  --exclude='.git' \
+  "$source/" "$dest/"
+
 # Dest -> Source (fichiers uniquement dans dest)
-robocopy $Dest $Source /E /XO /XD ".git" /NFL /NDL /NJH /NJS
+rsync -av --update \
+  --exclude='.git' \
+  "$dest/" "$source/"
+
+echo "Synchronisation bidirectionnelle terminee"
 ```
 
 ## Options
@@ -56,10 +78,10 @@ robocopy $Dest $Source /E /XO /XD ".git" /NFL /NDL /NJH /NJS
 
 ## Exemples
 
-```powershell
-/file-sync C:\Projets D:\Backup --preview    # Preview
-/file-sync C:\Projets D:\Backup --one-way    # Unidirectionnel
-/file-sync C:\Data D:\Mirror                  # Bidirectionnel
+```bash
+/file-sync ~/Projets /mnt/backup --preview    # Preview
+/file-sync ~/Projets /mnt/backup --one-way    # Unidirectionnel
+/file-sync ~/Data /mnt/mirror                 # Bidirectionnel
 ```
 
 ## Voir Aussi

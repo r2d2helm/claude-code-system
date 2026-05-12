@@ -1,31 +1,31 @@
-# 🗂️ Super Agent Obsidian Administration
+# Super Agent Obsidian Administration
 
 Agent intelligent pour administrer, maintenir et optimiser les vaults Obsidian.
 
-## ✨ Fonctionnalités
+## Fonctionnalités
 
-- 🏥 **Diagnostic de santé** avec score 0-100
-- 🔗 **Gestion des liens** : cassés, orphelins, suggestions
-- 🏷️ **Gestion des tags** : normalisation, fusion, hiérarchie
-- 🧹 **Nettoyage** : notes vides, attachments orphelins, doublons
-- 💾 **Backup** automatisé avec rotation
-- 📊 **Statistiques** détaillées du vault
+- Diagnostic de santé avec score 0-100
+- Gestion des liens : cassés, orphelins, suggestions
+- Gestion des tags : normalisation, fusion, hiérarchie
+- Nettoyage : notes vides, attachments orphelins, doublons
+- Backup automatisé avec rotation
+- Statistiques détaillées du vault
 
-## 📦 Installation
+## Installation
 
-```powershell
+```bash
 # Extraire dans le dossier skills
-Expand-Archive -Path "obsidian-skill.zip" -DestinationPath "$env:USERPROFILE\.claude\skills\" -Force
+unzip obsidian-skill.zip -d ~/.claude/skills/
 
 # Vérifier
-Get-ChildItem "$env:USERPROFILE\.claude\skills\obsidian-skill"
+ls ~/.claude/skills/obsidian-skill
 ```
 
-## 🚀 Commandes Principales
+## Commandes Principales
 
 ### Diagnostic
 
-```powershell
+```bash
 /obs-health              # Diagnostic complet
 /obs-health --quick      # Check rapide
 /obs-stats               # Statistiques détaillées
@@ -33,7 +33,7 @@ Get-ChildItem "$env:USERPROFILE\.claude\skills\obsidian-skill"
 
 ### Liens
 
-```powershell
+```bash
 /obs-links broken        # Trouver liens cassés
 /obs-links fix           # Réparer liens
 /obs-links suggest       # Suggérer connexions
@@ -42,7 +42,7 @@ Get-ChildItem "$env:USERPROFILE\.claude\skills\obsidian-skill"
 
 ### Tags
 
-```powershell
+```bash
 /obs-tags list           # Lister tous les tags
 /obs-tags hierarchy      # Afficher hiérarchie
 /obs-tags rename "#old" "#new"    # Renommer
@@ -51,7 +51,7 @@ Get-ChildItem "$env:USERPROFILE\.claude\skills\obsidian-skill"
 
 ### Nettoyage
 
-```powershell
+```bash
 /obs-clean               # Analyser
 /obs-clean --all         # Nettoyer tout
 /obs-clean attachments   # Gérer attachments
@@ -60,19 +60,19 @@ Get-ChildItem "$env:USERPROFILE\.claude\skills\obsidian-skill"
 
 ### Backup
 
-```powershell
+```bash
 /obs-backup              # Backup complet
-/obs-backup --dest="D:\Backups"   # Destination custom
+/obs-backup --dest="$HOME/Backups"   # Destination custom
 ```
 
 ### Wizards
 
-```powershell
+```bash
 /obs-wizard audit        # Audit complet guidé
 /obs-wizard cleanup      # Nettoyage guidé
 ```
 
-## 📊 Score de Santé
+## Score de Santé
 
 Le diagnostic calcule un score sur 100 :
 
@@ -86,19 +86,24 @@ Le diagnostic calcule un score sur 100 :
 | Structure organisée | 10 |
 | Attachments liés | 10 |
 
-## 🔧 Configuration
+## Configuration
 
 Par défaut, le vault est :
 ```
-C:\Users\{User}\Documents\Knowledge
+~/Documents/Knowledge
 ```
 
-Pour un autre vault :
-```powershell
-/obs-health --vault="D:\MonVault"
+Variable d'environnement :
+```bash
+export KNOWLEDGE_VAULT_PATH="$HOME/Documents/Knowledge"
 ```
 
-## 📋 Intégration Knowledge Agent
+Pour un vault alternatif :
+```bash
+/obs-health --vault="$HOME/MonVault"
+```
+
+## Intégration Knowledge Agent
 
 | Knowledge Agent | Obsidian Agent |
 |-----------------|----------------|
@@ -111,7 +116,7 @@ Workflow recommandé :
 2. Maintenir avec Obsidian Agent
 3. Visualiser dans Obsidian
 
-## 📅 Routine de Maintenance
+## Routine de Maintenance
 
 | Fréquence | Action |
 |-----------|--------|
@@ -122,6 +127,6 @@ Workflow recommandé :
 
 ---
 
-**Version**: 1.0.0  
-**Compatibilité**: Windows 11, PowerShell 7.4+, Obsidian 1.4+  
+**Version**: 1.0.0
+**Compatibilité**: Ubuntu Linux, Bash 5+, Obsidian 1.4+
 **Dernière mise à jour**: Février 2026

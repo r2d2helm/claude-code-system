@@ -1,8 +1,8 @@
 ---
 name: meta-router
-description: Routeur intelligent pour les 19 skills du systeme MultiPass
+description: Routeur intelligent pour les 24 skills du systeme MultiPass
 prefix: /router
-version: 1.7.0
+version: 1.9.0
 ---
 
 # 🎯 Meta-Agent Router
@@ -32,6 +32,8 @@ Orchestrateur intelligent qui détecte automatiquement le contexte de la requêt
 | 🚀 DevOps | CI/CD, deploiement, pipelines, git workflows | `/devops-*` | ✅ Actif |
 | 🤖 AI Infra | LiteLLM, Langfuse, RAG, modeles LLM, embeddings | `/ai-*` | ✅ Actif |
 | 🗄️ Supabase | Auth, database PostgreSQL, storage, edge functions, RLS | `/supa-*` | ✅ Actif |
+| 🎨 Excalidraw | Diagrammes, schemas, visualisation, architecture | `/excalidraw-*` | ✅ Actif |
+| 🔬 R&D | Recherche, edge AI, TinyML, robotique, prototypage, IoT industriel | `/rd-*` | ✅ Actif |
 <!-- cloud-skill: prevu, non implemente | ☁️ Cloud | AWS, Azure, GCP, Terraform | `/cloud-*` | ⏳ Prévu | -->
 
 ## Détection Automatique du Contexte
@@ -134,6 +136,12 @@ Orchestrateur intelligent qui détecte automatiquement le contexte de la requêt
 │  │                                                              │
 │  └──→ 🗄️ SUPABASE-SKILL                                        │
 │                                                                 │
+│  r&d|recherche|edge ai|tinyml|robotique|robot|esp32|arduino     │
+│  |microcontroleur|embedded|embarqué|frugal|llm quantisé         │
+│  |inference locale|ollama|ros|iot|capteur|prototype|benchmark   │
+│  │                                                              │
+│  └──→ 🔬 RD-SKILL                                               │
+│                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -162,12 +170,35 @@ Certains keywords secondaires sont partagés entre skills. Appliquer ces règles
 | `notes` | + vault/liens/orphelines | obsidian-skill |
 | `notes` | + capture/résumé/save | knowledge-skill |
 | `containers` | + monitoring/metriques/stats | monitoring-skill |
+| `password` | + audit/hardening/securite | security-skill |
+| `password` | + rotation/registre/credential | credentials-skill |
+| `credential` | (seul ou avec gestion) | credentials-skill |
+| `ollama` | + edge/local/tinyml/embarqué | rd-skill |
+| `ollama` | + litellm/langfuse/rag/infra | ai-infra-skill |
+| `benchmark` | + hardware/modele frugal/edge | rd-skill |
+| `benchmark` | (seul, sans contexte) | **Demander clarification** |
 | `containers` | + docker/compose/build | docker-skill |
 | `alertes` | + monitoring/beszel/serveurs | monitoring-skill |
 | `logs` | + monitoring/containers/dozzle | monitoring-skill |
 | `logs` | + linux/systemd/journalctl | linux-skill |
 
 **Règle générale** : si un keyword ambigu est utilisé SEUL sans contexte clair, demander à l'utilisateur de préciser le domaine avant de router.
+
+### Warehouses Applications (Agent CONNAIT, pas CHERCHE)
+
+Quand l'utilisateur travaille sur une application specifique, charger le warehouse correspondant.
+Le warehouse contient TOUT : schema DB, routes, bugs connus, deploy, conventions.
+
+| Application | Keywords | Warehouse (CLAUDE.md) | Repo/Code |
+|------------|----------|----------------------|-----------|
+| 🌿 **Eco-Systemes** | `eco-systemes`, `farmsystem`, `livestockai`, `marketplace eco`, `community forum`, `108.61.198.204`, `ferme`, `farming app`, `cooperative agricole` | `C:\Users\r2d2\Projects\multipass-farmsystems\.claude\CLAUDE.md` | Local : `Projects/multipass-farmsystems/` |
+| 💼 **SaaS MultiPass** | `saas`, `app.multipass.agency`, `multipass agency`, `packs`, `services it`, `diagnostic`, `r2d2-frontend`, `r2d2-api`, `chatbot widget` | `C:\Users\r2d2\Projects\MultiPass\.claude\CLAUDE.md` | VM 103 : `~/R2D2-Agent/` |
+| 🌍 **GAIA Madeira** | `gaia`, `madeira`, `pantheon`, `gaia pass`, `supabase postgis`, `leaflet`, `acteurs madeira` | *(pas encore cree)* | VM 103 : `~/multipass-site/gaia-madeira/` |
+| 🌱 **Farm Agent** | `farm agent`, `llamafile`, `kit survie`, `agent agricole`, `offline ai`, `borne villageoise` | PRP : `~/.claude/PRPs/farm-agent.md` | Local : `Projects/farm-agent/` (a creer) |
+
+**Regle warehouse** : Quand un keyword warehouse est detecte, TOUJOURS lire le CLAUDE.md du warehouse AVANT de commencer a travailler. L'agent doit CONNAITRE l'app, pas chercher dans le code.
+
+**Regle MemPalace** : En complement du warehouse, utiliser les outils MCP MemPalace (`mempalace_search`, `mempalace_kg_query`) pour chercher des details specifiques non couverts par le warehouse.
 
 ### Patterns de Détection Détaillés
 
@@ -376,6 +407,57 @@ Certains keywords secondaires sont partagés entre skills. Appliquer ces règles
 | 🤖 AI Infra | LiteLLM, Langfuse, RAG, modeles LLM, embeddings | `/ai-*` | ✅ Actif |
 | 🗄️ Supabase | Auth, database PostgreSQL, storage, edge functions, RLS | `/supa-*` | ✅ Actif |
 <!-- cloud-skill: prevu, non implemente
+
+#### 🎨 Excalidraw Diagram (excalidraw-diagram-skill)
+
+**Keywords primaires** (haute confiance):
+- `excalidraw`, `diagram`, `diagramme`, `schema visuel`
+- `flowchart`, `architecture diagram`, `workflow diagram`
+- `visualiser`, `sequence diagram`, `dessiner schema`
+- `generer diagramme`, `creer schema`
+
+**Keywords secondaires** (contexte requis):
+- `schema`, `flow` -> si contexte visualisation/diagramme
+- `architecture` -> si contexte schema/visualisation (pas infra)
+- `dessiner`, `illustrer` -> si contexte technique/concept
+
+**Commandes activees**: Pas de commandes prefixees. Invocation par description naturelle ("dessine un diagramme de...", "visualise l'architecture de...")
+
+**Rendu**: `uv run python render_excalidraw.py <fichier.excalidraw>` dans `references/`
+
+#### 🔬 R&D (rd-skill)
+
+**Keywords primaires** (haute confiance):
+- `r&d`, `recherche`, `edge ai`, `tinyml`, `tiny ml`
+- `robotique`, `robot`, `esp32`, `arduino`, `microcontroleur`
+- `embedded`, `embarqué`, `frugal`, `llm quantisé`
+- `inference locale`, `ollama`, `ros`, `iot industriel`
+- `capteur`, `prototype`, `benchmark hardware`
+
+**Keywords secondaires** (contexte requis):
+- `hardware` -> si contexte prototypage/benchmark (pas infra)
+- `modele` -> si contexte edge/frugal/quantisation (pas ai-infra)
+- `ollama` -> si contexte edge/local (pas ai-infra cloud)
+- `benchmark` -> si contexte hardware/modele frugal
+
+**Commandes activees** (7): `/rd-scan`, `/rd-evaluate`, `/rd-benchmark`, `/rd-prototype`, `/rd-watch`, `/rd-catalog`, `/rd-report`
+
+#### 🔐 Credentials (credentials-skill)
+
+**Keywords primaires** (haute confiance):
+- `credential`, `credentials`, `registre credentials`, `password management`
+- `secret management`, `rotation credential`, `audit credential`
+- `cred-list`, `cred-show`, `cred-add`, `cred-validate`, `cred-rotate`
+- `cred-audit`, `cred-discover`, `cred-sync`, `cred-status`
+- `cred-export`, `cred-import`, `cred-backup`, `cred-schedule`
+
+**Keywords secondaires** (contexte requis):
+- `password`, `secret` -> si contexte gestion/rotation/registre (pas security-skill)
+- `rotation` -> si contexte credentials/passwords
+- `audit` -> si contexte credentials/passwords (pas security-skill general)
+- `export bitwarden`, `export keepass` -> credentials-skill
+
+**Commandes activees** (15): `/cred-list`, `/cred-show`, `/cred-add`, `/cred-edit`, `/cred-remove`, `/cred-validate`, `/cred-rotate`, `/cred-audit`, `/cred-discover`, `/cred-schedule`, `/cred-export`, `/cred-import`, `/cred-backup`, `/cred-status`, `/cred-sync`
 #### ☁️ Cloud (cloud-skill) [Prévu]
 
 **Keywords primaires**:
@@ -506,6 +588,9 @@ Chaque réponse indique l'agent actif:
 ├── qelectrotech-skill/   ← CAO: Plans électriques (35 cmd, 9 wizards)
 ├── sop-creator/          ← Docs: SOPs et runbooks (1 cmd, 6 templates)
 ├── skill-creator/        ← Meta: Création de skills (1 cmd)
+├── excalidraw-diagram-skill/ ← Visual: Diagrammes Excalidraw (generation + rendu PNG)
+├── credentials-skill/    ← Security: Gestion credentials (15 cmd, 3 wizards)
+├── rd-skill/             ← R&D: Recherche, edge AI, robotique (7 cmd, 2 wizards)
 ├── monitoring-skill/     ← Infra: Monitoring homelab (10 cmd, 2 wizards)
 <!-- └── cloud-skill/       [Prévu - cloud-skill: prevu, non implemente] -->
 ```

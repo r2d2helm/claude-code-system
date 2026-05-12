@@ -1,6 +1,7 @@
 ---
 name: linux-skill
 description: "Administration serveurs Linux : services, packages, securite, performance, backup, SSH, DNS, Nginx, SSL."
+prefix: /lx-*
 ---
 
 # Super Agent Linux Administration

@@ -12,44 +12,74 @@ Gerer les versions de fichiers (v01, v02...).
 
 ### Lister les versions
 
-```powershell
-$Path = $args[0]
-$Files = Get-ChildItem -Path $Path -File | Where-Object { $_.BaseName -match '_v(\d+)' }
+```bash
+#!/usr/bin/env bash
+path="${1}"
 
-$Files | Group-Object { $_.BaseName -replace '_v\d+.*$', '' } | ForEach-Object {
-    Write-Output "$($_.Name):"
-    $_.Group | Sort-Object { [int]($_.BaseName | Select-String -Pattern 'v(\d+)').Matches[0].Groups[1].Value } |
-        ForEach-Object { "  $($_.Name) ($($_.LastWriteTime.ToString('yyyy-MM-dd')))" }
-}
+find "$path" -type f | grep -E '_v[0-9]+\.' | while IFS= read -r file; do
+  name=$(basename "$file")
+  base=$(echo "${name%.*}" | sed 's/_v[0-9]*$//')
+  mod_date=$(stat -c %y "$file" | cut -c1-10)
+  echo "$base | $name ($mod_date)"
+done | sort | awk -F' | ' '
+{
+  if ($1 != prev) {
+    if (count > 0) print ""
+    print $1":"
+    prev=$1; count=0
+  }
+  print "  "$2
+  count++
+}'
 ```
 
 ### Incrementer la version
 
-```powershell
-$File = Get-Item $args[0]
-if ($File.BaseName -match '_v(\d+)') {
-    $CurrentVersion = [int]$Matches[1]
-    $NextVersion = $CurrentVersion + 1
-    $NewName = $File.BaseName -replace "_v$CurrentVersion", "_v$($NextVersion.ToString('D2'))"
-    Copy-Item -Path $File.FullName -Destination (Join-Path $File.DirectoryName "$NewName$($File.Extension)")
-    Write-Output "Nouvelle version: $NewName$($File.Extension)"
-} else {
-    $NewName = "$($File.BaseName)_v02$($File.Extension)"
-    Rename-Item -Path $File.FullName -NewName "$($File.BaseName)_v01$($File.Extension)"
-    Copy-Item -Path (Join-Path $File.DirectoryName "$($File.BaseName)_v01$($File.Extension)") `
-              -Destination (Join-Path $File.DirectoryName $NewName)
-    Write-Output "Versionne: v01 (original) + v02 (copie)"
-}
+```bash
+#!/usr/bin/env bash
+file="${1}"
+dir=$(dirname "$file")
+name=$(basename "$file")
+ext="${name##*.}"
+base="${name%.*}"
+
+if echo "$base" | grep -qE '_v[0-9]+$'; then
+  current=$(echo "$base" | grep -oE 'v[0-9]+$' | grep -oE '[0-9]+')
+  next=$(printf '%02d' $(( current + 1 )))
+  new_base=$(echo "$base" | sed "s/v${current}\$/v${next}/")
+  cp "$file" "${dir}/${new_base}.${ext}"
+  echo "Nouvelle version: ${new_base}.${ext}"
+else
+  # Premier versionnage
+  mv "$file" "${dir}/${base}_v01.${ext}"
+  cp "${dir}/${base}_v01.${ext}" "${dir}/${base}_v02.${ext}"
+  echo "Versionne: v01 (original) + v02 (copie)"
+fi
 ```
 
 ### Nettoyer les anciennes versions
 
-```powershell
-$Files | Group-Object { $_.BaseName -replace '_v\d+.*$', '' } | ForEach-Object {
-    $Sorted = $_.Group | Sort-Object { [int]($_.BaseName | Select-String -Pattern 'v(\d+)').Matches[0].Groups[1].Value } -Descending
-    $ToDelete = $Sorted | Select-Object -Skip 2  # Garder les 2 dernieres
-    $ToDelete | ForEach-Object { Write-Output "Supprimer: $($_.Name)" }
-}
+```bash
+#!/usr/bin/env bash
+path="${1}"
+keep="${2:-2}"
+
+find "$path" -type f | grep -E '_v[0-9]+\.' | \
+  sed 's/_v[0-9]*\././' | sort -u | while IFS= read -r base_file; do
+    # Trouver toutes les versions de ce fichier
+    pattern="${base_file%.*}_v"
+    ext="${base_file##*.}"
+    versions=$(ls "${pattern}"*".$ext" 2>/dev/null | sort -t'v' -k2 -n)
+    count=$(echo "$versions" | grep -c . || echo 0)
+
+    if [ "$count" -gt "$keep" ]; then
+      to_delete=$(echo "$versions" | head -n $(( count - keep )))
+      echo "$to_delete" | while read -r old_file; do
+        echo "Supprimer: $(basename "$old_file")"
+        # rm "$old_file"  # Decommentez pour supprimer
+      done
+    fi
+  done
 ```
 
 ## Options
@@ -63,10 +93,10 @@ $Files | Group-Object { $_.BaseName -replace '_v\d+.*$', '' } | ForEach-Object {
 
 ## Exemples
 
-```powershell
-/file-version C:\Users\r2d2\Documents list      # Lister les versions
-/file-version rapport.docx bump                  # v01 -> v02
-/file-version C:\Users\r2d2\Documents clean      # Nettoyer
+```bash
+/file-version ~/Documents list      # Lister les versions
+/file-version rapport.docx bump     # v01 -> v02
+/file-version ~/Documents clean     # Nettoyer
 ```
 
 ## Voir Aussi

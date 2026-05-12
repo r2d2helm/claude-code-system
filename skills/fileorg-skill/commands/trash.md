@@ -1,6 +1,6 @@
 # Commande: /file-trash
 
-Gerer la corbeille Windows.
+Gerer la corbeille Linux (trash-cli).
 
 ## Syntaxe
 
@@ -12,38 +12,50 @@ Gerer la corbeille Windows.
 
 ### Taille de la corbeille
 
-```powershell
-$Shell = New-Object -ComObject Shell.Application
-$RecycleBin = $Shell.NameSpace(0xA)
-$Items = $RecycleBin.Items()
+```bash
+#!/usr/bin/env bash
+trash_dir="$HOME/.local/share/Trash"
 
-$TotalSize = 0
-foreach ($Item in $Items) {
-    $TotalSize += $RecycleBin.GetDetailsOf($Item, 3) -replace '[^\d]', ''
-}
+count=$(find "${trash_dir}/files" -type f 2>/dev/null | wc -l)
+size=$(du -sh "${trash_dir}/files" 2>/dev/null | cut -f1)
 
-Write-Output "Corbeille: $($Items.Count) elements"
-Write-Output "Taille: $([math]::Round($TotalSize / 1MB, 1)) MB"
+echo "Corbeille: $count elements"
+echo "Taille: $size"
 ```
 
 ### Lister le contenu
 
-```powershell
-$Items | ForEach-Object {
-    [PSCustomObject]@{
-        Nom = $RecycleBin.GetDetailsOf($_, 0)
-        Origine = $RecycleBin.GetDetailsOf($_, 1)
-        Date = $RecycleBin.GetDetailsOf($_, 2)
-        Taille = $RecycleBin.GetDetailsOf($_, 3)
-    }
-} | Format-Table -AutoSize
+```bash
+#!/usr/bin/env bash
+# Utiliser trash-cli si disponible
+if command -v trash-list &>/dev/null; then
+  trash-list | column -t
+else
+  ls -lh ~/.local/share/Trash/files/ | column -t
+fi
 ```
 
 ### Vider la corbeille
 
-```powershell
-Clear-RecycleBin -Force -ErrorAction SilentlyContinue
-Write-Output "Corbeille videe"
+```bash
+#!/usr/bin/env bash
+# Avec trash-cli
+if command -v trash-empty &>/dev/null; then
+  trash-empty
+else
+  rm -rf ~/.local/share/Trash/files/*
+  rm -rf ~/.local/share/Trash/info/*
+fi
+echo "Corbeille videe"
+```
+
+### Envoyer en corbeille (au lieu de rm)
+
+```bash
+# Installer trash-cli : sudo apt install trash-cli
+# Puis utiliser trash-put au lieu de rm
+trash-put fichier.txt
+trash-put ~/Downloads/ancien-fichier.zip
 ```
 
 ## Options
@@ -53,14 +65,21 @@ Write-Output "Corbeille videe"
 | `list` | Lister le contenu |
 | `size` | Taille de la corbeille |
 | `empty` | Vider la corbeille |
-| `restore` | Restaurer un element |
+| `restore` | Restaurer un element (trash-restore) |
 
 ## Exemples
 
-```powershell
+```bash
 /file-trash size           # Taille
 /file-trash list           # Contenu
 /file-trash empty          # Vider
+trash-empty 30             # Vider elements > 30 jours
+```
+
+## Installation trash-cli
+
+```bash
+sudo apt install trash-cli
 ```
 
 ## Voir Aussi

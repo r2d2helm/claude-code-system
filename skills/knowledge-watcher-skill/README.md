@@ -41,20 +41,20 @@ knowledge-watcher-skill/
 ├── wizards/
 │   ├── wizard-setup.md
 │   └── wizard-sources.md
-├── scripts/              # Scripts PowerShell
-│   ├── KnowledgeWatcher.psm1
-│   ├── Start-KnowledgeWatcher.ps1
-│   ├── Stop-KnowledgeWatcher.ps1
-│   ├── Invoke-QueueProcessor.ps1
-│   └── Register-WatcherTasks.ps1
+├── scripts/              # Scripts bash
+│   ├── knowledge-watcher-lib.sh
+│   ├── start-knowledge-watcher.sh
+│   ├── stop-knowledge-watcher.sh
+│   ├── invoke-queue-processor.sh
+│   └── register-watcher-cron.sh
 ├── processors/           # Pipeline de traitement
-│   ├── Classifier.ps1
-│   ├── Summarizer.ps1
-│   └── Formatter.ps1
+│   ├── classifier.sh
+│   ├── summarizer.sh
+│   └── formatter.sh
 ├── sources/              # Parseurs de sources
-│   ├── ClaudeHistorySource.ps1
-│   ├── BrowserBookmarksSource.ps1
-│   └── GenericFileSource.ps1
+│   ├── claude-history-source.sh
+│   ├── browser-bookmarks-source.sh
+│   └── generic-file-source.sh
 ├── config/               # Configuration
 │   ├── config.json
 │   ├── sources.json
@@ -70,8 +70,8 @@ Fichier `config/config.json` :
 
 | Paramètre | Description | Défaut |
 |-----------|-------------|--------|
-| paths.obsidianVault | Chemin du vault Obsidian | Documents\Knowledge |
-| paths.claudeCli | Chemin vers claude.exe | .local\bin\claude.exe |
+| paths.obsidianVault | Chemin du vault Obsidian | ~/Documents/Knowledge |
+| paths.claudeCli | Chemin vers Claude CLI | ~/.local/bin/claude |
 | processing.claudeTimeout | Timeout Claude CLI (ms) | 30000 |
 | processing.maxFileSize | Taille max fichier (bytes) | 1048576 |
 | processing.deduplicationWindow | Fenêtre dedup (ms) | 86400000 |

@@ -1,6 +1,7 @@
 ---
 name: docker-skill
 description: "Administration Docker et conteneurs : images, containers, compose, volumes, networks, registries, securite."
+prefix: /dk-*
 ---
 
 # Super Agent Docker Administration

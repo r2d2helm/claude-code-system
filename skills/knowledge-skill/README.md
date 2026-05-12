@@ -13,17 +13,17 @@ Agent intelligent de capture, résumé et organisation des connaissances extrait
 
 ## 📦 Installation
 
-```powershell
+```bash
 # Extraire dans le dossier skills
-Expand-Archive -Path "knowledge-skill.zip" -DestinationPath "$env:USERPROFILE\.claude\skills\" -Force
+unzip knowledge-skill.zip -d "$HOME/.claude/skills/"
 
 # Vérifier
-Get-ChildItem "$env:USERPROFILE\.claude\skills\knowledge-skill"
+ls "$HOME/.claude/skills/knowledge-skill"
 ```
 
 ## 🚀 Démarrage Rapide
 
-```powershell
+```bash
 # 1. Configuration initiale
 /know-wizard setup
 
@@ -50,16 +50,16 @@ Get-ChildItem "$env:USERPROFILE\.claude\skills\knowledge-skill"
 ## 📁 Structure
 
 ```
-Knowledge\
-├── _Index\           # Navigation
-├── _Daily\           # Notes quotidiennes
-├── _Inbox\           # À traiter
-├── _Templates\       # Modèles
-├── Conversations\    # Résumés Claude
-├── Concepts\         # Notes atomiques
-├── Projets\          # Par projet
-├── Code\             # Snippets
-└── Références\       # Documentation
+Knowledge/
+├── _Index/           # Navigation
+├── _Daily/           # Notes quotidiennes
+├── _Inbox/           # À traiter
+├── _Templates/       # Modèles
+├── Conversations/    # Résumés Claude
+├── Concepts/         # Notes atomiques
+├── Projets/          # Par projet
+├── Code/             # Snippets
+└── Références/       # Documentation
 ```
 
 ## 🏷️ Système de Tags
@@ -71,7 +71,7 @@ Knowledge\
 
 ### Exemples
 ```
-#dev/powershell/automation
+#dev/bash/automation
 #infra/proxmox/cluster
 #projet/multipass
 ```
@@ -107,8 +107,8 @@ Export automatique compatible :
 - Tags hiérarchiques
 - Graph view
 
-```powershell
-/know-export obsidian --dest="C:\Obsidian\Vault"
+```bash
+/know-export obsidian --dest="$HOME/Obsidian/Vault"
 ```
 
 ## 📊 Méthode Zettelkasten
@@ -144,6 +144,6 @@ Export automatique compatible :
 
 ---
 
-**Version**: 1.0.0  
-**Compatibilité**: Windows 11, PowerShell 7.4+, Obsidian  
+**Version**: 1.0.0
+**Compatibilité**: Ubuntu Linux, bash 5+, Obsidian
 **Dernière mise à jour**: Février 2026

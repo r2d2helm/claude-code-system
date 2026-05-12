@@ -12,48 +12,49 @@ Synchroniser le vault avec un backup ou un depot Git.
 
 ### Sync Git
 
-```powershell
-$VaultPath = "$env:USERPROFILE\Documents\Knowledge"
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
 
 # Status
-git -C $VaultPath status --short
+git -C "$VAULT" status --short
 
 # Commit et push
-git -C $VaultPath add -A
-git -C $VaultPath commit -m "vault: sync $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
-git -C $VaultPath push
+git -C "$VAULT" add -A
+git -C "$VAULT" commit -m "vault: sync $(date '+%Y-%m-%d %H:%M')"
+git -C "$VAULT" push
 ```
 
 ### Sync backup (ZIP)
 
-```powershell
-$BackupDir = "$env:USERPROFILE\Documents\Backups\Knowledge"
-$Timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-$ZipPath = Join-Path $BackupDir "Knowledge_$Timestamp.zip"
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+backup_dir="${HOME}/Documents/Backups/Knowledge"
+timestamp=$(date '+%Y%m%d-%H%M%S')
+zip_path="${backup_dir}/Knowledge_${timestamp}.zip"
 
-if (-not (Test-Path $BackupDir)) { New-Item -ItemType Directory -Path $BackupDir -Force }
+mkdir -p "$backup_dir"
 
-Compress-Archive -Path "$VaultPath\*" -DestinationPath $ZipPath -CompressionLevel Optimal
-Write-Output "Backup: $ZipPath"
+zip -r "$zip_path" "$VAULT" > /dev/null
+echo "Backup: $zip_path"
 
 # Rotation : garder les 5 derniers
-Get-ChildItem $BackupDir -Filter "Knowledge_*.zip" |
-    Sort-Object LastWriteTime -Descending |
-    Select-Object -Skip 5 |
-    Remove-Item -Force
+ls -t "${backup_dir}/Knowledge_"*.zip 2>/dev/null | tail -n +6 | xargs rm -f
 ```
 
 ### Comparer deux vaults
 
-```powershell
-$Source = "$env:USERPROFILE\Documents\Knowledge"
-$Target = "D:\Backup\Knowledge"
+```bash
+source="${VAULT}"
+target="$HOME/Backup/Knowledge"
 
 # Fichiers differents
-$SourceFiles = Get-ChildItem -Path $Source -Recurse -Filter "*.md"
-$TargetFiles = Get-ChildItem -Path $Target -Recurse -Filter "*.md"
+echo "=== Fichiers dans source mais pas dans target ==="
+diff <(find "$source" -name "*.md" -type f | xargs -I{} basename {} | sort) \
+     <(find "$target" -name "*.md" -type f | xargs -I{} basename {} | sort) | grep '^<'
 
-Compare-Object $SourceFiles $TargetFiles -Property Name, Length, LastWriteTime
+echo "=== Fichiers dans target mais pas dans source ==="
+diff <(find "$source" -name "*.md" -type f | xargs -I{} basename {} | sort) \
+     <(find "$target" -name "*.md" -type f | xargs -I{} basename {} | sort) | grep '^>'
 ```
 
 ## Options
@@ -67,10 +68,10 @@ Compare-Object $SourceFiles $TargetFiles -Property Name, Length, LastWriteTime
 
 ## Exemples
 
-```powershell
-/obs-sync git                           # Commit + push
-/obs-sync backup                        # Backup ZIP
-/obs-sync compare D:\Backup\Knowledge   # Comparer
+```bash
+/obs-sync git                              # Commit + push
+/obs-sync backup                           # Backup ZIP
+/obs-sync compare $HOME/Backup/Knowledge   # Comparer
 ```
 
 ## Voir Aussi

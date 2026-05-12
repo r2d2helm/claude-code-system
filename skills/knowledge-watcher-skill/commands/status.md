@@ -14,12 +14,11 @@ Affiche un tableau de bord complet avec l'état des watchers, les statistiques d
 
 ## Exécution
 
-**IMPORTANT**: Exécute ce script PowerShell pour afficher le statut:
+**IMPORTANT**: Exécute ce script bash pour afficher le statut:
 
-```powershell
-$SkillPath = "$env:USERPROFILE\.claude\skills\knowledge-watcher-skill"
-Import-Module "$SkillPath\scripts\KnowledgeWatcher.psm1" -Force
-Format-KWStatus
+```bash
+SKILL_PATH="$HOME/.claude/skills/knowledge-watcher-skill"
+bash "$SKILL_PATH/scripts/kw-status.sh"
 ```
 
 ## Exemple de sortie
@@ -44,7 +43,7 @@ Format-KWStatus
 ╠══════════════════════════════════════════════════════════════╣
 ║  SOURCES                                                     ║
 ║  ├─ Enabled        : 5 / 10
-║  └─ Vault Path     : C:\Users\r2d2\Documents\Knowledge
+║  └─ Vault Path     : ~/Documents/Knowledge
 ╠══════════════════════════════════════════════════════════════╣
 ║  LAST BATCH RUNS                                             ║
 ║  ├─ Tier 2 (hourly): 2026-02-05T10:00:00
@@ -61,10 +60,9 @@ Format-KWStatus
 
 ## Pour format JSON
 
-```powershell
-$SkillPath = "$env:USERPROFILE\.claude\skills\knowledge-watcher-skill"
-Import-Module "$SkillPath\scripts\KnowledgeWatcher.psm1" -Force
-Get-KWStatus | ConvertTo-Json
+```bash
+SKILL_PATH="$HOME/.claude/skills/knowledge-watcher-skill"
+bash "$SKILL_PATH/scripts/kw-status.sh" --json | jq .
 ```
 
 ## Interprétation

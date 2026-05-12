@@ -12,39 +12,51 @@ Gerer les templates du vault (_Templates/).
 
 ### Lister les templates
 
-```powershell
-$TemplatePath = "$env:USERPROFILE\Documents\Knowledge\_Templates"
-Get-ChildItem -Path $TemplatePath -Filter "*.md" | ForEach-Object {
-    $Content = Get-Content $_.FullName -Raw
-    $Lines = ($Content -split '\n').Count
-    [PSCustomObject]@{
-        Template = $_.BaseName
-        Lignes = $Lines
-    }
-} | Format-Table -AutoSize
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+template_path="${VAULT}/_Templates"
+
+find "$template_path" -name "*.md" -type f | while IFS= read -r tmpl; do
+    name=$(basename "$tmpl" .md)
+    lines=$(wc -l < "$tmpl")
+    printf "%-35s %d lignes\n" "$name" "$lines"
+done | column -t
 ```
 
 ### Valider les templates
 
-```powershell
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+template_path="${VAULT}/_Templates"
+
 # Verifier que chaque template a un frontmatter valide
-Get-ChildItem -Path $TemplatePath -Filter "*.md" | ForEach-Object {
-    $Content = Get-Content $_.FullName -Raw
-    $HasFrontmatter = $Content -match '(?s)^---\s*\n.+?\n---'
-    [PSCustomObject]@{
-        Template = $_.BaseName
-        Frontmatter = if ($HasFrontmatter) { "OK" } else { "MANQUANT" }
-    }
-} | Format-Table -AutoSize
+find "$template_path" -name "*.md" -type f | while IFS= read -r tmpl; do
+    name=$(basename "$tmpl" .md)
+    if head -1 "$tmpl" | grep -q '^---'; then
+        echo "OK: $name"
+    else
+        echo "MANQUANT: $name"
+    fi
+done | column -t
 ```
 
 ### Appliquer un template a une note
 
-```powershell
-# Copier un template vers une nouvelle note
-$Template = Get-Content "$TemplatePath\Template-Concept.md" -Raw
-$NewNote = $Template -replace '\{\{title\}\}', $NoteName
-$NewNote = $NewNote -replace '\{\{date\}\}', (Get-Date -Format 'yyyy-MM-dd')
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+template_path="${VAULT}/_Templates"
+note_name="$1"
+template_name="${2:-Template-Concept}"
+
+template=$(< "${template_path}/${template_name}.md")
+today=$(date '+%Y-%m-%d')
+
+# Remplacer les variables
+new_note="${template//\{\{title\}\}/$note_name}"
+new_note="${new_note//\{\{date\}\}/$today}"
+
+echo "$new_note" > "${VAULT}/_Inbox/${note_name}.md"
+echo "Note creee depuis template: ${note_name}.md"
 ```
 
 ## Options
@@ -58,7 +70,7 @@ $NewNote = $NewNote -replace '\{\{date\}\}', (Get-Date -Format 'yyyy-MM-dd')
 
 ## Exemples
 
-```powershell
+```bash
 /obs-templates list                    # Lister les templates
 /obs-templates validate                # Verifier tous les templates
 /obs-templates apply Concept MyNote    # Creer note depuis template

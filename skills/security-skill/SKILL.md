@@ -47,7 +47,7 @@ Agent intelligent pour securiser l'infrastructure homelab : audit, hardening, ce
 | Commande | Description |
 |----------|-------------|
 | `/sec-docker` | Securite Docker (images, runtime, secrets, privileges) |
-| `/sec-passwords` | Audit mots de passe et credentials |
+| `/sec-passwords` | Audit mots de passe et credentials (voir aussi `/cred-audit`) |
 
 ## Wizards
 
@@ -121,6 +121,7 @@ Systeme de scoring pour evaluer la posture de securite :
 | **monitoring-skill** | `/mon-alerts` pour les alertes securite |
 | **proxmox-skill** | `/pve-firewall` pour le firewall Proxmox |
 | **windows-skill** | `/win-security`, `/win-defender` pour Windows |
+| **credentials-skill** | `/cred-audit`, `/cred-rotate`, `/cred-validate` pour la gestion complete des credentials |
 
 **Difference avec les skills existants** : security-skill est transversal. Il orchestre un audit multi-machines et multi-domaines, tandis que les skills individuels (linux, docker, windows) gerent la securite de leur perimetre specifique.
 

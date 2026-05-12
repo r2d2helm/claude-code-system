@@ -12,36 +12,35 @@ Fusionner deux tags en un seul dans tout le vault.
 
 ### Fusionner
 
-```powershell
-$VaultPath = "$env:USERPROFILE\Documents\Knowledge"
-$Tag1 = $args[0]
-$Tag2 = $args[1]
-$Target = $args[2]
+```bash
+#!/usr/bin/env bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+tag1="$1"
+tag2="$2"
+target="$3"
 
-$Notes = Get-ChildItem -Path $VaultPath -Recurse -Filter "*.md"
-$Modified = 0
+modified=0
 
-foreach ($Note in $Notes) {
-    $Content = Get-Content $Note.FullName -Raw -ErrorAction SilentlyContinue
-    if (-not $Content) { continue }
-    $NewContent = $Content
+while IFS= read -r note; do
+    content=$(< "$note")
+    [ -z "$content" ] && continue
+    new_content="$content"
 
-    # Remplacer les deux tags par le target
-    $NewContent = $NewContent -replace "(?<=\s|^)#$([regex]::Escape($Tag1))(?=\s|$)", "#$Target"
-    $NewContent = $NewContent -replace "(?<=\s|^)#$([regex]::Escape($Tag2))(?=\s|$)", "#$Target"
+    # Remplacer les deux tags par le target (inline #tag)
+    new_content=$(echo "$new_content" | sed -E "s/(^|[[:space:]])#${tag1}([[:space:]]|$)/\1#${target}\2/g")
+    new_content=$(echo "$new_content" | sed -E "s/(^|[[:space:]])#${tag2}([[:space:]]|$)/\1#${target}\2/g")
 
-    # Frontmatter
-    $NewContent = $NewContent -replace "(?<=^\s*-\s+)$([regex]::Escape($Tag1))(?=\s*$)", $Target
-    $NewContent = $NewContent -replace "(?<=^\s*-\s+)$([regex]::Escape($Tag2))(?=\s*$)", $Target
+    # Remplacer dans frontmatter (liste YAML "  - tag")
+    new_content=$(echo "$new_content" | sed -E "s/^([[:space:]]*-[[:space:]]+)${tag1}[[:space:]]*$/\1${target}/")
+    new_content=$(echo "$new_content" | sed -E "s/^([[:space:]]*-[[:space:]]+)${tag2}[[:space:]]*$/\1${target}/")
 
-    if ($NewContent -ne $Content) {
-        [System.IO.File]::WriteAllText($Note.FullName, $NewContent,
-            [System.Text.UTF8Encoding]::new($false))
-        $Modified++
-    }
-}
+    if [ "$new_content" != "$content" ]; then
+        printf '%s' "$new_content" > "$note"
+        modified=$((modified + 1))
+    fi
+done < <(find "$VAULT" -name "*.md" -type f)
 
-Write-Output "$Modified notes modifiees: #$Tag1 + #$Tag2 -> #$Target"
+echo "$modified notes modifiees: #$tag1 + #$tag2 -> #$target"
 ```
 
 ## Options
@@ -52,7 +51,7 @@ Write-Output "$Modified notes modifiees: #$Tag1 + #$Tag2 -> #$Target"
 
 ## Exemples
 
-```powershell
+```bash
 /obs-tags merge proxmox pve infra/proxmox    # Fusionner variantes
 /obs-tags merge ai/gpt ai/openai ai/llm      # Unifier sous un tag
 ```

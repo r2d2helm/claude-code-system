@@ -1,0 +1,54 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-03-25",
+  "categories": {
+    "IT_Tech": {
+      "search_queries": [
+        "actualites IA LLM agents 2026",
+        "CVE critiques vulnerabilites",
+        "Docker Proxmox open source updates",
+        "souverainete numerique Europe local-first",
+        "Claude Anthropic Mistral actualites"
+      ],
+      "sites": [
+        {"id": "cert-be", "name": "CERT-BE", "url": "https://cert.be/fr/advisories", "enabled": true},
+        {"id": "lemagit", "name": "LeMagIT", "url": "https://www.lemagit.fr", "enabled": true},
+        {"id": "usine-digitale", "name": "L'Usine Digitale", "url": "https://www.usine-digitale.fr", "enabled": true}
+      ]
+    },
+    "Business_Reglementaire": {
+      "search_queries": [
+        "subsides wallons PME digitalisation 2026",
+        "cheque cybersecurite Wallonie",
+        "AI Act EU implementation 2026",
+        "aides PME Belgique numerique",
+        "RGPD nouvelles sanctions Europe"
+      ],
+      "sites": [
+        {"id": "digital-wallonia", "name": "Digital Wallonia", "url": "https://www.digitalwallonia.be", "enabled": true},
+        {"id": "1890", "name": "1890.be", "url": "https://www.1890.be", "enabled": true}
+      ]
+    },
+    "Concurrence": {
+      "search_queries": [
+        "ESN agences IT Belgique Wallonie 2026",
+        "integrateur open source PME Belgique",
+        "managed services provider MSP Belgique"
+      ],
+      "sites": [
+        {"id": "sortlist", "name": "Sortlist", "url": "https://www.sortlist.be", "enabled": true}
+      ]
+    },
+    "Strategique": {
+      "search_queries": [
+        "Microsoft CLOUD Act Europe souverainete",
+        "Big Tech lock-in cloud Europe 2026",
+        "Gaia-X cloud souverain europeen",
+        "souverainete numerique Europe actualites 2026"
+      ],
+      "sites": [
+        {"id": "politico-eu", "name": "Politico EU", "url": "https://www.politico.eu/tag/digital-policy", "enabled": true}
+      ]
+    }
+  }
+}

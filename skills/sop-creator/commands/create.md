@@ -10,7 +10,18 @@ Crée une documentation opérationnelle (SOP, runbook, playbook, checklist) selo
    - Si le type n'est pas clair, consulter le Format Selection Guide dans SKILL.md
    - Demander des précisions si nécessaire (domaine, audience, criticité)
 
-2. **Sélectionner le template** : Charger le template approprié depuis `references/`
+2. **Sélectionner le template** : Charger le template de reference approprié depuis `references/`
+
+   **Decision logic -- pick the first match:**
+   - Is this for an emergency or incident response? -> `references/runbook.md`
+   - Is this a multi-phase deployment, migration, or release? -> `references/standard-sop.md` (playbook variant)
+   - Is this a debugging/diagnosis workflow with branching? -> `references/decision-tree.md`
+   - Is this a one-time setup or configuration task? -> `references/how-to-guide.md`
+   - Is this for onboarding a new person to a system? -> `references/onboarding-guide.md`
+   - Is this a verification or quality control list? -> `references/checklist.md`
+   - Is this any other repeatable process? -> `references/standard-sop.md`
+
+   Template mapping:
    - Runbook -> `references/runbook.md`
    - Standard SOP -> `references/standard-sop.md`
    - How-To Guide -> `references/how-to-guide.md`
@@ -33,6 +44,22 @@ Crée une documentation opérationnelle (SOP, runbook, playbook, checklist) selo
    - Placer dans `Knowledge/References/SOPs/`
    - Ajouter le frontmatter YAML obligatoire
    - Nommer : `SOP_{Domain}_{Title}.md`
+
+   **Vault integration example (Obsidian frontmatter):**
+   ```yaml
+   ---
+   title: "SOP - Backup Proxmox VMs"
+   date: 2026-02-22
+   type: reference
+   status: evergreen
+   tags:
+     - sop/infrastructure
+     - infra/proxmox
+   related:
+     - "[[C_Proxmox-Backup]]"
+     - "[[SOP_Proxmox_Restore]]"
+   ---
+   ```
 
 ## Exemples
 

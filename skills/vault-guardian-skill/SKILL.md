@@ -1,6 +1,7 @@
 ---
 name: vault-guardian-skill
 description: "Maintenance proactive du vault : health checks, auto-fix, rapports. Utiliser pour diagnostiquer, corriger automatiquement, ou auditer le vault Obsidian."
+prefix: /guardian-*
 ---
 
 # Vault Guardian Agent
@@ -56,7 +57,7 @@ Agent de maintenance proactive pour le vault Obsidian Knowledge. Surveille la sa
 ## Vault Path
 
 ```
-C:\Users\r2d2\Documents\Knowledge
+~/Documents/Knowledge
 ```
 
 ## Conventions

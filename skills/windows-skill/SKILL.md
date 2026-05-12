@@ -8,6 +8,8 @@ prefix: /win-*
 
 Agent d'administration Windows avec commandes slash, wizards interactifs et best practices 2025-2026.
 
+> Note : Ce skill est utilise pour l'administration Windows a distance depuis un poste de travail Ubuntu Linux 24.04+. Les commandes PowerShell et WinRM sont executees via SSH ou PSRemoting depuis le terminal Linux.
+
 ## Compatibilité
 
 | Composant | Version |

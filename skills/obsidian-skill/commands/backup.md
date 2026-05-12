@@ -12,86 +12,79 @@ Sauvegarder le vault Obsidian.
 
 Crée une archive ZIP du vault avec rotation automatique des sauvegardes.
 
-## Script PowerShell
+## Script bash
 
-```powershell
-param(
-    [string]$VaultPath = "$env:USERPROFILE\Documents\Knowledge",
-    [string]$BackupDir = "$env:USERPROFILE\Documents\Backups\Knowledge",
-    [int]$KeepDays = 7,
-    [switch]$ExcludeObsidian
-)
+```bash
+#!/usr/bin/env bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+BACKUP_DIR="${HOME}/Documents/Backups/Knowledge"
+KEEP_DAYS=7
+EXCLUDE_OBSIDIAN=false
 
-$timestamp = Get-Date -Format "yyyy-MM-dd_HHmmss"
-$archiveName = "Knowledge_$timestamp.zip"
+timestamp=$(date '+%Y-%m-%d_%H%M%S')
+archive_name="Knowledge_${timestamp}.zip"
 
-# Créer le dossier backup si nécessaire
-if (-not (Test-Path $BackupDir)) {
-    New-Item -Path $BackupDir -ItemType Directory -Force | Out-Null
-}
+# Creer le dossier backup si necessaire
+mkdir -p "$BACKUP_DIR"
 
-$archivePath = Join-Path $BackupDir $archiveName
+archive_path="${BACKUP_DIR}/${archive_name}"
 
-Write-Host ""
-Write-Host "╔══════════════════════════════════════════════╗"
-Write-Host "║     💾 BACKUP DU VAULT                        ║"
-Write-Host "╠══════════════════════════════════════════════╣"
-Write-Host "║                                              ║"
-Write-Host "║  Source:  $VaultPath"
-Write-Host "║  Dest:    $archivePath"
-Write-Host "║                                              ║"
+echo ""
+echo "╔══════════════════════════════════════════════╗"
+echo "║     BACKUP DU VAULT                          ║"
+echo "╠══════════════════════════════════════════════╣"
+echo "║                                              ║"
+echo "║  Source:  $VAULT"
+echo "║  Dest:    $archive_path"
+echo "║                                              ║"
 
 # Compter les fichiers
-$files = Get-ChildItem -Path $VaultPath -Recurse -File
-if ($ExcludeObsidian) {
-    $files = $files | Where-Object { $_.FullName -notmatch '\.obsidian' }
-}
-$totalSize = ($files | Measure-Object -Property Length -Sum).Sum
+if [ "$EXCLUDE_OBSIDIAN" = true ]; then
+    file_count=$(find "$VAULT" -type f | grep -v '\.obsidian' | wc -l)
+else
+    file_count=$(find "$VAULT" -type f | wc -l)
+fi
 
-Write-Host "║  Fichiers: $($files.Count)"
-Write-Host "║  Taille:   $('{0:N1} MB' -f ($totalSize / 1MB))"
-Write-Host "║                                              ║"
+total_size=$(du -sm "$VAULT" | awk '{print $1}')
 
-# Créer l'archive
-Write-Host "║  ⏳ Compression en cours...                   ║"
+echo "║  Fichiers: $file_count"
+echo "║  Taille:   ${total_size} MB"
+echo "║                                              ║"
+echo "║  Compression en cours...                     ║"
 
-if ($ExcludeObsidian) {
-    # Exclure .obsidian
-    $tempList = $files.FullName
-    Compress-Archive -Path $tempList -DestinationPath $archivePath -CompressionLevel Optimal
-} else {
-    Compress-Archive -Path "$VaultPath\*" -DestinationPath $archivePath -CompressionLevel Optimal
-}
+# Creer l'archive
+if [ "$EXCLUDE_OBSIDIAN" = true ]; then
+    find "$VAULT" -type f | grep -v '\.obsidian' | \
+        zip -@ "$archive_path" > /dev/null
+else
+    zip -r "$archive_path" "$VAULT" > /dev/null
+fi
 
-$archiveSize = (Get-Item $archivePath).Length
-
-Write-Host "║  ✅ Archive créée: $('{0:N1} MB' -f ($archiveSize / 1MB))"
-Write-Host "║                                              ║"
+archive_size=$(du -sm "$archive_path" | awk '{print $1}')
+echo "║  Archive creee: ${archive_size} MB"
+echo "║                                              ║"
 
 # Rotation: supprimer les anciennes sauvegardes
-$oldBackups = Get-ChildItem -Path $BackupDir -Filter "Knowledge_*.zip" |
-    Sort-Object CreationTime -Descending |
-    Select-Object -Skip $KeepDays
-
-if ($oldBackups.Count -gt 0) {
-    foreach ($old in $oldBackups) {
-        Remove-Item $old.FullName -Force
-    }
-    Write-Host "║  🔄 Rotation: $($oldBackups.Count) anciens backups supprimés"
-} else {
-    Write-Host "║  🔄 Rotation: rien à supprimer"
-}
+old_count=$(ls -t "${BACKUP_DIR}/Knowledge_"*.zip 2>/dev/null | tail -n +$((KEEP_DAYS + 1)) | wc -l)
+if [ "$old_count" -gt 0 ]; then
+    ls -t "${BACKUP_DIR}/Knowledge_"*.zip | tail -n +$((KEEP_DAYS + 1)) | xargs rm -f
+    echo "║  Rotation: $old_count anciens backups supprimes"
+else
+    echo "║  Rotation: rien a supprimer"
+fi
 
 # Lister les backups existants
-$allBackups = Get-ChildItem -Path $BackupDir -Filter "Knowledge_*.zip" | Sort-Object CreationTime -Descending
-Write-Host "║                                              ║"
-Write-Host "║  📦 Backups disponibles: $($allBackups.Count)"
-foreach ($b in $allBackups | Select-Object -First 5) {
-    Write-Host "║    - $($b.Name) ($('{0:N1} MB' -f ($b.Length / 1MB)))"
-}
+echo "║                                              ║"
+backup_count=$(ls "${BACKUP_DIR}/Knowledge_"*.zip 2>/dev/null | wc -l)
+echo "║  Backups disponibles: $backup_count"
+ls -t "${BACKUP_DIR}/Knowledge_"*.zip 2>/dev/null | head -5 | while read -r b; do
+    bname=$(basename "$b")
+    bsize=$(du -sm "$b" | awk '{print $1}')
+    echo "║    - $bname ($bsize MB)"
+done
 
-Write-Host "║                                              ║"
-Write-Host "╚══════════════════════════════════════════════╝"
+echo "║                                              ║"
+echo "╚══════════════════════════════════════════════╝"
 ```
 
 ## Options
@@ -105,12 +98,12 @@ Write-Host "╚═════════════════════�
 
 ## Exemples
 
-```powershell
+```bash
 # Backup standard
 /obs-backup
 
-# Backup vers un autre disque
-/obs-backup --dest="D:\Backups\Knowledge"
+# Backup vers un autre emplacement
+/obs-backup --dest="$HOME/Backups/Knowledge"
 
 # Garder 14 jours
 /obs-backup --keep=14

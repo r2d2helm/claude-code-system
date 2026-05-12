@@ -12,39 +12,57 @@ Audit qualite du nommage et de l'organisation d'un dossier.
 
 ### Audit rapide (score)
 
-```powershell
-$Path = $args[0]
-$Files = Get-ChildItem -Path $Path -File
-$Score = 100
-$Issues = @()
+```bash
+#!/usr/bin/env bash
+path="${1:-.}"
+score=100
+issues=()
+
+files=$(find "$path" -maxdepth 1 -type f)
+total=$(echo "$files" | grep -c . || echo 0)
 
 # Nommage ISO (25 pts)
-$NoDate = $Files | Where-Object { $_.Name -notmatch '^\d{4}-\d{2}-\d{2}' }
-if ($NoDate.Count -gt $Files.Count * 0.5) { $Score -= 25; $Issues += "Plus de 50% sans date ISO" }
+no_date=$(echo "$files" | xargs -I{} basename {} | grep -cv '^\d{4}-\d{2}-\d{2}' || echo 0)
+[ "$total" -gt 0 ] && ratio=$(( no_date * 100 / total )) || ratio=0
+if [ "$ratio" -gt 50 ]; then
+  score=$(( score - 25 ))
+  issues+=("Plus de 50% sans date ISO")
+fi
 
 # Caracteres speciaux (10 pts)
-$BadChars = $Files | Where-Object { $_.BaseName -match '[àâäéèêëîïôöùûüç\s@#$%&]' }
-if ($BadChars.Count -gt 0) { $Score -= 10; $Issues += "$($BadChars.Count) fichiers avec caracteres speciaux" }
+bad_chars=$(find "$path" -maxdepth 1 -type f -name "*[' @#\$%&]*" | wc -l)
+if [ "$bad_chars" -gt 0 ]; then
+  score=$(( score - 10 ))
+  issues+=("$bad_chars fichiers avec caracteres speciaux")
+fi
 
 # Doublons potentiels (15 pts)
-$Dupes = $Files | Group-Object { (Get-FileHash $_.FullName -Algorithm MD5).Hash } |
-    Where-Object { $_.Count -gt 1 }
-if ($Dupes.Count -gt 0) { $Score -= 15; $Issues += "$($Dupes.Count) groupes de doublons" }
+dupe_count=$(find "$path" -maxdepth 1 -type f -print0 | xargs -0 md5sum 2>/dev/null | \
+  awk '{print $1}' | sort | uniq -d | wc -l)
+if [ "$dupe_count" -gt 0 ]; then
+  score=$(( score - 15 ))
+  issues+=("$dupe_count groupes de doublons")
+fi
 
 # Profondeur (20 pts)
-$MaxDepth = (Get-ChildItem -Path $Path -Recurse -Directory | ForEach-Object {
-    ($_.FullName.Replace($Path, '') -split '\\').Count
-} | Measure-Object -Maximum).Maximum
-if ($MaxDepth -gt 4) { $Score -= 20; $Issues += "Profondeur > 4 niveaux ($MaxDepth)" }
+max_depth=$(find "$path" -type d | awk -F'/' '{print NF}' | sort -n | tail -1)
+base_depth=$(echo "$path" | awk -F'/' '{print NF}')
+depth=$(( max_depth - base_depth ))
+if [ "$depth" -gt 4 ]; then
+  score=$(( score - 20 ))
+  issues+=("Profondeur > 4 niveaux ($depth)")
+fi
 
 # Dossiers vides (10 pts)
-$EmptyDirs = Get-ChildItem -Path $Path -Recurse -Directory |
-    Where-Object { (Get-ChildItem $_.FullName).Count -eq 0 }
-if ($EmptyDirs.Count -gt 0) { $Score -= 10; $Issues += "$($EmptyDirs.Count) dossiers vides" }
+empty_dirs=$(find "$path" -type d -empty | wc -l)
+if [ "$empty_dirs" -gt 0 ]; then
+  score=$(( score - 10 ))
+  issues+=("$empty_dirs dossiers vides")
+fi
 
-Write-Output "SCORE: $Score/100"
-Write-Output "Issues:"
-$Issues | ForEach-Object { "  - $_" }
+echo "SCORE: $score/100"
+echo "Issues:"
+for issue in "${issues[@]}"; do echo "  - $issue"; done
 ```
 
 ## Options
@@ -57,10 +75,10 @@ $Issues | ForEach-Object { "  - $_" }
 
 ## Exemples
 
-```powershell
-/file-audit C:\Users\r2d2\Downloads              # Audit rapide
-/file-audit C:\Users\r2d2\Documents --full        # Rapport complet
-/file-audit C:\Users\r2d2\Desktop --fix           # Audit + corrections
+```bash
+/file-audit ~/Downloads              # Audit rapide
+/file-audit ~/Documents --full       # Rapport complet
+/file-audit ~/Desktop --fix          # Audit + corrections
 ```
 
 ## Voir Aussi

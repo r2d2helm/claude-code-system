@@ -12,45 +12,50 @@ Reparer les liens casses du vault (cibles renommees, supprimees, typos).
 
 ### Detecter et reparer
 
-```powershell
-$VaultPath = "$env:USERPROFILE\Documents\Knowledge"
-$Notes = Get-ChildItem -Path $VaultPath -Recurse -Filter "*.md"
-$NoteNames = $Notes | ForEach-Object { $_.BaseName }
-$Fixes = @()
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
 
-foreach ($Note in $Notes) {
-    $Content = Get-Content $Note.FullName -Raw -ErrorAction SilentlyContinue
-    if (-not $Content) { continue }
-    $Links = [regex]::Matches($Content, '\[\[([^\]|]+)(?:\|[^\]]+)?\]\]')
-    foreach ($Link in $Links) {
-        $Target = $Link.Groups[1].Value
-        if ($Target -notin $NoteNames) {
+# Construire la liste des noms de notes existants
+mapfile -t note_names < <(find "$VAULT" -name "*.md" -type f | xargs -I{} basename {} .md)
+
+find "$VAULT" -name "*.md" -type f | while IFS= read -r note; do
+    content=$(< "$note")
+    [ -z "$content" ] && continue
+
+    # Extraire les wikilinks
+    while IFS= read -r target; do
+        [ -z "$target" ] && continue
+        # Verifier si la note existe
+        found=false
+        for n in "${note_names[@]}"; do
+            [ "$n" = "$target" ] && found=true && break
+        done
+
+        if [ "$found" = false ]; then
             # Chercher correspondance approximative
-            $BestMatch = $NoteNames | Where-Object {
-                $_ -like "*$Target*" -or $Target -like "*$_*"
-            } | Select-Object -First 1
-            $Fixes += [PSCustomObject]@{
-                Source = $Note.Name
-                BrokenLink = $Target
-                Suggestion = if ($BestMatch) { $BestMatch } else { "(aucune)" }
-            }
-        }
-    }
-}
-
-$Fixes | Format-Table -AutoSize
+            suggestion=$(printf '%s\n' "${note_names[@]}" | grep -iF "$target" | head -1 || true)
+            [ -z "$suggestion" ] && suggestion="(aucune)"
+            printf "Source: %s\nLien casse: %s\nSuggestion: %s\n---\n" \
+                "$(basename "$note")" "$target" "$suggestion"
+        fi
+    done < <(grep -oP '\[\[\K[^\]|#]+' "$note" 2>/dev/null || true)
+done
 ```
 
 ### Appliquer les corrections
 
-```powershell
+```bash
 # Mode interactif : proposer chaque fix
-foreach ($Fix in $Fixes) {
-    if ($Fix.Suggestion -ne "(aucune)") {
-        Write-Host "Dans $($Fix.Source): [[$($Fix.BrokenLink)]] -> [[$($Fix.Suggestion)]]"
-        # Remplacer dans le fichier apres confirmation
-    }
-}
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
+
+# Remplacer un lien casse dans un fichier
+old_link="AncienNom"
+new_link="NouveauNom"
+file="$VAULT/path/to/note.md"
+
+sed -i "s/\[\[$old_link\]\]/[[$new_link]]/g" "$file"
+sed -i "s/\[\[$old_link|/[[$new_link|/g" "$file"
+echo "Lien remplace: [[$old_link]] -> [[$new_link]]"
 ```
 
 ## Options
@@ -64,7 +69,7 @@ foreach ($Fix in $Fixes) {
 
 ## Exemples
 
-```powershell
+```bash
 /obs-links fix                # Detecter et proposer corrections
 /obs-links fix --dry-run      # Preview des corrections
 /obs-links fix --auto         # Appliquer les correspondances evidentes

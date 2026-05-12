@@ -1,6 +1,6 @@
 # Commande: /file-structure
 
-Analyser ou créer une structure de dossiers.
+Analyser ou creer une structure de dossiers.
 
 ## Syntaxe
 
@@ -14,92 +14,76 @@ Analyser ou créer une structure de dossiers.
 
 Analyser la structure existante d'un dossier :
 
-```powershell
-param([string]$Path = ".")
+```bash
+#!/usr/bin/env bash
+path="${1:-.}"
 
-$Folders = Get-ChildItem -Path $Path -Directory -Recurse -ErrorAction SilentlyContinue
-$Files = Get-ChildItem -Path $Path -File -Recurse -ErrorAction SilentlyContinue
-$EmptyFolders = $Folders | Where-Object { (Get-ChildItem $_.FullName -Force -ErrorAction SilentlyContinue).Count -eq 0 }
+total_dirs=$(find "$path" -type d | wc -l)
+total_files=$(find "$path" -type f | wc -l)
+empty_dirs=$(find "$path" -type d -empty | wc -l)
 
 # Profondeur
-$BaseParts = ($Path -split '[\\/]').Count
-$Depths = $Files | ForEach-Object { ($_.FullName -split '[\\/]').Count - $BaseParts }
-$MaxDepth = ($Depths | Measure-Object -Maximum).Maximum
-$AvgDepth = [math]::Round(($Depths | Measure-Object -Average).Average, 1)
+base_parts=$(echo "$path" | awk -F'/' '{print NF}')
+max_depth=$(find "$path" -type f | awk -F'/' -v base="$base_parts" '{print NF - base}' | sort -n | tail -1)
+avg_depth=$(find "$path" -type f | awk -F'/' -v base="$base_parts" '{sum += NF - base; n++} END {printf "%.1f", sum/n}')
 
-# Fichiers par dossier
-$FilesPerFolder = $Folders | ForEach-Object {
-    @{ Name = $_.Name; Count = (Get-ChildItem $_.FullName -File -ErrorAction SilentlyContinue).Count }
-}
-$OverloadedFolders = $FilesPerFolder | Where-Object { $_.Count -gt 100 }
+# Dossiers avec trop de fichiers (>100)
+overloaded=$(find "$path" -mindepth 1 -maxdepth 1 -type d | while read -r dir; do
+  count=$(find "$dir" -maxdepth 1 -type f | wc -l)
+  [ "$count" -gt 100 ] && echo "$dir ($count fichiers)"
+done | wc -l)
 
-Write-Host ""
-Write-Host "╔══════════════════════════════════════════════╗"
-Write-Host "║     📁 ANALYSE STRUCTURE                      ║"
-Write-Host "╠══════════════════════════════════════════════╣"
-Write-Host "║                                              ║"
-Write-Host "║  Dossiers:           $($Folders.Count.ToString().PadLeft(6))              ║"
-Write-Host "║  Fichiers:           $($Files.Count.ToString().PadLeft(6))              ║"
-Write-Host "║  Profondeur max:     $($MaxDepth.ToString().PadLeft(6))              ║"
-Write-Host "║  Profondeur moyenne: $($AvgDepth.ToString().PadLeft(6))              ║"
-Write-Host "║  Dossiers vides:     $($EmptyFolders.Count.ToString().PadLeft(6))              ║"
-Write-Host "║  Dossiers surchargés:$($OverloadedFolders.Count.ToString().PadLeft(6)) (>100 fichiers) ║"
-Write-Host "║                                              ║"
+echo ""
+echo "╔══════════════════════════════════════════════╗"
+echo "║     ANALYSE STRUCTURE                        ║"
+echo "╠══════════════════════════════════════════════╣"
+echo "║                                              ║"
+printf "║  Dossiers:           %6d              ║\n" "$total_dirs"
+printf "║  Fichiers:           %6d              ║\n" "$total_files"
+printf "║  Profondeur max:     %6d              ║\n" "$max_depth"
+printf "║  Profondeur moyenne: %6s              ║\n" "$avg_depth"
+printf "║  Dossiers vides:     %6d              ║\n" "$empty_dirs"
+printf "║  Dossiers surcharges:%6d (>100 fich.)  ║\n" "$overloaded"
+echo "║                                              ║"
 
-if ($MaxDepth -gt 4) {
-    Write-Host "║  ⚠️ Profondeur > 4: considérer /file-flatten ║"
-}
-if ($EmptyFolders.Count -gt 0) {
-    Write-Host "║  ⚠️ Dossiers vides: considérer /file-empty   ║"
-}
-Write-Host "║                                              ║"
-Write-Host "╚══════════════════════════════════════════════╝"
+[ "$max_depth" -gt 4 ] && echo "║  Profondeur > 4: considerer /file-flatten    ║"
+[ "$empty_dirs" -gt 0 ] && echo "║  Dossiers vides: considerer /file-empty      ║"
+
+echo "║                                              ║"
+echo "╚══════════════════════════════════════════════╝"
 ```
 
 ### /file-structure apply [template]
 
-Appliquer une structure prédéfinie :
+Appliquer une structure predefinie :
 
 | Template | Description |
 |----------|-------------|
 | `personal` | Structure Documents personnels (PARA) |
-| `developer` | Structure projet développeur |
+| `developer` | Structure projet developpeur |
 | `business` | Structure entreprise |
-| `creative` | Structure créatif/designer |
+| `creative` | Structure creatif/designer |
 
-```powershell
-# Exemple: appliquer structure personal
-param([string]$BasePath, [string]$Template = "personal")
+```bash
+#!/usr/bin/env bash
+base_path="${1}"
+template="${2:-personal}"
 
-$structures = @{
-    "personal" = @(
-        "_INBOX",
-        "_ARCHIVE",
-        "Administratif\Banque",
-        "Administratif\Impots",
-        "Administratif\Assurances",
-        "Administratif\Factures",
-        "Projets",
-        "Travail",
-        "Personnel"
-    )
-    "developer" = @(
-        "01-Projects",
-        "02-Libraries",
-        "03-Scripts",
-        "04-Config",
-        "05-Archive"
-    )
-}
+declare -A structures
+structures[personal]="_INBOX _ARCHIVE Administratif/Banque Administratif/Impots Administratif/Assurances Administratif/Factures Projets Travail Personnel"
+structures[developer]="01-Projects 02-Libraries 03-Scripts 04-Config 05-Archive"
+structures[business]="Clients Projets Admin/Contrats Admin/Factures Resources Archive"
+structures[creative]="Clients Portfolio/2025 Portfolio/2026 Assets/Fonts Assets/Images Archive"
 
-$dirs = $structures[$Template]
-foreach ($dir in $dirs) {
-    $fullPath = Join-Path $BasePath $dir
-    if (-not (Test-Path $fullPath)) {
-        New-Item -Path $fullPath -ItemType Directory -Force | Out-Null
-        Write-Host "Created: $dir"
-    }
-}
+dirs="${structures[$template]}"
+
+for dir in $dirs; do
+  full_path="${base_path}/${dir}"
+  if [ ! -d "$full_path" ]; then
+    mkdir -p "$full_path"
+    echo "Cree: $dir"
+  fi
+done
 ```
 
 ## Options
@@ -108,4 +92,4 @@ foreach ($dir in $dirs) {
 |--------|-------------|
 | `analyze` | Analyser la structure existante |
 | `apply [template]` | Appliquer un template |
-| `--dry-run` | Simuler sans créer |
+| `--dry-run` | Simuler sans creer |

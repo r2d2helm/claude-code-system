@@ -12,33 +12,45 @@ Trouver les fichiers anciens ou obsoletes.
 
 ### Lister les fichiers anciens
 
-```powershell
-$Path = $args[0]
-$Days = 365  # Par defaut, fichiers > 1 an
+```bash
+#!/usr/bin/env bash
+path="${1}"
+days="${2:-365}"
 
-$OldFiles = Get-ChildItem -Path $Path -Recurse -File |
-    Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-$Days) } |
-    Sort-Object LastWriteTime
+echo "Fichiers non modifies depuis $days jours:"
 
-Write-Output "Fichiers non modifies depuis $Days jours: $($OldFiles.Count)"
-$TotalSize = ($OldFiles | Measure-Object -Property Length -Sum).Sum / 1MB
+total=0
+total_size=0
 
-$OldFiles | Select-Object -First 20 | ForEach-Object {
-    $Age = ((Get-Date) - $_.LastWriteTime).Days
-    "  [$Age j] $($_.Name) ($([math]::Round($_.Length / 1KB, 1)) KB)"
-}
+while IFS= read -r -d '' file; do
+  age=$(( ( $(date +%s) - $(stat -c %Y "$file") ) / 86400 ))
+  size=$(stat -c %s "$file")
+  size_kb=$(( size / 1024 ))
+  echo "  [$age j] $(basename "$file") (${size_kb} KB)"
+  total=$(( total + 1 ))
+  total_size=$(( total_size + size ))
+done < <(find "$path" -type f -mtime +"$days" -print0 2>/dev/null | head -z -20)
 
-Write-Output "`nTaille totale: $([math]::Round($TotalSize, 1)) MB"
+total_mb=$(( total_size / 1048576 ))
+echo "Total: $total fichiers | Taille: ${total_mb} MB"
 ```
 
 ### Archiver les anciens fichiers
 
-```powershell
-$ArchivePath = Join-Path $Path "_ARCHIVE\$(Get-Date -Format 'yyyy')"
-if (-not (Test-Path $ArchivePath)) { New-Item -ItemType Directory -Path $ArchivePath -Force }
+```bash
+#!/usr/bin/env bash
+path="${1}"
+days="${2:-365}"
+year=$(date +%Y)
+archive_path="${path}/_ARCHIVE/${year}"
 
-$OldFiles | Move-Item -Destination $ArchivePath
-Write-Output "Archives: $($OldFiles.Count) fichiers -> $ArchivePath"
+mkdir -p "$archive_path"
+
+find "$path" -maxdepth 1 -type f -mtime +"$days" -print0 | \
+  xargs -0 -I{} mv {} "$archive_path/"
+
+count=$(find "$archive_path" -type f | wc -l)
+echo "Archives: $count fichiers -> $archive_path"
 ```
 
 ## Options
@@ -52,10 +64,10 @@ Write-Output "Archives: $($OldFiles.Count) fichiers -> $ArchivePath"
 
 ## Exemples
 
-```powershell
-/file-old C:\Users\r2d2\Documents                  # >1 an
-/file-old C:\Users\r2d2\Downloads --days 90         # >3 mois
-/file-old C:\Users\r2d2\Documents --archive         # Archiver
+```bash
+/file-old ~/Documents                  # >1 an
+/file-old ~/Downloads --days 90        # >3 mois
+/file-old ~/Documents --archive        # Archiver
 ```
 
 ## Voir Aussi

@@ -12,52 +12,67 @@ Creer un miroir exact d'un dossier (copie parfaite, supprime les extras).
 
 ### Preview (dry-run)
 
-```powershell
-$Source = $args[0]
-$Dest = $args[1]
+```bash
+#!/usr/bin/env bash
+source="${1}"
+dest="${2}"
 
 # Simuler le miroir sans modifier
-$Output = robocopy $Source $Dest /MIR /XD ".git" "node_modules" "__pycache__" /L /NFL /NDL /NJH /NJS /FP
-$Lines = $Output -split "`n" | Where-Object { $_.Trim() }
+echo "PREVIEW miroir: $source -> $dest"
 
-# Compter les actions
-$New = ($Lines | Where-Object { $_ -match '^\s*New' }).Count
-$Extra = ($Lines | Where-Object { $_ -match '^\*EXTRA' }).Count
+new=$(rsync -avnc --delete \
+  --exclude='.git' \
+  --exclude='node_modules' \
+  --exclude='__pycache__' \
+  "$source/" "$dest/" 2>/dev/null | grep '^>' | wc -l)
 
-Write-Output "PREVIEW miroir: $Source -> $Dest"
-Write-Output "  Fichiers a copier: $New"
-Write-Output "  Fichiers a supprimer (extras): $Extra"
-Write-Output ""
-Write-Output "Utiliser --confirm pour executer"
+deleted=$(rsync -avnc --delete \
+  --exclude='.git' \
+  --exclude='node_modules' \
+  "$source/" "$dest/" 2>/dev/null | grep '^*deleting' | wc -l)
+
+echo "  Fichiers a copier: $new"
+echo "  Fichiers a supprimer (extras): $deleted"
+echo ""
+echo "Utiliser --confirm pour executer"
 ```
 
 ### Miroir exact
 
-```powershell
-$Source = $args[0]
-$Dest = $args[1]
+```bash
+#!/usr/bin/env bash
+source="${1}"
+dest="${2}"
 
-if (-not (Test-Path $Dest)) { New-Item -ItemType Directory -Path $Dest -Force | Out-Null }
+mkdir -p "$dest"
 
-robocopy $Source $Dest /MIR /XD ".git" "node_modules" "__pycache__" ".venv" /XF "*.tmp" "Thumbs.db" /NFL /NDL /NJH /NJS /R:2 /W:1
+rsync -av --delete \
+  --exclude='.git' \
+  --exclude='node_modules' \
+  --exclude='__pycache__' \
+  --exclude='.venv' \
+  --exclude='*.tmp' \
+  "$source/" "$dest/"
 
-Write-Output "Miroir termine: $Source -> $Dest"
+echo "Miroir termine: $source -> $dest"
 ```
 
 ### Miroir avec exclusions
 
-```powershell
-$Source = $args[0]
-$Dest = $args[1]
-$ExcludeDirs = @(".git", "node_modules", "__pycache__", ".venv", "bin", "obj")
-$ExcludeFiles = @("*.tmp", "*.log", "*.bak", "Thumbs.db", "desktop.ini")
+```bash
+#!/usr/bin/env bash
+source="${1}"
+dest="${2}"
 
-$XD = $ExcludeDirs | ForEach-Object { "/XD `"$_`"" }
-$XF = $ExcludeFiles | ForEach-Object { "/XF `"$_`"" }
+exclude_dirs=('.git' 'node_modules' '__pycache__' '.venv' '.tox')
+exclude_files=('*.tmp' '*.log' '*.bak')
 
-robocopy $Source $Dest /MIR $XD $XF /NFL /NDL /NJH /NJS /R:2 /W:1
+rsync_args=(-av --delete)
+for d in "${exclude_dirs[@]}"; do rsync_args+=(--exclude="$d/"); done
+for f in "${exclude_files[@]}"; do rsync_args+=(--exclude="$f"); done
 
-Write-Output "Miroir (avec exclusions): $Source -> $Dest"
+rsync "${rsync_args[@]}" "$source/" "$dest/"
+echo "Miroir (avec exclusions): $source -> $dest"
 ```
 
 ## Options
@@ -71,10 +86,10 @@ Write-Output "Miroir (avec exclusions): $Source -> $Dest"
 
 ## Exemples
 
-```powershell
-/file-mirror C:\Projets D:\Mirror\Projets --preview   # Preview
-/file-mirror C:\Projets D:\Mirror\Projets --confirm    # Executer
-/file-mirror C:\Data D:\Mirror --exclude "*.log"       # Avec exclusions
+```bash
+/file-mirror ~/Projets /mnt/mirror/Projets --preview   # Preview
+/file-mirror ~/Projets /mnt/mirror/Projets --confirm    # Executer
+/file-mirror ~/Data /mnt/mirror --exclude "*.log"       # Avec exclusions
 ```
 
 ## Voir Aussi

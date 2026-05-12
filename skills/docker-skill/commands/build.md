@@ -39,8 +39,22 @@ docker buildx build --platform linux/amd64,linux/arm64 -t <name>:<tag> .
 
 ## Exemples
 
+Build simple avec tag :
 ```bash
-/dk-build                                # Build avec Dockerfile local
-/dk-build -t myapp:v2 --no-cache         # Build sans cache
-/dk-build -f Dockerfile.prod -t app:prod # Dockerfile custom
+docker build -t myapp:latest .
+```
+
+Build d'un stage specifique (multi-stage) :
+```bash
+docker build --target builder -t myapp:build .
+```
+
+Rebuild complet sans cache :
+```bash
+docker build --no-cache -t myapp:latest .
+```
+
+Build avec variables d'environnement :
+```bash
+docker build --build-arg NODE_ENV=production --build-arg VERSION=2.1.0 -t myapp:prod .
 ```

@@ -18,17 +18,16 @@ Affiche ou modifie la configuration du Knowledge Watcher.
 
 Affiche la configuration actuelle:
 
-```powershell
-$SkillPath = "$env:USERPROFILE\.claude\skills\knowledge-watcher-skill"
-$config = Get-Content "$SkillPath\config\config.json" | ConvertFrom-Json
-$config | ConvertTo-Json -Depth 5
+```bash
+SKILL_PATH="$HOME/.claude/skills/knowledge-watcher-skill"
+cat "$SKILL_PATH/config/config.json" | jq .
 ```
 
 ### /kwatch-config edit
 
 Ouvre le fichier de configuration pour édition.
 
-Chemin: `~\.claude\skills\knowledge-watcher-skill\config\config.json`
+Chemin: `~/.claude/skills/knowledge-watcher-skill/config/config.json`
 
 ### /kwatch-config reset
 
@@ -47,11 +46,11 @@ Réinitialise la configuration par défaut.
 ```json
 {
   "paths": {
-    "obsidianVault": "C:\\Users\\r2d2\\Documents\\Knowledge",
-    "claudeCli": "C:\\Users\\r2d2\\.local\\bin\\claude.exe",
-    "queueFile": "...\\data\\queue.json",
-    "stateFile": "...\\data\\state.json",
-    "logDir": "...\\data\\logs"
+    "obsidianVault": "~/Documents/Knowledge",
+    "claudeCli": "~/.local/bin/claude",
+    "queueFile": ".../data/queue.json",
+    "stateFile": ".../data/state.json",
+    "logDir": ".../data/logs"
   },
   "processing": {
     "claudeTimeout": 30000,
@@ -96,7 +95,7 @@ Exemple d'ajout d'une source:
   "tier": 2,
   "type": "directory",
   "enabled": true,
-  "path": "C:\\Users\\r2d2\\MyFolder",
+  "path": "~/MyFolder",
   "patterns": ["*.md", "*.txt"],
   "recursive": true,
   "processor": "GenericFileSource"

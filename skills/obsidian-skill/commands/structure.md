@@ -12,39 +12,36 @@ Analyser la structure des dossiers du vault Obsidian.
 
 ### Analyse de la structure
 
-```powershell
-$VaultPath = "$env:USERPROFILE\Documents\Knowledge"
+```bash
+VAULT="${KNOWLEDGE_VAULT_PATH:-$HOME/Documents/Knowledge}"
 
 # Stats par dossier
-$Folders = Get-ChildItem -Path $VaultPath -Directory -Recurse |
-    Where-Object { $_.FullName -notmatch '\.obsidian|\.git' }
-
-foreach ($Folder in $Folders) {
-    $Files = Get-ChildItem -Path $Folder.FullName -Filter "*.md" -File
-    $RelPath = $Folder.FullName.Replace($VaultPath, '').TrimStart('\')
-    $Depth = ($RelPath -split '\\').Count
-    [PSCustomObject]@{
-        Dossier = $RelPath
-        Notes = $Files.Count
-        Profondeur = $Depth
-    }
-} | Sort-Object Notes -Descending | Format-Table -AutoSize
+find "$VAULT" -type d | grep -vE '\.obsidian|\.git' | while IFS= read -r folder; do
+    rel="${folder#$VAULT/}"
+    [ "$rel" = "$folder" ] && rel="."
+    file_count=$(find "$folder" -maxdepth 1 -name "*.md" -type f | wc -l)
+    depth=$(echo "$rel" | tr -cd '/' | wc -c)
+    printf "%d\t%s\t%d\n" "$file_count" "$rel" "$depth"
+done | sort -rn | awk '{printf "%-40s %4d notes  profondeur: %d\n", $2, $1, $3}' | column -t
 
 # Profondeur maximale
-$MaxDepth = ($Folders | ForEach-Object {
-    ($_.FullName.Replace($VaultPath, '').TrimStart('\') -split '\\').Count
-} | Measure-Object -Maximum).Maximum
+max_depth=$(find "$VAULT" -type d | grep -vE '\.obsidian|\.git' | while IFS= read -r d; do
+    rel="${d#$VAULT/}"
+    echo "$rel" | tr -cd '/' | wc -c
+done | sort -rn | head -1)
 
-Write-Output "`nProfondeur max: $MaxDepth niveaux"
-Write-Output "Total dossiers: $($Folders.Count)"
+echo ""
+echo "Profondeur max: $max_depth niveaux"
+echo "Total dossiers: $(find "$VAULT" -type d | grep -vE '\.obsidian|\.git' | wc -l)"
 
 # Alertes
-$Deep = $Folders | Where-Object {
-    ($_.FullName.Replace($VaultPath, '').TrimStart('\') -split '\\').Count -gt 3
-}
-if ($Deep.Count -gt 0) {
-    Write-Warning "$($Deep.Count) dossiers avec profondeur > 3"
-}
+deep_count=$(find "$VAULT" -type d | grep -vE '\.obsidian|\.git' | while IFS= read -r d; do
+    rel="${d#$VAULT/}"
+    depth=$(echo "$rel" | tr -cd '/' | wc -c)
+    [ "$depth" -gt 3 ] && echo "$d"
+done | wc -l)
+
+[ "$deep_count" -gt 0 ] && echo "ALERTE: $deep_count dossiers avec profondeur > 3"
 ```
 
 ## Options
@@ -57,7 +54,7 @@ if ($Deep.Count -gt 0) {
 
 ## Exemples
 
-```powershell
+```bash
 /obs-structure                # Analyse complete
 /obs-structure --tree         # Vue en arbre
 /obs-structure --empty        # Dossiers vides
